@@ -1,0 +1,33 @@
+<html>
+    <head>
+        <title>Deadname Remover Options</title>
+        <script src="main.js" defer></script>
+    </head>
+    <style>
+        .hide {
+            display: none;
+        }
+    </style>
+    <body>
+        <h1>Deadname Remover Options</h1>
+        <h2>Your Name</h2>
+        First: <input type="text" id="txtFirstName"/><br/>
+        Middle: <input type="text" id="txtMidName"/><br/>
+        Last: <input type="text" id="txtLastName"/><br/>
+        <h2>Your Deadname</h2>
+        <input type="button" id="btnToggleDeadnames" value="Show/Hide"/>
+        <div class="hide" id="deadnames">
+            First: <input type="text" id="txtFirstDeadname"/><br/>
+            Middle: <input type="text" id="txtMidDeadname"/><br/>
+            Last: <input type="text" id="txtLastDeadname"/><br/>
+        </div>
+        <h2>Update Frequency</h2>
+        How often the plugin will update a webpage in milliseconds. If you're seeing a deadname for longer than you'd like before it updates, lower these numbers.<br/>
+        While loading: <input type="text" id="txtUpdateLoading"/><br/>
+        After loading: <input type="txt" id="txtUpdateLoaded"/><br/>
+        <p>
+            <input type="button" id="btnSave" value="Save"/>
+        </p>
+        <a href="https://github.com/WilliamHayward/Deadname-Remover/issues/new">Report a bug or suggest a feature</a>
+    </body>
+</html>
