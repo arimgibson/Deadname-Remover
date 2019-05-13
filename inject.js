@@ -5,7 +5,7 @@ var loaded = false;
 var loadingIntervalFrequency = null;
 var loadedIntervalFrequency = null;
 
-chrome.extension.sendMessage({}, function(response) {
+chrome.runtime.sendMessage({}, function(response) {
 	if (name === null || deadname === null) {
 		loadNames();
 	} else {
