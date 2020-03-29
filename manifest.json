@@ -1,9 +1,10 @@
 {
   "name": "Deadname Remover",
-  "version": "1.0.0",
+
+  "version": "1.1.0",
   "manifest_version": 2,
   "description": "An easy to use Google Chrome plugin to automatically remove and replace deadnames",
-  "homepage_url": "https://github.com/WilliamHayward/Deadname-Remover",
+  "homepage_url": "https://github.com/WillHayCode/Deadname-Remover",
   "icons": {
     "16": "icons/icon16.png",
     "48": "icons/icon48.png",
@@ -40,7 +41,6 @@
   ],
   "browser_specific_settings": {
     "gecko": {
-      "id": "{bb3b0375-8e38-4d0c-8760-3dc452503e25}",
       "strict_min_version": "57.0"
     }
   }
