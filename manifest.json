@@ -16,7 +16,10 @@
     ],
     "persistent": false
   },
-  "options_page": "options/index.html",
+  "options_ui": {
+    "open_in_tab": true,
+    "page": "options/index.html"
+  },
   "browser_action": {
     "default_icon": "icons/icon19.png",
     "default_title": "Deadname Remover Options"
@@ -34,5 +37,11 @@
         "inject.js"
       ]
     }
-  ]
+  ],
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "{bb3b0375-8e38-4d0c-8760-3dc452503e25}",
+      "strict_min_version": "57.0"
+    }
+  }
 }
