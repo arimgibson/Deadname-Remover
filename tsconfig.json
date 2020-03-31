@@ -1,0 +1,13 @@
+{
+  "files": [
+    "src/inject.ts",
+    "src/background.ts"
+  ],
+  "compilerOptions": {
+    "outDir": "./",
+    "alwaysStrict": true
+  },
+  "types": [
+    "chrome"
+  ]
+}
