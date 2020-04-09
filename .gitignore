@@ -1,5 +1,7 @@
+.tscache/
 */.DS_Store
 node_modules/
 build/
 dist/
 old/
+todo
