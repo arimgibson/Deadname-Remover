@@ -1,10 +1,13 @@
 {
-  "files": [
-    "src/inject.ts",
-    "src/background.ts"
+  "include": [
+    "**/*.ts"
+  ],
+  "exclude": [
+    "node_modules"
   ],
   "compilerOptions": {
-    "outDir": "./",
+    "rootDir": "./src",
+    "outDir": "build",
     "alwaysStrict": true
   },
   "types": [

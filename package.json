@@ -1,8 +1,8 @@
 {
   "name": "deadname-remover",
   "version": "1.1.0",
-  "description": "An easy to use Google Chrome plugin to automatically remove and replace deadnames",
-  "main": "inject.js",
+  "description": "An easy to use browser plugin to automatically remove and replace deadnames",
+  "private": true,
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -25,6 +25,14 @@
   },
   "homepage": "https://github.com/WillHayCode/Deadname-Remover#readme",
   "devDependencies": {
-    "@types/chrome": "0.0.103"
+    "@types/chrome": "0.0.103",
+    "grunt": "^1.1.0",
+    "grunt-cli": "^1.3.2",
+    "grunt-contrib-copy": "^1.0.0",
+    "grunt-ts": "^6.0.0-beta.22",
+    "grunt-webpack": "^3.1.3",
+    "typescript": "^3.8.3",
+    "webpack": "^4.42.1",
+    "webpack-cli": "^3.3.11"
   }
 }
