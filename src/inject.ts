@@ -5,7 +5,7 @@ var loaded = false;
 var loadingIntervalFrequency = null;
 var loadedIntervalFrequency = null;
 
-chrome.runtime.sendMessage({}, function() {  
+chrome.runtime.sendMessage({}, function() {
 	if (name === null || deadname === null) {
 		loadNames();
 	} else {
@@ -63,7 +63,7 @@ function changeContent() {
 };
 
 function replaceName(old: string, replacement: string) {
-	const dead = new RegExp(old, "gi");
+	const dead = new RegExp("\\b" + old + "\\b", "gi");
 	document.title = document.title.replace(dead, replacement);
 
 	var elements = document.body.getElementsByTagName("*");
@@ -75,7 +75,7 @@ function replaceName(old: string, replacement: string) {
 			if (child.nodeType === 3) {
 				const text = child.nodeValue;
 				const newText = text.replace(dead, replacement);
-	
+
 				if (newText !== text) {
 					element.replaceChild(document.createTextNode(newText), child);
 				}
