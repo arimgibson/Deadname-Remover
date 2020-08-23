@@ -8,3 +8,20 @@
   last: string
  }
 
+ export type UserSettings = {
+  name: Name,
+  deadname: Name,
+ }
+
+ export const DEFAULT_SETTINGS: UserSettings = {
+  name: {
+      first: '',
+      middle: '',
+      last: ''
+  },
+  deadname: {
+      first: '',
+      middle: '',
+      last: ''
+  }
+}

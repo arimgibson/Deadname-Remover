@@ -4,7 +4,7 @@
   "description": "An easy to use browser plugin to automatically remove and replace deadnames",
   "private": true,
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build": "grunt"
   },
   "repository": {
     "type": "git",

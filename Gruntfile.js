@@ -23,6 +23,10 @@ module.exports = function(grunt) {
           {
             src: 'html/options.html',
             dest: 'dist/options/index.html'
+          },
+          {
+            src: 'html/options.css',
+            dest: 'dist/options/options.css'
           }
         ]
       }

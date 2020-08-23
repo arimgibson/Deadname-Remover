@@ -12,11 +12,9 @@ chrome.runtime.onMessage.addListener(
 });
 
 chrome.runtime.onInstalled.addListener(function () {
-    chrome.runtime.openOptionsPage(/*callback*/)
+    chrome.runtime.openOptionsPage();
 });
 
-  // Called when the user clicks on the browser action icon.
 chrome.browserAction.onClicked.addListener(function() {
-    chrome.runtime.openOptionsPage(/*callback*/)
-    //openOrFocusOptionsPage();
+    chrome.runtime.openOptionsPage();
 });

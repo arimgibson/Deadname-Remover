@@ -3,7 +3,8 @@ const inject = {
   output: {
     filename: './inject.js',
     path: __dirname + '/dist'
-  }
+  },
+  mode: 'production',
 }
 
 const background = {
@@ -11,7 +12,8 @@ const background = {
   output: {
     filename: './background.js',
     path: __dirname + '/dist'
-  }
+  },
+  mode: 'production',
 }
 
 const options = {
@@ -19,7 +21,8 @@ const options = {
   output: {
     filename: './main.js',
     path: __dirname + '/dist/options'
-  }
+  },
+  mode: 'production',
 }
 
 module.exports = [inject, background, options];
