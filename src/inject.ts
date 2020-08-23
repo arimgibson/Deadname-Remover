@@ -4,17 +4,26 @@ let alivename = null;
 let deadname = null;
 let loaded = false;
 
-chrome.runtime.sendMessage({}, function() {
-	if (name === null || deadname === null) {
-		loadNames();
-	} else {
-		changeContent();
-	}
+function start() {
+	let disabled = false;
+	chrome.storage.sync.get(DEFAULT_SETTINGS, (sync: UserSettings) => {
+		if (sync.enabled == false) {
+			disabled = true;
+		}
+		if (disabled) {
+			return;
+		}
+		if (name === null || deadname === null) {
+			loadNames();
+		} else {
+			changeContent();
+		}
 
-	if (!loaded && document.readyState === "complete") {
-		loaded = true;
-	}
-});
+		if (!loaded && document.readyState === "complete") {
+			loaded = true;
+		}
+	});
+}
 
 function loadNames() {
 	chrome.storage.sync.get(DEFAULT_SETTINGS, function(sync: UserSettings) {
@@ -31,14 +40,14 @@ function changeContent() {
 		alivename.last.length !== 0 && deadname.last.length !== 0) {
 			const fullAlive = alivename.first + ' ' + alivename.middle + ' ' + alivename.last;
 			const fullDead = deadname.first + ' ' + deadname.middle + ' ' + deadname.last;
-			replaceName(fullDead, fullAlive);
+			replaceName(fullDead, fullAlive, true);
 	}
 	if (alivename.first.length !== 0 && deadname.first.length !== 0) {
-		replaceName(deadname.first, alivename.first);
+		replaceName(deadname.first, alivename.first, true);
 	}
 
 	if (alivename.last.length !== 0 && deadname.last.length !== 0) {
-		replaceName(deadname.last, alivename.last);
+		replaceName(deadname.last, alivename.last, true);
 	}
 };
 
@@ -66,7 +75,7 @@ function setupListener(dead: RegExp, replacement: string) {
 }
 
 
-function replaceName(old: string, replacement: string) {
+function replaceName(old: string, replacement: string, shouldListen: boolean) {
 	const dead = new RegExp("\\b" + old + "\\b", "gi");
 	document.title = document.title.replace(dead, replacement);
 
@@ -78,5 +87,7 @@ function replaceName(old: string, replacement: string) {
 			checkNodeForReplacement(children[n], dead, replacement);
 		}
 	};
-	setupListener(dead, replacement);
+	shouldListen && setupListener(dead, replacement);
 }
+
+start();

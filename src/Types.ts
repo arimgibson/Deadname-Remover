@@ -11,6 +11,7 @@
  export type UserSettings = {
   name: Name,
   deadname: Name,
+  enabled: boolean
  }
 
  export const DEFAULT_SETTINGS: UserSettings = {
@@ -23,5 +24,6 @@
       first: '',
       middle: '',
       last: ''
-  }
+  },
+  enabled: true
 }
