@@ -1,5 +1,5 @@
 import { UserSettings, DEFAULT_SETTINGS } from "./Types";
-import { throttle, addDOMReadyListener, isDOMReady } from "./dom";
+import { addDOMReadyListener, isDOMReady } from "./dom";
 
 let alivename = null;
 let deadname = null;
@@ -56,17 +56,15 @@ function changeContent() {
 };
 
 function checkNodeForReplacement(node: Node, dead: RegExp[], replacement: string[]) {
-    throttle(() => {
-        if (node.nodeType === 3) {
-            for (let i = 0, len = dead.length; i < len; i++) {
-                  const text = node.nodeValue;
-                  const newText = text.replace(dead[i], replacement[i]);
-                  if (newText !== text) {
-                    node.parentElement.replaceChild(document.createTextNode(newText), node);
-                  }
+    if (node.nodeType === 3) {
+        for (let i = 0, len = dead.length; i < len; i++) {
+            const text = node.nodeValue;
+            const newText = text.replace(dead[i], replacement[i]);
+            if (newText !== text) {
+                node.parentElement.replaceChild(document.createTextNode(newText), node);
             }
         }
-    });
+    }
 }
 
 function setupListener(dead: RegExp[], replacement: string[]) {
