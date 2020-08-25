@@ -8,7 +8,11 @@
   "compilerOptions": {
     "rootDir": "./src",
     "outDir": "build",
-    "alwaysStrict": true
+    "alwaysStrict": true,
+    "lib": [
+      "es2015",
+      "dom"
+    ]
   },
   "types": [
     "chrome"
