@@ -35,34 +35,43 @@ function loadNames() {
 }
 
 function changeContent() {
+  const alivenames = [];
+  const deadnames = [];
 	if (alivename.first.length !== 0 && deadname.first.length !== 0 &&
 		alivename.middle.length !== 0 && deadname.middle.length !== 0 &&
 		alivename.last.length !== 0 && deadname.last.length !== 0) {
 			const fullAlive = alivename.first + ' ' + alivename.middle + ' ' + alivename.last;
 			const fullDead = deadname.first + ' ' + deadname.middle + ' ' + deadname.last;
-			replaceName(fullDead, fullAlive, true);
+      alivenames.push(fullAlive);
+      deadnames.push(fullDead);
 	}
 	if (alivename.first.length !== 0 && deadname.first.length !== 0) {
-		replaceName(deadname.first, alivename.first, true);
+    alivenames.push(alivename.first);
+    deadnames.push(deadname.first);
 	}
 
 	if (alivename.last.length !== 0 && deadname.last.length !== 0) {
-		replaceName(deadname.last, alivename.last, true);
+    alivenames.push(alivename.last);
+    deadnames.push(deadname.last);
 	}
+
+  replaceNames(deadnames, alivenames);
 };
 
-function checkNodeForReplacement(node: Node, dead: RegExp, replacement: string) {
+function checkNodeForReplacement(node: Node, dead: RegExp[], replacement: string[]) {
 	if (node.nodeType === 3) {
-		const text = node.nodeValue;
-		const newText = text.replace(dead, replacement);
+    for (let i = 0; i < dead.length; i++) {
+      const text = node.nodeValue;
+      const newText = text.replace(dead[i], replacement[i]);
 
-		if (newText !== text) {
-			node.parentElement.replaceChild(document.createTextNode(newText), node);
-		}
+      if (newText !== text) {
+        node.parentElement.replaceChild(document.createTextNode(newText), node);
+      }
+    }
 	}
 }
 
-function setupListener(dead: RegExp, replacement: string) {
+function setupListener(dead: RegExp[], replacement: string[]) {
 	const observer = new MutationObserver((mutations: Array<MutationRecord>) => {
 		for (let i = 0, len = mutations.length; i < len; i++) {
 			const mutation: MutationRecord = mutations[i];
@@ -75,9 +84,15 @@ function setupListener(dead: RegExp, replacement: string) {
 }
 
 
-function replaceName(old: string, replacement: string, shouldListen: boolean) {
-	const dead = new RegExp("\\b" + old + "\\b", "gi");
-	document.title = document.title.replace(dead, replacement);
+function replaceNames(old: string[], replacement: string[]) {
+  const dead = [];
+  for (let i = 0; i < old.length; i++) {
+    dead.push(new RegExp("\\b" + old[i] + "\\b", "gi"));
+  }
+
+  for (let i = 0; i < dead.length; i++) {
+    document.title = document.title.replace(dead[i], replacement[i]);
+  }
 
 	var elements = document.body.getElementsByTagName("*");
 	for (let i = 0, len = elements.length; i < len; i++) {
@@ -87,7 +102,7 @@ function replaceName(old: string, replacement: string, shouldListen: boolean) {
 			checkNodeForReplacement(children[n], dead, replacement);
 		}
 	};
-	shouldListen && setupListener(dead, replacement);
+	setupListener(dead, replacement);
 }
 
 start();
