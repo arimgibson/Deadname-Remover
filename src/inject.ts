@@ -63,7 +63,7 @@ function checkNodeForReplacement(node: Node, dead: RegExp[], replacement: string
             const text = node.nodeValue;
             const newText = text.replace(dead[i], replacement[i]);
             if (newText !== text) {
-                node.parentElement.replaceChild(document.createTextNode(newText), node);
+                node.parentElement && node.parentElement.replaceChild(document.createTextNode(newText), node);
             }
         }
     } else {
