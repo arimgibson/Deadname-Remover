@@ -59,7 +59,6 @@ function changeContent() {
 
 function checkNodeForReplacement(node: Node, dead: RegExp[], replacement: string[]) {
     if (node.nodeType === 3) {
-        console.log(node);
         for (let i = 0, len = dead.length; i < len; i++) {
             const text = node.nodeValue;
             const newText = text.replace(dead[i], replacement[i]);
