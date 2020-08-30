@@ -1,7 +1,7 @@
 {
   "name": "Deadname Remover",
 
-  "version": "1.1.0",
+  "version": "1.2.0",
   "manifest_version": 2,
   "description": "An easy to use Google Chrome plugin to automatically remove and replace deadnames",
   "homepage_url": "https://github.com/WillHayCode/Deadname-Remover",
