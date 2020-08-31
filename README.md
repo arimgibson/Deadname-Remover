@@ -1,6 +1,9 @@
 # Dead-Name-Remover
 An easy to use browser plugin to automatically replace dead names with prefered names.
 
+[![Chrome](readme_files/chrome.svg "Chrome")](https://chrome.google.com/webstore/detail/deadname-remover/cceilgmnkeijahkehfcgfalepihfbcag)
+[![Firefox](readme_files/firefox.svg "Firefox")](https://addons.mozilla.org/en-US/firefox/addon/deadname-remover/)
+
 # Build Instructions
 
 Requirements:
