@@ -26,4 +26,3 @@ const options = {
 }
 
 module.exports = [inject, background, options];
-
