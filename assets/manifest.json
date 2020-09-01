@@ -1,7 +1,7 @@
 {
   "name": "Deadname Remover",
 
-  "version": "1.2.0",
+  "version": "1.2.1",
   "manifest_version": 2,
   "description": "An easy to use Google Chrome plugin to automatically remove and replace deadnames",
   "homepage_url": "https://github.com/WillHayCode/Deadname-Remover",
@@ -16,10 +16,14 @@
     ],
     "persistent": false
   },
+ "options_ui": {
+    "open_in_tab": true,
+    "page": "options/options.html"
+  },
   "browser_action": {
     "default_icon": "icons/icon19.png",
      "default_title": "Deadname Remover Options",
-     "default_popup": "options/index.html"
+     "default_popup": "options/popup.html"
   },
   "permissions": [
     "storage",

@@ -9,14 +9,11 @@ let loadSettings = () => {
         (document.getElementById('txtFirstDeadname') as HTMLInputElement).value = sync.deadname.first;
         (document.getElementById('txtMidDeadname') as HTMLInputElement).value = sync.deadname.middle;
         (document.getElementById('txtLastDeadname') as HTMLInputElement).value = sync.deadname.last;
-        (document.querySelector('.OnOff') as HTMLInputElement).checked = sync.enabled;
         return;
     });
 };
 
 document.addEventListener('DOMContentLoaded', loadSettings);
-
-
 
 let saveSettings = () => {
     const name: Name = {
@@ -31,12 +28,9 @@ let saveSettings = () => {
         last: (document.getElementById('txtLastDeadname') as HTMLInputElement).value.trim()
     }
 
-    const OnOff = (document.querySelector('.OnOff') as HTMLInputElement).checked;
-
-    const settings: UserSettings = {
+    const settings: Partial<UserSettings> = {
         name: name,
-        deadname: deadname,
-        enabled: OnOff,
+        deadname: deadname
     };
 
     chrome.storage.sync.set(settings);
@@ -59,12 +53,3 @@ for (let i = 0, len = coll.length; i < len; i++) {
     } 
   });
 }
-
-const toggle = document.querySelector('.OnOff') as HTMLInputElement;
-toggle.addEventListener('click', () => {
-    if (toggle.checked) {
-        chrome.storage.sync.set({enabled: false});
-    } else {
-        chrome.storage.sync.set({enabled: true});
-    }
-})

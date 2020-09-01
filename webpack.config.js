@@ -19,10 +19,19 @@ const background = {
 const options = {
   entry: './build/options.js',
   output: {
-    filename: './main.js',
+    filename: './options.js',
     path: __dirname + '/dist/options'
   },
   mode: 'production',
 }
 
-module.exports = [inject, background, options];
+const popup = {
+  entry: './build/popup.js',
+  output: {
+    filename: './popup.js',
+    path: __dirname + '/dist/options'
+  },
+  mode: 'production',
+}
+
+module.exports = [inject, background, options, popup];

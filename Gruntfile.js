@@ -21,12 +21,10 @@ module.exports = function(grunt) {
             dest: 'dist/'
           },
           {
-            src: 'html/options.html',
-            dest: 'dist/options/index.html'
-          },
-          {
-            src: 'html/options.css',
-            dest: 'dist/options/options.css'
+            expand: true,
+            cwd: 'html/',
+            src: '**',
+            dest: 'dist/options/'
           }
         ]
       }
