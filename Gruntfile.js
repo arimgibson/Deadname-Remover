@@ -1,4 +1,5 @@
-const webpackConfig = require('./webpack.config');
+const webpackConfigProd = require('./webpack.config.prod');
+const webpackConfigDev = require('./webpack.config.dev');
 
 module.exports = function(grunt) {
   // Project configuration
@@ -9,7 +10,8 @@ module.exports = function(grunt) {
       }
     },
     webpack: {
-      prod: webpackConfig
+      prod: webpackConfigProd,
+      dev: webpackConfigDev
     },
     copy: {
       default: {
@@ -35,5 +37,6 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks("grunt-webpack");
   grunt.loadNpmTasks("grunt-contrib-copy");
 
-  grunt.registerTask("default", ["ts", "webpack", "copy"]);
+  grunt.registerTask("default", ["ts", "webpack:dev", "copy"]);
+  grunt.registerTask("production", ["ts", "webpack:prod", "copy"]);
 };
