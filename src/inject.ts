@@ -4,33 +4,22 @@ import { addDOMReadyListener, isDOMReady } from "./dom";
 let alivename = null;
 let deadname = null;
 
-function start() {
-    // Some wacky hack to get a click-able link to the inject.js source code in Firefox that don't load side-loaded add-ons in Files.
+export function start(settings: UserSettings = DEFAULT_SETTINGS) {
     console.log('Starting.');
-    let disabled = false;
-    chrome.storage.sync.get(DEFAULT_SETTINGS, (sync: UserSettings) => {
-        if (sync.enabled == false) {
-            disabled = true;
-        }
-        if (disabled) {
-            return;
-        }
-        if (name === null || deadname === null) {
-            loadNames();
-        } else {
-            changeContent();
-        }
-
-    });
+    if (!settings.enabled) {
+        return;
+    }
+    if (alivename === null || deadname === null) {
+        loadNames(settings);
+    } else {
+        changeContent();
+    }
 }
 
-function loadNames() {
-    chrome.storage.sync.get(DEFAULT_SETTINGS, function(sync: UserSettings) {
-        alivename = sync.name;
-        deadname = sync.deadname;
-        changeContent();
-        return;
-    });
+function loadNames(settings: UserSettings) {
+    alivename = settings.name;
+    deadname = settings.deadname;
+    changeContent();
 }
 
 function changeContent() {
@@ -120,5 +109,3 @@ function replaceNames(old: string[], replacement: string[]) {
         checkElementForTextNodes(dead, replacement);
     }
 }
-
-start();

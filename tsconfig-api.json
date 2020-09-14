@@ -8,15 +8,12 @@
   "compilerOptions": {
     "rootDir": "./src",
     "outDir": "build",
-    "target": "ESNext",
+    "target": "ES5",
     "alwaysStrict": true,
     "lib": [
       "ES2015",
       "ES2017",
       "DOM"
     ]
-  },
-  "types": [
-    "chrome"
-  ]
+  }
 }

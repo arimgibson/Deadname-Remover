@@ -1,6 +1,6 @@
 const main = {
   entry: {
-    inject: './build/inject.js',
+    inject: './build/index.js',
     background: './build/background.js'
   },
   output: {
