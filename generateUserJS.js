@@ -4,14 +4,11 @@ const types = require('./build/Types');
 
 const fileData = fs.readFileSync('build\\api.js', {encoding: 'utf8'});
 let settings = JSON.stringify(types.DEFAULT_SETTINGS, null, '\t').split('\n')
-
 for (let x = 0, len = settings.length; x < len; x++) {
-    settings[x] = settings[x].replace(/.+?(?=\:)/g, (m$) => {
-        console.log(m$);
-        return m$.replace(/\"/g, '');
-    });
+    settings[x] = `\t${settings[x].replace(/.+?(?=\:)/g, (m$) => {
+        return m$.replace(/\"/g, '')
+    })}`;
 }
-
 const data = [
     '// ==UserScript==',
     '// @name         Deadname-Remover',
