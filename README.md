@@ -3,7 +3,7 @@ An easy to use browser plugin to automatically replace dead names with prefered 
 
 Visit [Chrome Web Store](https://chrome.google.com/webstore/detail/deadname-remover/cceilgmnkeijahkehfcgfalepihfbcag/) and [Firefox Add-ons](https://addons.mozilla.org/en-US/firefox/addon/deadname-remover/) for more info.
 
-If you somehow can't(due to disabling lgbt related extension) install the extension, but can install greasemonkey/tampermonkey, you could install it by clicking [here](https://github.com/WillHayCode/Deadname-Remover/blob/master/deadname-remover.user.js)
+If you somehow can't(due to disabling lgbt related extension) install the extension, but can install greasemonkey/tampermonkey, you could install it by clicking [here](https://github.com/WillHayCode/Deadname-Remover/raw/master/deadname-remover.user.js)
 
 # Build Instructions
 
