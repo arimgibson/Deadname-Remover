@@ -6,7 +6,7 @@
     "node_modules"
   ],
   "compilerOptions": {
-    "rootDir": "./src",
+    "rootDir": "./",
     "outDir": "build",
     "target": "ES5",
     "alwaysStrict": true,

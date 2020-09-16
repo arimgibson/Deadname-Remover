@@ -4,7 +4,7 @@
   "description": "An easy to use browser plugin to automatically remove and replace deadnames",
   "private": true,
   "scripts": {
-    "api": "grunt api && node generateUserJS.js",
+    "api": "grunt api && node tasks\\generateUserJS.js",
     "debug": "grunt default",
     "production": "grunt production"
   },
