@@ -5,6 +5,7 @@
   "private": true,
   "scripts": {
     "api": "grunt api && node tasks\\generateUserJS.js",
+    "code-style": "eslint --fix \"src/**/*.ts\" \"tasks/**/*.js\"",
     "debug": "grunt default",
     "production": "grunt production"
   },
@@ -28,6 +29,9 @@
   "homepage": "https://github.com/WillHayCode/Deadname-Remover#readme",
   "devDependencies": {
     "@types/chrome": "0.0.103",
+    "@typescript-eslint/eslint-plugin": "^4.1.1",
+    "@typescript-eslint/parser": "^4.1.1",
+    "eslint": "^7.9.0",
     "grunt": "^1.1.0",
     "grunt-cli": "^1.3.2",
     "grunt-contrib-copy": "^1.0.0",

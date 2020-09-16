@@ -1,6 +1,6 @@
-import { DEFAULT_SETTINGS, UserSettings } from "./Types";
+import {DEFAULT_SETTINGS, UserSettings} from './types';
 
-chrome.runtime.onInstalled.addListener( () => {
+chrome.runtime.onInstalled.addListener(() => {
     chrome.runtime.openOptionsPage();
 });
 
@@ -9,7 +9,7 @@ function getSettings() {
         chrome.storage.sync.get(DEFAULT_SETTINGS, (settings: UserSettings) => {
             resolve(settings);
             return;
-        })
+        });
     });
 }
 interface PortInfo {

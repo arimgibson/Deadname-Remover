@@ -1,29 +1,29 @@
 /**
   * @author: WillHayCode
   */
- 
- export type Name = {
+
+export type Name = {
   first: string,
   middle: string,
   last: string
  }
 
- export type UserSettings = {
+export type UserSettings = {
   name: Name,
   deadname: Name,
   enabled: boolean
  }
 
- export const DEFAULT_SETTINGS: UserSettings = {
-  name: {
-      first: '',
-      middle: '',
-      last: ''
-  },
-  deadname: {
-      first: '',
-      middle: '',
-      last: ''
-  },
-  enabled: true
-}
+export const DEFAULT_SETTINGS: UserSettings = {
+    name: {
+        first: '',
+        middle: '',
+        last: ''
+    },
+    deadname: {
+        first: '',
+        middle: '',
+        last: ''
+    },
+    enabled: true
+};
