@@ -44,14 +44,12 @@ module.exports = {
         '@typescript-eslint/no-use-before-define': 'off',
         '@typescript-eslint/explicit-module-boundary-types': 'off',
     },
-    overrides: {
-        overrides: [
-            {
-                files: ['tasks/**/*.js'],
-                rules: {
+    overrides: [
+        {
+            files: ['tasks/**/*.js'],
+            rules: {
                     '@typescript-eslint/no-var-requires': 'off',
-                },
             },
-        ],
-    }
+        },
+    ],
 };
