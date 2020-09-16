@@ -1,6 +1,6 @@
-import { UserSettings, DEFAULT_SETTINGS } from './Types';
+import {UserSettings, DEFAULT_SETTINGS} from './types';
 
-let loadSettings = () => {
+const loadSettings = () => {
     chrome.storage.sync.get(DEFAULT_SETTINGS, (sync: UserSettings) => {
         (document.querySelector('.OnOff') as HTMLInputElement).checked = sync.enabled;
         return;
@@ -9,7 +9,7 @@ let loadSettings = () => {
 
 document.addEventListener('DOMContentLoaded', loadSettings);
 
-let saveSettings = () => {
+const saveSettings = () => {
     const OnOff = (document.querySelector('.OnOff') as HTMLInputElement).checked;
 
     const settings: Partial<UserSettings> = {
@@ -17,9 +17,9 @@ let saveSettings = () => {
     };
 
     chrome.storage.sync.set(settings);
-    
+
     alert('Saved. You may need to refresh already open pages.');
-}
+};
 document.getElementById('btnOpenNameSettings').addEventListener('click', () => {
     chrome.runtime.openOptionsPage();
 });
