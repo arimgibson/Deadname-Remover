@@ -10,6 +10,9 @@ let observer: MutationObserver = null;
 export function start(settings: UserSettings = DEFAULT_SETTINGS) {
     console.log('Starting.');
     cleanUp();
+    if (!settings.enabled) {
+        return;
+    }
     loadNames(settings);
 }
 
@@ -20,7 +23,7 @@ function cleanUp() {
     observer && observer.disconnect();
     replaceNames(alivenames, deadnames);
     observer && observer.disconnect();
-    
+
 }
 
 function loadNames(settings: UserSettings) {
@@ -35,8 +38,8 @@ function changeContent() {
     if (alivename.first && deadname.first &&
         alivename.middle && deadname.middle &&
         alivename.last && deadname.last) {
-        const fullAlive = `${alivename.first} ${alivename.middle} ${alivename.last}`
-        const fullDead =`${deadname.first} ${deadname.middle} ${deadname.last}`
+        const fullAlive = `${alivename.first} ${alivename.middle} ${alivename.last}`;
+        const fullDead = `${deadname.first} ${deadname.middle} ${deadname.last}`;
         alivenames.push(fullAlive);
         deadnames.push(fullDead);
     }

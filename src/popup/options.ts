@@ -1,4 +1,4 @@
-import {Name, UserSettings, DEFAULT_SETTINGS} from '../types';
+import {Name, UserSettings} from '../types';
 
 const port = chrome.runtime.connect({name: 'popup'});
 let counter = 0;
@@ -35,7 +35,7 @@ function loadSettings() {
         (document.getElementById('txtMidDeadname') as HTMLInputElement).value = settings.deadname.middle;
         (document.getElementById('txtLastDeadname') as HTMLInputElement).value = settings.deadname.last;
     });
-};
+}
 
 function changeSettings(settings: Partial<UserSettings>) {
     port.postMessage({type: 'save-data', data: settings});
