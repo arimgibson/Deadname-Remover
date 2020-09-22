@@ -1,4 +1,4 @@
-import {start} from './inject';
+import {start} from './inject/inject';
 
 if (!window.chrome) {
     window.chrome = {} as any;

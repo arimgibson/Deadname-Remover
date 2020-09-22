@@ -1,19 +1,26 @@
-import {UserSettings, DEFAULT_SETTINGS} from './types';
+import {UserSettings, DEFAULT_SETTINGS} from '../types';
 import {addDOMReadyListener, isDOMReady} from './dom';
 
 let alivename = null;
 let deadname = null;
+let alivenames = null;
+let deadnames = null;
+let observer: MutationObserver = null;
 
 export function start(settings: UserSettings = DEFAULT_SETTINGS) {
     console.log('Starting.');
-    if (!settings.enabled) {
+    cleanUp();
+    loadNames(settings);
+}
+
+function cleanUp() {
+    if (alivenames === null || deadnames === null) {
         return;
     }
-    if (alivename === null || deadname === null) {
-        loadNames(settings);
-    } else {
-        changeContent();
-    }
+    observer && observer.disconnect();
+    replaceNames(alivenames, deadnames);
+    observer && observer.disconnect();
+    
 }
 
 function loadNames(settings: UserSettings) {
@@ -23,26 +30,25 @@ function loadNames(settings: UserSettings) {
 }
 
 function changeContent() {
-    const alivenames = [];
-    const deadnames = [];
-    if (alivename.first.length !== 0 && deadname.first.length !== 0 &&
-        alivename.middle.length !== 0 && deadname.middle.length !== 0 &&
-        alivename.last.length !== 0 && deadname.last.length !== 0) {
-        const fullAlive = alivename.first + ' ' + alivename.middle + ' ' + alivename.last;
-        const fullDead = deadname.first + ' ' + deadname.middle + ' ' + deadname.last;
+    alivenames = [];
+    deadnames = [];
+    if (alivename.first && deadname.first &&
+        alivename.middle && deadname.middle &&
+        alivename.last && deadname.last) {
+        const fullAlive = `${alivename.first} ${alivename.middle} ${alivename.last}`
+        const fullDead =`${deadname.first} ${deadname.middle} ${deadname.last}`
         alivenames.push(fullAlive);
         deadnames.push(fullDead);
     }
-    if (alivename.first.length !== 0 && deadname.first.length !== 0) {
+    if (alivename.first && deadname.first) {
         alivenames.push(alivename.first);
         deadnames.push(deadname.first);
     }
 
-    if (alivename.last.length !== 0 && deadname.last.length !== 0) {
+    if (alivename.last && deadname.last) {
         alivenames.push(alivename.last);
         deadnames.push(deadname.last);
     }
-
     replaceNames(deadnames, alivenames);
 }
 
@@ -65,7 +71,7 @@ function checkNodeForReplacement(node: Node, dead: RegExp[], replacement: string
 }
 
 function setupListener(dead: RegExp[], replacement: string[]) {
-    const observer = new MutationObserver((mutations: Array<MutationRecord>) => {
+    observer = new MutationObserver((mutations: Array<MutationRecord>) => {
         for (let i = 0, len = mutations.length; i < len; i++) {
             const mutation: MutationRecord = mutations[i];
             if (mutation.type === 'childList') {

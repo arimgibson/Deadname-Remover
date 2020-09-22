@@ -1,7 +1,7 @@
 const main = {
   entry: {
     inject: './build/index.js',
-    background: './build/background.js'
+    background: './build/background/background.js'
   },
   output: {
     filename: '[name].js',
@@ -12,8 +12,8 @@ const main = {
 
 const settings = {
   entry: {
-    options: './build/options.js',
-    popup: './build/popup.js'
+    options: './build/popup/options.js',
+    popup: './build/popup/popup.js'
   },
   output: {
     filename: '[name].js',
