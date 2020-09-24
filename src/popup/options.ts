@@ -147,7 +147,7 @@ onChangeInput();
 
 function renderDeadName(oldIndex: number, newIndex: number, options: {disableSave: boolean} = {disableSave: false}) {
     if (!options.disableSave) {
-        saveCurrentDeadName(oldIndex);   
+        saveCurrentDeadName(oldIndex);
     }
     if (newIndex === 0) {
         leftArrow.classList.toggle('active', false);

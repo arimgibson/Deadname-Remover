@@ -39,6 +39,10 @@ input[type="button"]:hover {
     color: white;
 }
 
+input[type=text] { 
+    max-width: 100%;
+}
+
 .switch {
     position: relative;
     display: flex;
