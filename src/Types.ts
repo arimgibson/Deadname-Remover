@@ -10,7 +10,7 @@ export type Name = {
 
 export type UserSettings = {
   name: Name,
-  deadname: Name,
+  deadname: Name[],
   enabled: boolean
  }
 
@@ -20,10 +20,10 @@ export const DEFAULT_SETTINGS: UserSettings = {
         middle: '',
         last: ''
     },
-    deadname: {
+    deadname: [{
         first: '',
         middle: '',
         last: ''
-    },
+    }],
     enabled: true
 };

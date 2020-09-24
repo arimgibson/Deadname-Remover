@@ -90,6 +90,10 @@ async function sendMessage(getMessage: (url: string, frameUrl: string) => any) {
 function loadSettings() {
     return new Promise<UserSettings>((resolve) => {
         chrome.storage.sync.get(DEFAULT_SETTINGS, (settings: UserSettings) => {
+            if (!Array.isArray(settings.deadname)) {
+                settings.deadname = [settings.deadname];
+                saveSettings(settings);
+            }
             resolve(settings);
             return;
         });

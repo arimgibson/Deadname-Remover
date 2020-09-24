@@ -1,8 +1,8 @@
-import {UserSettings, DEFAULT_SETTINGS} from '../types';
+import {UserSettings, DEFAULT_SETTINGS, Name} from '../types';
 import {addDOMReadyListener, isDOMReady} from './dom';
 
-let alivename = null;
-let deadname = null;
+let alivename: Name = null;
+let deadname: Name[] = null;
 let alivenames = null;
 let deadnames = null;
 let observer: MutationObserver = null;
@@ -35,22 +35,24 @@ function loadNames(settings: UserSettings) {
 function changeContent() {
     alivenames = [];
     deadnames = [];
-    if (alivename.first && deadname.first &&
-        alivename.middle && deadname.middle &&
-        alivename.last && deadname.last) {
-        const fullAlive = `${alivename.first} ${alivename.middle} ${alivename.last}`;
-        const fullDead = `${deadname.first} ${deadname.middle} ${deadname.last}`;
-        alivenames.push(fullAlive);
-        deadnames.push(fullDead);
-    }
-    if (alivename.first && deadname.first) {
-        alivenames.push(alivename.first);
-        deadnames.push(deadname.first);
-    }
+    for (let x = 0, len = deadname.length; x < len; x++) {
+        if (alivename.first && deadname[x].first &&
+        alivename.middle && deadname[x].middle &&
+        alivename.last && deadname[x].last) {
+            const fullAlive = `${alivename.first} ${alivename.middle} ${alivename.last}`;
+            const fullDead = `${deadname[x].first} ${deadname[x].middle} ${deadname[x].last}`;
+            alivenames.push(fullAlive);
+            deadnames.push(fullDead);
+        }
+        if (alivename.first && deadname[x].first) {
+            alivenames.push(alivename.first);
+            deadnames.push(deadname[x].first);
+        }
 
-    if (alivename.last && deadname.last) {
-        alivenames.push(alivename.last);
-        deadnames.push(deadname.last);
+        if (alivename.last && deadname[x].last) {
+            alivenames.push(alivename.last);
+            deadnames.push(deadname[x].last);
+        }
     }
     replaceNames(deadnames, alivenames);
 }

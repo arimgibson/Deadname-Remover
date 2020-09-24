@@ -94,3 +94,25 @@ input:checked + .slider:before {
 .slider.round:before {
     border-radius: 50%;
 } 
+
+.leftArrow,
+.rightArrow {
+    display: none;
+    font-family: u2000;
+    font-size: 55px;
+}
+
+.leftArrow.active,
+.rightArrow.active {
+    display: inline;
+    cursor: pointer;
+}
+
+.leftArrow.active {
+    float: left;
+}
+
+.rightArrow.active {
+    float: right;
+}
+
