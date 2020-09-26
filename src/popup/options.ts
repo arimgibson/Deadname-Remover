@@ -103,12 +103,11 @@ const coll = document.getElementsByClassName('hide');
 
 for (let i = 0, len = coll.length; i < len; i++) {
     coll[i].addEventListener('click', (event: MouseEvent) => {
-        (event.target as HTMLInputElement).classList.toggle('active');
         const content = (event.target as HTMLInputElement).nextElementSibling as HTMLElement;
         if (content.style.maxHeight){
             content.style.maxHeight = null;
         } else {
-            content.style.maxHeight = 'fit-content';
+            content.style.maxHeight = 'max-content';
         }
     });
 }
