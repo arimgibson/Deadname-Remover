@@ -4,10 +4,10 @@
   "description": "An easy to use browser plugin to automatically remove and replace deadnames",
   "private": true,
   "scripts": {
-    "api": "grunt api && node tasks\\generateUserJS.js",
+    "api": "node tasks\\generate-types.js && node tasks\\compile-api.js",
     "code-style": "eslint --fix \"src/**/*.ts\" \"tasks/**/*.js\"",
-    "debug": "grunt default",
-    "production": "grunt production"
+    "debug": "node tasks\\build.js --debug",
+    "production": "node tasks\\build.js --production"
   },
   "repository": {
     "type": "git",
@@ -29,16 +29,11 @@
   "homepage": "https://github.com/WillHayCode/Deadname-Remover#readme",
   "devDependencies": {
     "@types/chrome": "0.0.103",
-    "@typescript-eslint/eslint-plugin": "^4.1.1",
-    "@typescript-eslint/parser": "^4.1.1",
-    "eslint": "^7.9.0",
-    "grunt": "^1.1.0",
-    "grunt-cli": "^1.3.2",
-    "grunt-contrib-copy": "^1.0.0",
-    "grunt-ts": "^6.0.0-beta.22",
-    "grunt-webpack": "^3.1.3",
-    "typescript": "^3.8.3",
-    "webpack": "^4.42.1",
-    "webpack-cli": "^3.3.11"
+    "@typescript-eslint/eslint-plugin": "4.1.1",
+    "@typescript-eslint/parser": "4.1.1",
+    "esbuild": "0.7.6",
+    "eslint": "7.9.0",
+    "fs-extra": "9.0.1",
+    "typescript": "4.0.3"
   }
 }

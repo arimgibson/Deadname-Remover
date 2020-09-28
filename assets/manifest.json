@@ -18,12 +18,12 @@
   },
  "options_ui": {
     "open_in_tab": true,
-    "page": "options/options.html"
+    "page": "popup/options.html"
   },
   "browser_action": {
     "default_icon": "icons/icon19.png",
      "default_title": "Deadname Remover Options",
-     "default_popup": "options/popup.html"
+     "default_popup": "popup/popup.html"
   },
   "permissions": [
     "storage",
