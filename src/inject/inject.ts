@@ -21,7 +21,7 @@ function cleanUp() {
         return;
     }
     observer && observer.disconnect();
-    replaceNames(alivenames, deadnames);
+    replaceNames(alivenames, deadnames[0]);
     observer && observer.disconnect();
 
 }
