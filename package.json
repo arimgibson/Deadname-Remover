@@ -4,10 +4,10 @@
   "description": "An easy to use browser plugin to automatically remove and replace deadnames",
   "private": true,
   "scripts": {
-    "api": "node tasks\\generate-types.js && node tasks\\compile-api.js",
+    "api": "node tasks/generate-types.js && node tasks/compile-api.js",
     "code-style": "eslint --fix \"src/**/*.ts\" \"tasks/**/*.js\"",
-    "debug": "node tasks\\build.js --debug",
-    "production": "node tasks\\build.js --production"
+    "debug": "node tasks/build.js --debug",
+    "production": "node tasks/build.js --production"
   },
   "repository": {
     "type": "git",
