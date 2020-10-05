@@ -7,12 +7,12 @@ function getRequestId() {
     return ++counter;
 }
 
-function sendRequest(request, executor: (response, resolve: (data?) => void, reject: (error: Error) => void) => void) {
+function sendRequest(request, executor: (response, resolve: (data?) => void) => void) {
     const id = getRequestId();
-    return new Promise((resolve, reject) => {
+    return new Promise((resolve) => {
         const listener = ({id: responseId, ...response}) => {
             if (responseId === id) {
-                executor(response, resolve, reject);
+                executor(response, resolve);
                 port.onMessage.removeListener(listener);
             }
         };
