@@ -6,6 +6,8 @@ let deadname: Name[] = null;
 let alivenames = null;
 let deadnames = null;
 let observer: MutationObserver = null;
+const cachedNames = new Map<string, string>();
+let revert = false;
 
 export function start(settings: UserSettings = DEFAULT_SETTINGS) {
     console.log('Starting.');
@@ -21,8 +23,11 @@ function cleanUp() {
         return;
     }
     observer && observer.disconnect();
+    revert = true;
     replaceNames(alivenames, deadnames[0]);
     observer && observer.disconnect();
+    revert = false;
+    cachedNames.clear();
 
 }
 
@@ -60,10 +65,18 @@ function changeContent() {
 function checkNodeForReplacement(node: Node, dead: RegExp[], replacement: string[]) {
     if (node.nodeType === 3) {
         for (let i = 0, len = dead.length; i < len; i++) {
-            const text = node.nodeValue;
-            const newText = text.replace(dead[i], replacement[i]);
-            if (newText !== text) {
-                node.parentElement && node.parentElement.replaceChild(document.createTextNode(newText), node);
+            if (revert) {
+                const cachedText = cachedNames.get(node.nodeValue);
+                if (cachedText) {
+                    node.parentElement && node.parentElement.replaceChild(document.createTextNode(cachedText.toString()), node);
+                }
+            } else {
+                const text = node.nodeValue;
+                const newText = text.replace(dead[i], replacement[i]);
+                if (newText !== text) {
+                    cachedNames.set(newText, text);
+                    node.parentElement && node.parentElement.replaceChild(document.createTextNode(newText), node);
+                }
             }
         }
     } else {
@@ -97,7 +110,9 @@ function checkElementForTextNodes(dead: RegExp[], replacement: string[]) {
             checkNodeForReplacement(children[n], dead, replacement);
         }
     }
-    setupListener(dead, replacement);
+    if (!revert) {
+        setupListener(dead, replacement);
+    }
 }
 
 function replaceNames(old: string[], replacement: string[]) {
