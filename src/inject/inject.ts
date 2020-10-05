@@ -1,19 +1,34 @@
-import {UserSettings, DEFAULT_SETTINGS} from './types';
+import {UserSettings, DEFAULT_SETTINGS, Name} from '../types';
 import {addDOMReadyListener, isDOMReady} from './dom';
 
-let alivename = null;
-let deadname = null;
+let alivename: Name = null;
+let deadname: Name[] = null;
+let alivenames = null;
+let deadnames = null;
+let observer: MutationObserver = null;
+const cachedNames = new Map<string, string>();
+let revert = false;
 
 export function start(settings: UserSettings = DEFAULT_SETTINGS) {
     console.log('Starting.');
+    cleanUp();
     if (!settings.enabled) {
         return;
     }
-    if (alivename === null || deadname === null) {
-        loadNames(settings);
-    } else {
-        changeContent();
+    loadNames(settings);
+}
+
+function cleanUp() {
+    if (alivenames === null || deadnames === null) {
+        return;
     }
+    observer && observer.disconnect();
+    revert = true;
+    replaceNames(alivenames, deadnames[0]);
+    observer && observer.disconnect();
+    revert = false;
+    cachedNames.clear();
+
 }
 
 function loadNames(settings: UserSettings) {
@@ -23,36 +38,45 @@ function loadNames(settings: UserSettings) {
 }
 
 function changeContent() {
-    const alivenames = [];
-    const deadnames = [];
-    if (alivename.first.length !== 0 && deadname.first.length !== 0 &&
-        alivename.middle.length !== 0 && deadname.middle.length !== 0 &&
-        alivename.last.length !== 0 && deadname.last.length !== 0) {
-        const fullAlive = alivename.first + ' ' + alivename.middle + ' ' + alivename.last;
-        const fullDead = deadname.first + ' ' + deadname.middle + ' ' + deadname.last;
-        alivenames.push(fullAlive);
-        deadnames.push(fullDead);
-    }
-    if (alivename.first.length !== 0 && deadname.first.length !== 0) {
-        alivenames.push(alivename.first);
-        deadnames.push(deadname.first);
-    }
+    alivenames = [];
+    deadnames = [];
+    for (let x = 0, len = deadname.length; x < len; x++) {
+        if (alivename.first && deadname[x].first &&
+        alivename.middle && deadname[x].middle &&
+        alivename.last && deadname[x].last) {
+            const fullAlive = `${alivename.first} ${alivename.middle} ${alivename.last}`;
+            const fullDead = `${deadname[x].first} ${deadname[x].middle} ${deadname[x].last}`;
+            alivenames.push(fullAlive);
+            deadnames.push(fullDead);
+        }
+        if (alivename.first && deadname[x].first) {
+            alivenames.push(alivename.first);
+            deadnames.push(deadname[x].first);
+        }
 
-    if (alivename.last.length !== 0 && deadname.last.length !== 0) {
-        alivenames.push(alivename.last);
-        deadnames.push(deadname.last);
+        if (alivename.last && deadname[x].last) {
+            alivenames.push(alivename.last);
+            deadnames.push(deadname[x].last);
+        }
     }
-
     replaceNames(deadnames, alivenames);
 }
 
 function checkNodeForReplacement(node: Node, dead: RegExp[], replacement: string[]) {
     if (node.nodeType === 3) {
         for (let i = 0, len = dead.length; i < len; i++) {
-            const text = node.nodeValue;
-            const newText = text.replace(dead[i], replacement[i]);
-            if (newText !== text) {
-                node.parentElement && node.parentElement.replaceChild(document.createTextNode(newText), node);
+            if (revert) {
+                const cachedText = cachedNames.get(node.nodeValue);
+                if (cachedText) {
+                    node.parentElement && node.parentElement.replaceChild(document.createTextNode(cachedText.toString()), node);
+                }
+            } else {
+                const text = node.nodeValue;
+                const newText = text.replace(dead[i], replacement[i]);
+                if (newText !== text) {
+                    cachedNames.set(newText, text);
+                    node.parentElement && node.parentElement.replaceChild(document.createTextNode(newText), node);
+                }
             }
         }
     } else {
@@ -65,7 +89,7 @@ function checkNodeForReplacement(node: Node, dead: RegExp[], replacement: string
 }
 
 function setupListener(dead: RegExp[], replacement: string[]) {
-    const observer = new MutationObserver((mutations: Array<MutationRecord>) => {
+    observer = new MutationObserver((mutations: Array<MutationRecord>) => {
         for (let i = 0, len = mutations.length; i < len; i++) {
             const mutation: MutationRecord = mutations[i];
             if (mutation.type === 'childList') {
@@ -86,7 +110,9 @@ function checkElementForTextNodes(dead: RegExp[], replacement: string[]) {
             checkNodeForReplacement(children[n], dead, replacement);
         }
     }
-    setupListener(dead, replacement);
+    if (!revert) {
+        setupListener(dead, replacement);
+    }
 }
 
 function replaceNames(old: string[], replacement: string[]) {

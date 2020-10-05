@@ -3,7 +3,6 @@
     margin-bottom: 2.5em;
     padding: 0 18px;
     overflow: hidden;
-    transition: max-height 0.2s ease-out;
     width: 200px;
 }
 
@@ -29,7 +28,6 @@ input[type="button"] {
     font-size: 16px;
     margin: 4px 2px;
     padding: 16px 32px;
-    transition-duration: 0.4s;
     text-align: center;
     text-decoration: none;
 }
@@ -37,6 +35,10 @@ input[type="button"] {
 input[type="button"]:hover {
     background-color: #4CAF50;
     color: white;
+}
+
+input[type=text] { 
+    max-width: 100%;
 }
 
 .switch {
@@ -94,3 +96,25 @@ input:checked + .slider:before {
 .slider.round:before {
     border-radius: 50%;
 } 
+
+.leftArrow,
+.rightArrow {
+    display: none;
+    font-family: u2000;
+    font-size: 55px;
+}
+
+.leftArrow.active,
+.rightArrow.active {
+    display: inline;
+    cursor: pointer;
+}
+
+.leftArrow.active {
+    float: left;
+}
+
+.rightArrow.active {
+    float: right;
+}
+

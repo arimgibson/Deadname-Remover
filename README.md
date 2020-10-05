@@ -9,10 +9,10 @@ If you somehow can't(due to disabling lgbt related extension) install the extens
 
 Requirements:
 
- - Node v8.10.0
+ - Node vLTS or higher.
 
 Open a command shell and Navigate to the root directory, type `npm install` to install the node devDependencies.
 To compile the project type `npm run build`, this compiles the Typescript files into Javascript.
 
-Webpack collate a formatted use-able plugin structure into the dist/ folder.
+The building process will collate a formatted use-able plugin structure into the dist/ folder.
 From this folder it can be side-loaded into Firefox or Chromium-based browsers.
