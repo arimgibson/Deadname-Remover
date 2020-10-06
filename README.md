@@ -12,7 +12,7 @@ Requirements:
  - Node vLTS or higher.
 
 Open a command shell and Navigate to the root directory, type `npm install` to install the node devDependencies.
-To compile the project type `npm run build`, this compiles the Typescript files into Javascript.
+To compile the project type `npm run debug` for debug, and `npm run production` for production-ready files.
 
 The building process will collate a formatted use-able plugin structure into the dist/ folder.
 From this folder it can be side-loaded into Firefox or Chromium-based browsers.
