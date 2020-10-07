@@ -1,0 +1,21 @@
+{
+	"configurations": [
+		{
+			"name": "Build for Debug",
+			"type": "node-terminal",
+			"request": "launch",
+			"command": "npm run debug"
+		},
+		{
+			"name": "Build for Production",
+			"type": "node-terminal",
+			"request": "launch",
+			"command": "npm run production"
+		},
+		{
+			"name": "Install devDependencies",
+			"request": "launch",
+			"command": "npm i"
+		}
+	]
+}
