@@ -54,6 +54,11 @@ function changeContent() {
             deadnames.push(deadname[x].first);
         }
 
+        if (deadname[x].middle) {
+            alivenames.push(alivename.middle ? alivename.middle : '');
+            deadnames.push(deadname[x].middle);
+        }
+
         if (alivename.last && deadname[x].last) {
             alivenames.push(alivename.last);
             deadnames.push(deadname[x].last);
