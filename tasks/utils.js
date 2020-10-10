@@ -25,6 +25,10 @@ const files = [
     {
         src: 'src/popup/popup.ts',
         out: 'dist/popup/popup.js',
+    },
+    {
+        src: 'src/popup/stealth.ts',
+        out: 'dist/popup/stealth.js',
     }
 ];
 

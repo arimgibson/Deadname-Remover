@@ -56,7 +56,7 @@ function saveCurrentDeadName(index: number) {
     }
 }
 
-function loadDOM() {
+function initalLoading() {
     (document.getElementById('txtFirstName') as HTMLInputElement).value = settings.name.first;
     (document.getElementById('txtMidName') as HTMLInputElement).value = settings.name.middle;
     (document.getElementById('txtLastName') as HTMLInputElement).value = settings.name.last;
@@ -64,6 +64,9 @@ function loadDOM() {
     (document.getElementById('txtFirstDeadname') as HTMLInputElement).value = settings.deadname[deadNameCounter].first;
     (document.getElementById('txtMidDeadname') as HTMLInputElement).value = settings.deadname[deadNameCounter].middle;
     (document.getElementById('txtLastDeadname') as HTMLInputElement).value = settings.deadname[deadNameCounter].last;
+
+    (document.getElementById('stealth-option') as HTMLInputElement).checked = settings.stealthMode;
+
     renderDeadName(0, 0);
 }
 
@@ -73,9 +76,9 @@ function changeSettings($settings: Partial<UserSettings>) {
 
 document.addEventListener('DOMContentLoaded', () => {
     if (!isSettingsReady()) {
-        addSettingsListener(() => loadDOM());
+        addSettingsListener(() => initalLoading());
     } else {
-        loadDOM();
+        initalLoading();
     }
 });
 
@@ -90,7 +93,8 @@ const saveSettings = () => {
 
     const $settings: Partial<UserSettings> = {
         name: name,
-        deadname: settings.deadname
+        deadname: settings.deadname,
+        stealthMode: settings.stealthMode,
     };
 
     changeSettings($settings);
@@ -120,6 +124,10 @@ leftArrow.addEventListener('click', () => {
 
 rightArrow.addEventListener('click', () => {
     renderDeadName(deadNameCounter, ++deadNameCounter);
+});
+
+(document.getElementById('stealth-option') as HTMLInputElement).addEventListener('change', (e: Event) => {
+    settings.stealthMode = (e.target as HTMLInputElement).checked;
 });
 
 
