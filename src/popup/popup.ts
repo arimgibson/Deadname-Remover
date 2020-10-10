@@ -27,14 +27,14 @@ function getData() {
 
 function changeSettings() {
     const settings: Partial<UserSettings> = {
-        enabled: (document.querySelector('.OnOff') as HTMLInputElement).checked
+        enabled: (document.querySelector('.onoff-option') as HTMLInputElement).checked
     };
     port.postMessage({type: 'save-data', data: settings});
 }
 
 function loadSettings() {
     getData().then((settings: UserSettings) => {
-        (document.querySelector('.OnOff') as HTMLInputElement).checked = settings.enabled;
+        (document.querySelector('.onoff-option') as HTMLInputElement).checked = settings.enabled;
     });
 }
 
@@ -44,5 +44,4 @@ document.getElementById('btnOpenNameSettings').addEventListener('click', () => {
     chrome.runtime.openOptionsPage();
 });
 
-const toggle = document.querySelector('.OnOff') as HTMLInputElement;
-toggle.addEventListener('click', changeSettings);
+(document.querySelector('.OnOff') as HTMLInputElement).addEventListener('click', changeSettings);

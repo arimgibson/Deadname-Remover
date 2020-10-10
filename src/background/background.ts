@@ -1,8 +1,11 @@
 import {DEFAULT_SETTINGS, UserSettings} from '../types';
 
 let settings: UserSettings = null;
-loadSettings().then((setting) => {
-    settings = setting;
+loadSettings().then(($setting) => {
+    settings = $setting;
+    if ($setting.stealthMode) {
+        enableStealth();
+    }
 });
 
 chrome.runtime.onInstalled.addListener(() => {
@@ -55,8 +58,11 @@ chrome.runtime.onConnect.addListener((port) => {
     }
 });
 
-function changeSettings(settings: Partial<UserSettings>) {
-    saveSettings(settings);
+function changeSettings($settings: Partial<UserSettings>) {
+    if ($settings.stealthMode !== settings.stealthMode) {
+        $settings.stealthMode ? enableStealth() : disableStealth();
+    }
+    saveSettings($settings);
     sendMessage(getTabMessage);
 }
 
@@ -117,6 +123,24 @@ function getSettings() {
     return settings;
 }
 
+function enableStealth() {
+    if (!chrome.browserAction.setIcon) {
+        return;
+    }
+    chrome.browserAction.setIcon({path: 'icons/stealth.svg'});
+    chrome.browserAction.setPopup({popup: 'popup/stealth-popup.html'});
+    chrome.browserAction.setTitle({title: 'An experimental adblocker'});
+}
+
+function disableStealth() {
+    if (!chrome.browserAction.setIcon) {
+        return;
+    }
+    chrome.browserAction.setIcon({path: 'icons/icon19.png'});
+    chrome.browserAction.setPopup({popup: 'popup/popup.html'});
+    chrome.browserAction.setTitle({title: 'Deadname Remover Options'});
+}
+
 async function onUIMessage(port: chrome.runtime.Port, {type, data, id}) {
     switch (type) {
         case 'get-data': {
@@ -127,6 +151,12 @@ async function onUIMessage(port: chrome.runtime.Port, {type, data, id}) {
         case 'save-data': {
             changeSettings(data);
             break;
+        }
+        case 'enable-stealth-mode': {
+            enableStealth();
+        }
+        case 'disable-stealth-mode': {
+            disableStealth();
         }
     }
 }
