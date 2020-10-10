@@ -128,7 +128,7 @@ function enableStealth() {
     if (!chrome.browserAction.setIcon) {
         return;
     }
-    chrome.browserAction.setIcon({path: 'icons/off.svg'});
+    chrome.browserAction.setIcon({path: 'icons/stealth.svg'});
     chrome.browserAction.setPopup({popup: 'popup/stealth-popup.html'});
     chrome.browserAction.setTitle({title: 'An experimental adblocker'});
 }

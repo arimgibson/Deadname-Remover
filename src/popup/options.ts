@@ -56,7 +56,7 @@ function saveCurrentDeadName(index: number) {
     }
 }
 
-function initalLoading() {
+function loadDOM() {
     (document.getElementById('txtFirstName') as HTMLInputElement).value = settings.name.first;
     (document.getElementById('txtMidName') as HTMLInputElement).value = settings.name.middle;
     (document.getElementById('txtLastName') as HTMLInputElement).value = settings.name.last;
@@ -76,9 +76,9 @@ function changeSettings($settings: Partial<UserSettings>) {
 
 document.addEventListener('DOMContentLoaded', () => {
     if (!isSettingsReady()) {
-        addSettingsListener(() => initalLoading());
+        addSettingsListener(() => loadDOM());
     } else {
-        initalLoading();
+        loadDOM();
     }
 });
 
