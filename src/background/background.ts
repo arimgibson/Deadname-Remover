@@ -61,7 +61,6 @@ chrome.runtime.onConnect.addListener((port) => {
 function changeSettings($settings: Partial<UserSettings>) {
     if ($settings.stealthMode !== settings.stealthMode) {
         $settings.stealthMode ? enableStealth() : disableStealth();
-        $settings = {...$settings, enabled: $settings.stealthMode ? false : true};
     }
     saveSettings($settings);
     sendMessage(getTabMessage);
