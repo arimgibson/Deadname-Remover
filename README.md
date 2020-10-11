@@ -9,7 +9,7 @@ If you somehow can't(due to disabling lgbt related extension) install the extens
 
 Requirements:
 
- - Node vLTS or higher.
+ - Node LTS or higher.
 
 Open a command shell and Navigate to the root directory, type `npm install` to install the node devDependencies.
 To compile the project type `npm run debug` for debug, and `npm run production` for production-ready files.
