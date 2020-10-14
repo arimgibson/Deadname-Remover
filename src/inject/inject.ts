@@ -3,8 +3,8 @@ import {addDOMReadyListener, isDOMReady} from './dom';
 
 let alivename: Name = null;
 let deadname: Name[] = null;
-let alivenames = null;
-let deadnames = null;
+let alivenames: string[] = [];
+let deadnames: string[] = [];
 let observer: MutationObserver = null;
 const cachedNames = new Map<string, string>();
 let revert = false;
@@ -19,12 +19,12 @@ export function start(settings: UserSettings = DEFAULT_SETTINGS) {
 }
 
 function cleanUp() {
-    if (alivenames === null || deadnames === null) {
+    if (alivenames.length === 0 || deadnames.length === 0) {
         return;
     }
     observer && observer.disconnect();
     revert = true;
-    replaceNames(alivenames, deadnames[0]);
+    replaceNames(alivenames, deadnames);
     observer && observer.disconnect();
     revert = false;
     cachedNames.clear();
