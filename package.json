@@ -30,7 +30,7 @@
   "devDependencies": {
     "@types/chrome": "0.0.124",
     "@typescript-eslint/eslint-plugin": "4.4.1",
-    "@typescript-eslint/parser": "4.4.0",
+    "@typescript-eslint/parser": "4.4.1",
     "esbuild": "0.7.15",
     "eslint": "7.11.0",
     "fs-extra": "9.0.1",
