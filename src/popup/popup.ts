@@ -1,4 +1,5 @@
 import {UserSettings} from '../types';
+import {isDOMReady, addDOMReadyListener} from '../inject/dom';
 
 const port = chrome.runtime.connect({name: 'popup'});
 let counter = 0;
@@ -40,8 +41,16 @@ function loadSettings() {
 
 document.addEventListener('DOMContentLoaded', loadSettings);
 
-document.getElementById('btnOpenNameSettings').addEventListener('click', () => {
-    chrome.runtime.openOptionsPage();
-});
+const registerEvents = () => {
+    document.getElementById('btnOpenNameSettings').addEventListener('click', () => {
+        chrome.runtime.openOptionsPage();
+    });
 
-(document.querySelector('.OnOff') as HTMLInputElement).addEventListener('click', changeSettings);
+    (document.querySelector('.onoff-option') as HTMLInputElement).addEventListener('click', changeSettings);
+};
+
+if (!isDOMReady()) {
+    addDOMReadyListener(registerEvents);
+} else {
+    registerEvents();
+}

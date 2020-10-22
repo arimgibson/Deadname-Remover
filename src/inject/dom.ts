@@ -18,3 +18,4 @@ if (!isDOMReady()) {
     };
     document.addEventListener('readystatechange', onReadyStateChange);
 }
+
