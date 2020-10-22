@@ -40,28 +40,45 @@ function loadNames(settings: UserSettings) {
 function changeContent() {
     alivenames = [];
     deadnames = [];
+    const isAliveNameFirst = Boolean(alivename.first);
+    const isAliveNameMiddle = Boolean(alivename.middle);
+    const isAliveNameLast = Boolean(alivename.last);
     for (let x = 0, len = deadname.length; x < len; x++) {
-        if (alivename.first && deadname[x].first &&
-        alivename.middle && deadname[x].middle &&
-        alivename.last && deadname[x].last) {
+        const isDeadNameFirst = Boolean(deadname[x].first);
+        const isDeadNameMiddle = Boolean(deadname[x].middle);
+        const isDeadNameLast = Boolean(deadname[x].last);
+        if (
+            isAliveNameFirst && isDeadNameFirst &&
+            isAliveNameMiddle && isDeadNameMiddle &&
+            isAliveNameLast && isDeadNameLast
+        ) {
             const fullAlive = `${alivename.first} ${alivename.middle} ${alivename.last}`;
             const fullDead = `${deadname[x].first} ${deadname[x].middle} ${deadname[x].last}`;
             alivenames.push(fullAlive);
             deadnames.push(fullDead);
         }
-        if (alivename.first && deadname[x].first) {
+
+        if (isAliveNameFirst && isDeadNameFirst) {
             alivenames.push(alivename.first);
             deadnames.push(deadname[x].first);
         }
 
-        if (deadname[x].middle) {
-            alivenames.push(alivename.middle ? alivename.middle : '');
+        if (isDeadNameMiddle) {
+            alivenames.push(isAliveNameMiddle ? alivename.middle : '');
             deadnames.push(deadname[x].middle);
         }
 
-        if (alivename.last && deadname[x].last) {
+        if (isAliveNameLast && isDeadNameLast) {
             alivenames.push(alivename.last);
             deadnames.push(deadname[x].last);
+        }
+
+        if (
+            isAliveNameFirst && isDeadNameFirst &&
+            isAliveNameLast && isDeadNameLast
+        ) {
+            alivenames.push(alivename.first + alivename.last);
+            deadnames.push(deadname[x].first + deadname[x].last);
         }
     }
     replaceNames(deadnames, alivenames);
