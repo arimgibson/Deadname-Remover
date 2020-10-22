@@ -103,19 +103,20 @@ function replaceText(orginialText: string, oldText: string, newText: string) {
 
 function checkNodeForReplacement(node: Node, dead: string[], replacement: string[]) {
     if (node.nodeType === 3) {
-        for (let i = 0, len = dead.length; i < len; i++) {
-            if (revert) {
-                const cachedText = cachedNames.get(node.nodeValue);
-                if (cachedText) {
-                    node.parentElement && node.parentElement.replaceChild(document.createTextNode(cachedText.toString()), node);
-                }
-            } else {
-                const text = node.nodeValue;
-                const newText = replaceText(text, dead[i], replacement[i]);
-                if (newText !== text) {
-                    cachedNames.set(newText, text);
-                    node.parentElement && node.parentElement.replaceChild(document.createTextNode(newText), node);
-                }
+        if (revert) {
+            const cachedText = cachedNames.get(node.nodeValue);
+            if (cachedText) {
+                node.parentElement && node.parentElement.replaceChild(document.createTextNode(cachedText.toString()), node);
+            }
+        } else {
+            const oldText = node.nodeValue;
+            let newText = node.nodeValue;
+            for (let i = 0, len = dead.length; i < len; i++) {
+                newText = replaceText(newText, dead[i], replacement[i]);
+            }
+            if (newText !== oldText) {
+                cachedNames.set(newText, oldText);
+                node.parentElement && node.parentElement.replaceChild(document.createTextNode(newText), node);
             }
         }
     } else {
