@@ -11,7 +11,6 @@ async function production() {
             format: 'iife',
             minify: true,
             bundle: true,
-            strict: true,
             sourcemap: false,
         });
     });

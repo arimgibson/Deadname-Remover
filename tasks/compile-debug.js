@@ -11,7 +11,6 @@ async function debug() {
             sourcemap: 'inline',
             format: 'iife',
             bundle: true,
-            strict: true,
             minify: false,
         });
     });
