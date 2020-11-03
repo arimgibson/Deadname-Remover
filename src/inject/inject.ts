@@ -90,9 +90,10 @@ function replaceText(orginialText: string, oldText: string, newText: string) {
     let replacementText = orginialText;
     orginialText = orginialText.toLowerCase();
     oldText = oldText.toLowerCase();
-    let index: number = orginialText.indexOf(oldText);
+    const oldTextLen = oldText.length;
+    let index = orginialText.indexOf(oldText);
     while (index != -1) {
-        if (acceptableCharacters.indexOf(orginialText[index + oldText.length]) == -1 && acceptableCharacters.indexOf(orginialText[index - 1]) == -1) {
+        if (acceptableCharacters.indexOf(orginialText[index + oldTextLen]) === -1 && acceptableCharacters.indexOf(orginialText[index - 1]) === -1) {
             replacementText = orginialText.replace(oldText, newText);
         }
         orginialText = orginialText.replace(oldText, newText);
@@ -119,11 +120,9 @@ function checkNodeForReplacement(node: Node, dead: string[], replacement: string
                 node.parentElement && node.parentElement.replaceChild(document.createTextNode(newText), node);
             }
         }
-    } else {
-        if (node.hasChildNodes()) {
-            for (let i = 0, len = node.childNodes.length; i < len; i++) {
-                checkNodeForReplacement(node.childNodes[i], dead, replacement);
-            }
+    } else if (node.hasChildNodes()) {
+        for (let i = 0, len = node.childNodes.length; i < len; i++) {
+            checkNodeForReplacement(node.childNodes[i], dead, replacement);
         }
     }
 }
@@ -142,13 +141,11 @@ function setupListener(dead: string[], replacement: string[]) {
     observer.observe(document, {childList: true, subtree: true});
 }
 
-function checkElementForTextNodes(dead: string[], replacement: string[]) {
-    const elements = document.body.getElementsByTagName('*');
-    for (let i = 0, len = elements.length; i < len; i++) {
-        const children = elements[i].childNodes;
-        for (let n = 0, len2 = children.length; n < len2; n++) {
-            checkNodeForReplacement(children[n], dead, replacement);
-        }
+function checkElementForTextNodes(dead: string[], replacement: string[]) { 2;
+    const iterator = document.createNodeIterator(document.body, NodeFilter.SHOW_TEXT);
+    let currentTextNode: Node;
+    while ((currentTextNode = iterator.nextNode())) {
+        checkNodeForReplacement(currentTextNode, dead, replacement);
     }
     if (!revert) {
         setupListener(dead, replacement);
