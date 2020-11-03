@@ -90,7 +90,7 @@ function replaceText(orginialText: string, oldText: string, newText: string) {
     if (oldText === newText) {
         return orginialText;
     }
-    let replacementText = orginialText.slice();
+    let replacementText = orginialText;
     orginialText = orginialText.toLowerCase();
     oldText = oldText.toLowerCase();
     const oldTextLen = oldText.length;
