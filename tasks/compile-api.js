@@ -22,7 +22,6 @@ async function api() {
         globalName: 'DeadnameRemover',
         minify: true,
         bundle: true,
-        strict: true,
         sourcemap: false,
     });
 
