@@ -87,16 +87,20 @@ function changeContent() {
 const acceptableCharacters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_';
 
 function replaceText(orginialText: string, oldText: string, newText: string) {
-    let replacementText = orginialText;
+    if (oldText === newText) {
+        return orginialText;
+    }
+    let replacementText = orginialText.slice();
     orginialText = orginialText.toLowerCase();
     oldText = oldText.toLowerCase();
     const oldTextLen = oldText.length;
     let index = orginialText.indexOf(oldText);
     while (index != -1) {
+        const regex = new RegExp(oldText, 'i');
         if (acceptableCharacters.indexOf(orginialText[index + oldTextLen]) === -1 && acceptableCharacters.indexOf(orginialText[index - 1]) === -1) {
-            replacementText = orginialText.replace(oldText, newText);
+            replacementText = replacementText.replace(regex, newText);
         }
-        orginialText = orginialText.replace(oldText, newText);
+        orginialText = orginialText.replace(regex, newText);
         index = orginialText.indexOf(oldText);
     }
     return replacementText;
@@ -144,7 +148,7 @@ function setupListener(dead: string[], replacement: string[]) {
 function checkElementForTextNodes(dead: string[], replacement: string[]) { 2;
     const iterator = document.createNodeIterator(document.body, NodeFilter.SHOW_TEXT);
     let currentTextNode: Node;
-    while ((currentTextNode = iterator.nextNode())) {
+    while (currentTextNode = iterator.nextNode()) {
         checkNodeForReplacement(currentTextNode, dead, replacement);
     }
     if (!revert) {
