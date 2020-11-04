@@ -91,17 +91,15 @@ function replaceText(orginialText: string, oldText: string, newText: string) {
         return orginialText;
     }
     let replacementText = orginialText;
-    orginialText = orginialText.toLowerCase();
     oldText = oldText.toLowerCase();
     const oldTextLen = oldText.length;
-    let index = orginialText.indexOf(oldText);
-    while (index != -1) {
-        const regex = new RegExp(oldText, 'i');
-        if (acceptableCharacters.indexOf(orginialText[index + oldTextLen]) === -1 && acceptableCharacters.indexOf(orginialText[index - 1]) === -1) {
-            replacementText = replacementText.replace(regex, newText);
+    let index = replacementText.toLowerCase().indexOf(oldText);
+    while (index !== -1) {
+        const end = index + oldTextLen;
+        if (acceptableCharacters.indexOf(replacementText[end]) === -1 && acceptableCharacters.indexOf(replacementText[index - 1]) === -1) {
+            replacementText = replacementText.substring(0, index) + newText + replacementText.substring(end);
         }
-        orginialText = orginialText.replace(regex, newText);
-        index = orginialText.indexOf(oldText);
+        index = replacementText.toLocaleLowerCase().indexOf(oldText, end);
     }
     return replacementText;
 }
