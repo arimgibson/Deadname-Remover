@@ -143,7 +143,7 @@ function setupListener(dead: string[], replacement: string[]) {
     observer.observe(document, {childList: true, subtree: true});
 }
 
-function checkElementForTextNodes(dead: string[], replacement: string[]) { 2;
+function checkElementForTextNodes(dead: string[], replacement: string[]) {
     const iterator = document.createNodeIterator(document.body, NodeFilter.SHOW_TEXT);
     let currentTextNode: Node;
     while (currentTextNode = iterator.nextNode()) {
