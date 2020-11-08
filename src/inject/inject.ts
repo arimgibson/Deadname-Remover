@@ -93,12 +93,12 @@ function replaceText(orginialText: string, oldText: string, newText: string, isT
         return orginialText;
     }
     if (!revert && highlight && !isTitle) {
-        newText = `<mark replaced="">${newText}</mark>`;
+        newText = `<span style="background: linear-gradient(to right, #55CDFC 20%, #F7A8B8 0%, #F7A8B8 40%, white 0%, white 60%, #F7A8B8 0%, #F7A8B8 80%, #55CDFC 0%)" replaced="">${newText}</span>`;
     }
     let replacementText = orginialText;
     oldText = oldText.toLowerCase();
     if (revert && highlight && !isTitle) {
-        oldText = `<mark replaced="">${oldText}</mark>`;
+        oldText = `<span style="background: linear-gradient(to right, #55CDFC 20%, #F7A8B8 0%, #F7A8B8 40%, white 0%, white 60%, #F7A8B8 0%, #F7A8B8 80%, #55CDFC 0%)" replaced="">${oldText}</span>`;
     }
     const oldTextLen = oldText.length;
     let index = replacementText.toLowerCase().indexOf(oldText);
