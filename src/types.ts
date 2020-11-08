@@ -6,14 +6,15 @@ export type Name = {
     first: string;
     middle: string;
     last: string;
-   }
+}
 
 export type UserSettings = {
     name: Name;
     deadname: Name[];
     enabled: boolean;
     stealthMode: boolean;
-   }
+    highlight: boolean;
+}
 
 export const DEFAULT_SETTINGS: UserSettings = {
     name: {
@@ -28,4 +29,5 @@ export const DEFAULT_SETTINGS: UserSettings = {
     }],
     enabled: true,
     stealthMode: false,
+    highlight: false,
 };

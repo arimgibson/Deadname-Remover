@@ -8,6 +8,7 @@ let deadnames: string[] = [];
 let observer: MutationObserver = null;
 const cachedNames = new Map<string, string>();
 let revert = false;
+let highlight: boolean;
 
 export function start(settings: UserSettings = DEFAULT_SETTINGS) {
     console.log('Starting.');
@@ -15,6 +16,7 @@ export function start(settings: UserSettings = DEFAULT_SETTINGS) {
     if (!settings.enabled) {
         return;
     }
+    highlight = settings.highlight;
     loadNames(settings);
 }
 
@@ -86,12 +88,18 @@ function changeContent() {
 
 const acceptableCharacters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_';
 
-function replaceText(orginialText: string, oldText: string, newText: string) {
+function replaceText(orginialText: string, oldText: string, newText: string, isTitle?: boolean) {
     if (oldText === newText) {
         return orginialText;
     }
+    if (!revert && highlight && !isTitle) {
+        newText = `<mark replaced="">${newText}</mark>`;
+    }
     let replacementText = orginialText;
     oldText = oldText.toLowerCase();
+    if (revert && highlight && !isTitle) {
+        oldText = `<mark replaced="">${oldText}</mark>`;
+    }
     const oldTextLen = oldText.length;
     let index = replacementText.toLowerCase().indexOf(oldText);
     while (index !== -1) {
@@ -105,21 +113,33 @@ function replaceText(orginialText: string, oldText: string, newText: string) {
 }
 
 function checkNodeForReplacement(node: Node, dead: string[], replacement: string[]) {
-    if (node.nodeType === 3) {
-        if (revert) {
+    if (!node || (!revert && node['replaced'])) {
+        return;
+    }
+    if (revert) {
+        if (highlight) {
+            const cachedText = cachedNames.get((node as HTMLElement).innerHTML);
+            if (cachedText) {
+                (node as HTMLElement).innerHTML = cachedText.toString();
+            }
+        } else {
             const cachedText = cachedNames.get(node.nodeValue);
             if (cachedText) {
                 node.parentElement && node.parentElement.replaceChild(document.createTextNode(cachedText.toString()), node);
             }
-        } else {
-            const oldText = node.nodeValue;
-            let newText = node.nodeValue;
-            for (let i = 0, len = dead.length; i < len; i++) {
-                newText = replaceText(newText, dead[i], replacement[i]);
-            }
-            if (newText !== oldText) {
-                cachedNames.set(newText, oldText);
-                node.parentElement && node.parentElement.replaceChild(document.createTextNode(newText), node);
+        }
+        return;
+    }
+    if (node.nodeType === 3) {
+        const oldText = node.nodeValue;
+        let newText = node.nodeValue;
+        for (let i = 0, len = dead.length; i < len; i++) {
+            newText = replaceText(newText, dead[i], replacement[i]);
+        }
+        if (newText !== oldText) {
+            cachedNames.set(newText, oldText);
+            if (node.parentElement) {
+                node.parentElement.innerHTML = newText;
             }
         }
     } else if (node.hasChildNodes()) {
@@ -144,6 +164,12 @@ function setupListener(dead: string[], replacement: string[]) {
 }
 
 function checkElementForTextNodes(dead: string[], replacement: string[]) {
+    if (revert && highlight) {
+        const elements = document.body.querySelectorAll('mark[replaced]');
+        for (let i = 0, len = elements.length; i < len; i++) {
+            checkNodeForReplacement(elements[i].parentElement, dead, replacement);
+        }
+    }
     const iterator = document.createNodeIterator(document.body, NodeFilter.SHOW_TEXT);
     let currentTextNode: Node;
     while (currentTextNode = iterator.nextNode()) {
@@ -158,13 +184,13 @@ function replaceNames(old: string[], replacement: string[]) {
     if (!isDOMReady()) {
         addDOMReadyListener(() => {
             for (let i = 0, len = old.length; i < len; i++) {
-                document.title = replaceText(document.title, old[i], replacement[i]);
+                document.title = replaceText(document.title, old[i], replacement[i], true);
             }
             checkElementForTextNodes(old, replacement);
         });
     } else {
         for (let i = 0, len = old.length; i < len; i++) {
-            document.title = replaceText(document.title, old[i], replacement[i]);
+            document.title = replaceText(document.title, old[i], replacement[i], true);
         }
         checkElementForTextNodes(old, replacement);
     }
