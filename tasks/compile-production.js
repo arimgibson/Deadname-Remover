@@ -3,6 +3,7 @@ const {clean, files, copyFiles} = require('./utils');
 
 async function production() {
     await clean();
+    await copyFiles();
 
     files.forEach(async (options) => {
         await build({
@@ -14,8 +15,6 @@ async function production() {
             sourcemap: false,
         });
     });
-
-    await copyFiles();
 }
 
 module.exports = {

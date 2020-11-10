@@ -8,6 +8,7 @@ let deadnames: string[] = [];
 let observer: MutationObserver = null;
 const cachedNames = new Map<string, string>();
 let revert = false;
+let highlight: boolean;
 
 export function start(settings: UserSettings = DEFAULT_SETTINGS) {
     console.log('Starting.');
@@ -15,6 +16,7 @@ export function start(settings: UserSettings = DEFAULT_SETTINGS) {
     if (!settings.enabled) {
         return;
     }
+    highlight = settings.highlight;
     loadNames(settings);
 }
 
@@ -86,44 +88,63 @@ function changeContent() {
 
 const acceptableCharacters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_';
 
-function replaceText(orginialText: string, oldText: string, newText: string) {
+function replaceText(orginialText: string, oldText: string, newText: string, isTitle?: boolean) {
+    if (oldText === newText) {
+        return orginialText;
+    }
+    if (!revert && highlight && !isTitle) {
+        newText = `<mark replaced="">${newText}</mark>`;
+    }
     let replacementText = orginialText;
-    orginialText = orginialText.toLowerCase();
     oldText = oldText.toLowerCase();
-    let index: number = orginialText.indexOf(oldText);
-    while (index != -1) {
-        if (acceptableCharacters.indexOf(orginialText[index + oldText.length]) == -1 && acceptableCharacters.indexOf(orginialText[index - 1]) == -1) {
-            replacementText = orginialText.replace(oldText, newText);
+    if (revert && highlight && !isTitle) {
+        oldText = `<mark replaced="">${oldText}</mark>`;
+    }
+    const oldTextLen = oldText.length;
+    let index = replacementText.toLowerCase().indexOf(oldText);
+    while (index !== -1) {
+        const end = index + oldTextLen;
+        if (acceptableCharacters.indexOf(replacementText[end]) === -1 && acceptableCharacters.indexOf(replacementText[index - 1]) === -1) {
+            replacementText = replacementText.substring(0, index) + newText + replacementText.substring(end);
         }
-        orginialText = orginialText.replace(oldText, newText);
-        index = orginialText.indexOf(oldText);
+        index = replacementText.toLocaleLowerCase().indexOf(oldText, end);
     }
     return replacementText;
 }
 
 function checkNodeForReplacement(node: Node, dead: string[], replacement: string[]) {
-    if (node.nodeType === 3) {
-        if (revert) {
+    if (!node || (!revert && node['replaced'])) {
+        return;
+    }
+    if (revert) {
+        if (highlight) {
+            const cachedText = cachedNames.get((node as HTMLElement).innerHTML);
+            if (cachedText) {
+                (node as HTMLElement).innerHTML = cachedText.toString();
+            }
+        } else {
             const cachedText = cachedNames.get(node.nodeValue);
             if (cachedText) {
                 node.parentElement && node.parentElement.replaceChild(document.createTextNode(cachedText.toString()), node);
             }
-        } else {
-            const oldText = node.nodeValue;
-            let newText = node.nodeValue;
-            for (let i = 0, len = dead.length; i < len; i++) {
-                newText = replaceText(newText, dead[i], replacement[i]);
-            }
-            if (newText !== oldText) {
-                cachedNames.set(newText, oldText);
-                node.parentElement && node.parentElement.replaceChild(document.createTextNode(newText), node);
+        }
+        return;
+    }
+    if (node.nodeType === 3) {
+        const oldText = node.nodeValue;
+        let newText = node.nodeValue;
+        for (let i = 0, len = dead.length; i < len; i++) {
+            newText = replaceText(newText, dead[i], replacement[i]);
+        }
+        if (newText !== oldText) {
+            cachedNames.set(newText, oldText);
+            if (node.parentElement) {
+                node.parentElement.innerHTML = newText;
             }
         }
-    } else {
-        if (node.hasChildNodes()) {
-            for (let i = 0, len = node.childNodes.length; i < len; i++) {
-                checkNodeForReplacement(node.childNodes[i], dead, replacement);
-            }
+    } else if (node.hasChildNodes()) {
+        for (let i = 0, len = node.childNodes.length; i < len; i++) {
+            checkNodeForReplacement(node.childNodes[i], dead, replacement);
         }
     }
 }
@@ -143,12 +164,16 @@ function setupListener(dead: string[], replacement: string[]) {
 }
 
 function checkElementForTextNodes(dead: string[], replacement: string[]) {
-    const elements = document.body.getElementsByTagName('*');
-    for (let i = 0, len = elements.length; i < len; i++) {
-        const children = elements[i].childNodes;
-        for (let n = 0, len2 = children.length; n < len2; n++) {
-            checkNodeForReplacement(children[n], dead, replacement);
+    if (revert && highlight) {
+        const elements = document.body.querySelectorAll('mark[replaced]');
+        for (let i = 0, len = elements.length; i < len; i++) {
+            checkNodeForReplacement(elements[i].parentElement, dead, replacement);
         }
+    }
+    const iterator = document.createNodeIterator(document.body, NodeFilter.SHOW_TEXT);
+    let currentTextNode: Node;
+    while (currentTextNode = iterator.nextNode()) {
+        checkNodeForReplacement(currentTextNode, dead, replacement);
     }
     if (!revert) {
         setupListener(dead, replacement);
@@ -159,13 +184,13 @@ function replaceNames(old: string[], replacement: string[]) {
     if (!isDOMReady()) {
         addDOMReadyListener(() => {
             for (let i = 0, len = old.length; i < len; i++) {
-                document.title = replaceText(document.title, old[i], replacement[i]);
+                document.title = replaceText(document.title, old[i], replacement[i], true);
             }
             checkElementForTextNodes(old, replacement);
         });
     } else {
         for (let i = 0, len = old.length; i < len; i++) {
-            document.title = replaceText(document.title, old[i], replacement[i]);
+            document.title = replaceText(document.title, old[i], replacement[i], true);
         }
         checkElementForTextNodes(old, replacement);
     }

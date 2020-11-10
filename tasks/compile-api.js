@@ -22,9 +22,10 @@ async function api() {
         globalName: 'DeadnameRemover',
         minify: true,
         bundle: true,
-        strict: true,
         sourcemap: false,
     });
+
+    const indent = ' '.repeat(4);
 
     const data = [
         '// ==UserScript==',
@@ -44,9 +45,9 @@ async function api() {
         '// ==/UserScript==',
         '',
         '(function() {',
-        "\t'use strict';",
-        `\tvar settings = ${settings.join('\n')}`,
-        '\tDeadnameRemover.start(settings);',
+        `${indent}'use strict';`,
+        `${indent}var settings = ${settings.join('\n')}`,
+        `${indent}DeadnameRemover.start(settings);`,
         '})();',
         ''
     ].join('\n');
