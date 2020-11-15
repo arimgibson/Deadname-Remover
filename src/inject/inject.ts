@@ -88,28 +88,34 @@ function changeContent() {
 
 const acceptableCharacters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_';
 
-function replaceText(orginialText: string, oldText: string, newText: string, isTitle?: boolean) {
-    if (oldText === newText) {
-        return orginialText;
-    }
-    if (!revert && highlight && !isTitle) {
-        newText = `<mark replaced="">${newText}</mark>`;
-    }
-    let replacementText = orginialText;
-    oldText = oldText.toLowerCase();
-    if (revert && highlight && !isTitle) {
-        oldText = `<mark replaced="">${oldText}</mark>`;
-    }
-    const oldTextLen = oldText.length;
-    let index = replacementText.toLowerCase().indexOf(oldText);
-    while (index !== -1) {
-        const end = index + oldTextLen;
-        if (acceptableCharacters.indexOf(replacementText[end]) === -1 && acceptableCharacters.indexOf(replacementText[index - 1]) === -1) {
-            replacementText = replacementText.substring(0, index) + newText + replacementText.substring(end);
+function replaceText(orginialText: string, oldTexts: string[], newTexts: string[], isTitle?: boolean) {
+    let currentIndex = 0;
+    let index: number, end: number;
+    const getIndex = (searchString: string, position?: number) => index = orginialText.toLowerCase().indexOf(searchString, position);
+    const getNextIndex = (position: number) => {
+        index = getIndex(oldTexts[currentIndex], position);
+        while (index === -1) {
+            if (currentIndex + 1 === oldTexts.length) {
+                return false;
+            } else {
+                currentIndex++;
+                index = getIndex(oldTexts[currentIndex]);
+            }
         }
-        index = replacementText.toLocaleLowerCase().indexOf(oldText, end);
+        return true;
+    };
+    oldTexts = oldTexts.map(oldText => oldText.toLowerCase());
+    if (highlight && !isTitle) {
+        revert ? oldTexts : newTexts = (revert ? oldTexts : newTexts).map(text => `<mark replaced="">${text}</mark>`);
     }
-    return replacementText;
+    const oldTextsLen = oldTexts.map(word => word.length);
+    while (getNextIndex(end)) {
+        end = index + oldTextsLen[currentIndex];
+        if (acceptableCharacters.indexOf(orginialText[end]) === -1 && acceptableCharacters.indexOf(orginialText[index - 1]) === -1) {
+            orginialText = orginialText.substring(0, index) + newTexts[currentIndex] + orginialText.substring(end);
+        }
+    }
+    return orginialText;
 }
 
 function checkNodeForReplacement(node: Node, dead: string[], replacement: string[]) {
@@ -133,9 +139,7 @@ function checkNodeForReplacement(node: Node, dead: string[], replacement: string
     if (node.nodeType === 3) {
         const oldText = node.nodeValue;
         let newText = node.nodeValue;
-        for (let i = 0, len = dead.length; i < len; i++) {
-            newText = replaceText(newText, dead[i], replacement[i]);
-        }
+        newText = replaceText(newText, dead, replacement);
         if (newText !== oldText) {
             cachedNames.set(newText, oldText);
             if (node.parentElement) {
@@ -181,17 +185,12 @@ function checkElementForTextNodes(dead: string[], replacement: string[]) {
 }
 
 function replaceNames(old: string[], replacement: string[]) {
+    document.title = replaceText(document.title, old, replacement, true);
     if (!isDOMReady()) {
         addDOMReadyListener(() => {
-            for (let i = 0, len = old.length; i < len; i++) {
-                document.title = replaceText(document.title, old[i], replacement[i], true);
-            }
             checkElementForTextNodes(old, replacement);
         });
     } else {
-        for (let i = 0, len = old.length; i < len; i++) {
-            document.title = replaceText(document.title, old[i], replacement[i], true);
-        }
         checkElementForTextNodes(old, replacement);
     }
 }
