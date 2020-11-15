@@ -57,9 +57,9 @@ function saveCurrentDeadName(index: number) {
 }
 
 function loadDOM() {
-    (document.getElementById('txtFirstName') as HTMLInputElement).value = settings.name.first;
-    (document.getElementById('txtMidName') as HTMLInputElement).value = settings.name.middle;
-    (document.getElementById('txtLastName') as HTMLInputElement).value = settings.name.last;
+    (document.getElementById('chosen-first-name') as HTMLInputElement).value = settings.name.first;
+    (document.getElementById('chosen-first-name') as HTMLInputElement).value = settings.name.middle;
+    (document.getElementById('chosen-last-name') as HTMLInputElement).value = settings.name.last;
 
     (document.getElementById('txtFirstDeadname') as HTMLInputElement).value = settings.deadname[deadNameCounter].first;
     (document.getElementById('txtMidDeadname') as HTMLInputElement).value = settings.deadname[deadNameCounter].middle;
@@ -84,9 +84,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
 const saveSettings = () => {
     const name: Name = {
-        first: (document.getElementById('txtFirstName') as HTMLInputElement).value.trim(),
-        middle: (document.getElementById('txtMidName') as HTMLInputElement).value.trim(),
-        last: (document.getElementById('txtLastName') as HTMLInputElement).value.trim()
+        first: (document.getElementById('chosen-first-name') as HTMLInputElement).value.trim(),
+        middle: (document.getElementById('chosen-middle-name') as HTMLInputElement).value.trim(),
+        last: (document.getElementById('chosen-last-name') as HTMLInputElement).value.trim()
     };
 
     saveCurrentDeadName(deadNameCounter);

@@ -7,22 +7,21 @@
     <link rel="stylesheet" href="styles.css" />
     <link rel="icon" type="image/x-icon" href="transgender.ico" />
     <script src="script.js" defer></script>
-    <script src="data.js" defer></script>
   </head>
   <body>
     <header>
       <h1 class="text-slide-background">Deadname Remover - Name Settings</h1>
-      <div id="trans-nb-toggle-container" aria-hidden="true">
+      <div id="theme-toggle-container" aria-hidden="true">
         <h4>Change Extension Theme</h4>
         <p class="trans">Transgender</p>
-        <div class="switch-container">
-          <label id="trans-nb-toggle" class="switch" for="trans-non-binary">
-            <input type="checkbox" id="trans-non-binary" />
+        <div>
+          <label id="trans-nb-theme-toggle-container" class="switch" for="trans-nb-theme-toggle">
+            <input type="checkbox" id="trans-nb-theme-toggle" />
             <span class="slider round"></span>
           </label>
         </div>
         <p class="non-binary">Non-Binary</p>
-        <label for="high-contrast">High Contrast Theme? <input type="checkbox" id="high-contrast" /></label>
+        <label for="high-contrast">High Contrast Theme?<input type="checkbox" id="high-contrast" /></label>
       </div>
     </header>
 
@@ -40,10 +39,10 @@
       </section>
       <section id="deadname">
         <h2>Your Deadname(s)</h2>
-        <button id="show-hide" aria-controls="deadname-form" aria-label="Show or Hide Deadnames" data-text="Show/Hide Deadnames"></button>
+        <button id="show-hide-deadnames" aria-controls="deadname-form" aria-label="Show or Hide Deadnames" data-text="Show/Hide Deadnames"></button>
         <form id="deadname-form" aria-label="Set your dead first, middle, and last names" hidden>
           <p>
-            <strong>Add <i style="display: inline-block">one</i> deadname per field</strong>
+            <strong>Add <i>one</i> deadname per field</strong>
           </p>
           <label>First Name(s)</label>
           <input type="text" data-deadname="first" aria-label="First dead first name" />
@@ -74,14 +73,13 @@
         </label>
         <p>Hides the transgender or non-binary flag icon associated with the extension</p>
         <h3>Color Indicator</h3>
-        <label id="color-toggle-container" class="switch option-toggle-container" for="color-indicator-toggle">
+        <label id="color-indicator-toggle-container" class="switch option-toggle-container" for="color-indicator-toggle">
           <input type="checkbox" id="color-indicator-toggle" class="option-toggle" />
           <span class="slider round"></span>
         </label>
         <p>Adds trans flag, non-binary flag, or yellow background to names that have been replaced by this extension. Flag is chosen based on extension theme.</p>
       </section>
-
-      <button id="save" aria-label="save Chosen and Deadname Settings" data-text="Save Chosen and Deadname Settings"></button>
+      <button id="save" aria-label="Save Chosen and Deadname Settings" data-text="Save Chosen and Deadname Settings"></button>
       <h2 id="saved" class="text-slide-background" hidden>Saved!</h2>
     </main>
     <footer>
