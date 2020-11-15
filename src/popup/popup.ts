@@ -1,5 +1,5 @@
 import {UserSettings} from '../types';
-import {isDOMReady, addDOMReadyListener} from '../inject/dom';
+import {domAction} from '../inject/dom';
 
 const port = chrome.runtime.connect({name: 'popup'});
 let counter = 0;
@@ -49,8 +49,4 @@ const registerEvents = () => {
     (document.querySelector('.onoff-option') as HTMLInputElement).addEventListener('click', changeSettings);
 };
 
-if (!isDOMReady()) {
-    addDOMReadyListener(registerEvents);
-} else {
-    registerEvents();
-}
+domAction(registerEvents);

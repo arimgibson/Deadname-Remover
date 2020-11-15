@@ -72,7 +72,7 @@ function getAllTabs(query: chrome.tabs.QueryInfo) {
     });
 }
 
-// TODO: Don't forget to add a implementation to get a `site-list` behavior.
+// TODO: Add a implementation to get a `site-list` behavior.
 const getTabMessage = (url: string, frameURL: string) => {
     return getSettings();
 };
