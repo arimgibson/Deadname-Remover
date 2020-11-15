@@ -19,7 +19,7 @@ export function start(settings: UserSettings = DEFAULT_SETTINGS) {
     aliveName = settings.name;
     deadName = settings.deadname;
     initalizeWords();
-    replaceWords();
+    replaceDOMWithNewWords();
 }
 
 function cleanUp() {
@@ -29,7 +29,7 @@ function cleanUp() {
     observer && observer.disconnect();
     revert = true;
     [newWords, oldWords] = [oldWords, newWords];
-    replaceWords();
+    replaceDOMWithNewWords();
     [newWords, oldWords] = [oldWords, newWords];
     revert = false;
     cachedWords.clear();
@@ -178,7 +178,7 @@ function checkElementForTextNodes() {
     !revert && setupListener();
 }
 
-function replaceWords() {
+function replaceDOMWithNewWords() {
     document.title = replaceText(document.title, true);
     domAction(() => checkElementForTextNodes());
 }
