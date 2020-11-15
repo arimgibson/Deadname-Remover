@@ -1,7 +1,10 @@
 module.exports = {
     parser: '@typescript-eslint/parser',
     plugins: ['@typescript-eslint'],
-    extends: ['plugin:@typescript-eslint/recommended'],
+    extends: [
+        "eslint:recommended",
+        "plugin:@typescript-eslint/recommended",
+    ],
 	rules: {
         'array-bracket-spacing': ['error', 'never'],
         'block-spacing': ['error', 'always'],
@@ -48,7 +51,8 @@ module.exports = {
         {
             files: ['tasks/**/*.js'],
             rules: {
-                    '@typescript-eslint/no-var-requires': 'off',
+                '@typescript-eslint/no-var-requires': 'off',
+                'no-undef': 'off',
             },
         },
     ],
