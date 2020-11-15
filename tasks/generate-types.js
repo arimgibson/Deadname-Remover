@@ -5,7 +5,6 @@ async function generateType() {
         entryPoints: ['src/types.ts'],
         outfile: 'types.js',
         format: 'cjs',
-        strict: true,
         sourcemap: false,
         minify: false,
         bundle: false,

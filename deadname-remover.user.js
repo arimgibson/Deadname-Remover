@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         Deadname-Remover
-// @version      1.1.0
+// @version      1.1.2
 // @description  Replace dead names with preferred names.
 // @author       William Hayward
 // @license      MIT
@@ -15,8 +15,8 @@
 // ==/UserScript==
 
 (function() {
-	'use strict';
-	var settings = 	{
+    'use strict';
+    var settings = 	{
 		name: {
 			first: "",
 			middle: "",
@@ -29,7 +29,8 @@
 				last: ""
 			}
 		],
-		enabled: true
+		enabled: true,
+		stealthMode: false
 	}
-	DeadnameRemover.start(settings);
+    DeadnameRemover.start(settings);
 })();
