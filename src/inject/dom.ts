@@ -1,12 +1,20 @@
-export function isDOMReady() {
+function isDOMReady() {
     return document.readyState === 'complete' || document.readyState === 'interactive';
 }
 
 const readyStateListeners = new Set<() => void>();
 
-export function addDOMReadyListener(listener: () => void) {
+function addDOMReadyListener(listener: () => void) {
     readyStateListeners.add(listener);
 }
+
+export const domAction = (callback: () => void) => {
+    if (!isDOMReady()) {
+        addDOMReadyListener(callback);
+    } else {
+        callback();
+    }
+};
 
 if (!isDOMReady()) {
     const onReadyStateChange = () => {
@@ -18,4 +26,3 @@ if (!isDOMReady()) {
     };
     document.addEventListener('readystatechange', onReadyStateChange);
 }
-
