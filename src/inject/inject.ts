@@ -172,7 +172,7 @@ function checkElementForTextNodes() {
     }
     const iterator = document.createNodeIterator(document.body, NodeFilter.SHOW_TEXT);
     let currentTextNode: Node;
-    while (currentTextNode = iterator.nextNode()) {
+    while ((currentTextNode = iterator.nextNode())) {
         checkNodeForReplacement(currentTextNode);
     }
     !revert && setupListener();

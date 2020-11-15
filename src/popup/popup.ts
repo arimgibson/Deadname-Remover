@@ -46,7 +46,7 @@ const registerEvents = () => {
         chrome.runtime.openOptionsPage();
     });
 
-    (document.querySelector('.onoff-option') as HTMLInputElement).addEventListener('click', changeSettings);
+    (document.querySelector('.onoff-option')).addEventListener('click', changeSettings);
 };
 
 domAction(registerEvents);
