@@ -46,7 +46,7 @@ async function api() {
         '',
         '(function() {',
         `${indent}'use strict';`,
-        `${indent}var settings = ${settings.join('\n')}`,
+        `${indent}const settings = ${settings.join('\n')}`,
         `${indent}DeadnameRemover.start(settings);`,
         '})();',
         ''
