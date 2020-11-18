@@ -3,9 +3,18 @@ body {
   font-size: 100%;
 }
 
+header {
+  display: flex;
+  align-items: center;
+}
+
 header h1,
 header h2 {
   display: inline-block;
+}
+
+header h1 {
+  width: 60%;
 }
 
 h3 {
@@ -29,6 +38,10 @@ form * {
 
 form input {
   display: inline-block;
+}
+
+#deadname-form > input {
+  width: 75%;
 }
 
 #options {
@@ -91,11 +104,6 @@ footer {
   font-size: 20px;
 }
 
-i,
-em,
-strong {
-  display: inline-block;
-}
 /* #endregion */
 
 /* #region Popup */
@@ -117,52 +125,6 @@ body#popup main label {
   margin: auto 0;
 }
 
-body#popup #theme-toggle-container,
-body#popup #theme-toggle-container * {
-  width: 125px;
-  margin: 0;
-  padding: 0;
-  position: relative;
-}
-
-body#popup.trans #theme-toggle-container,
-body#popup.non-binary #theme-toggle-container {
-  display: block;
-  background-color: #e6e6e6;
-  border-radius: 4px;
-  line-height: 40px;
-}
-
-body#popup.trans #theme-toggle-container select,
-body#popup.non-binary #theme-toggle-container select {
-  width: 100%;
-  padding: 8px 24px 8px 10px;
-  border: none;
-  background-color: transparent;
-  appearance: none;
-  -webkit-appearance: none;
-  -moz-appearance: none;
-}
-
-body#popup.trans #theme-toggle-container option,
-body#popup.non-binary #theme-toggle-container option {
-  background-color: #e6e6e6;
-}
-
-body#popup.trans #theme-toggle-container:after,
-body#popup.non-binary #theme-toggle-container:after {
-  content: "";
-  position: absolute;
-  top: 50%;
-  right: 8px;
-  width: 0;
-  height: 0;
-  margin-top: -2px;
-  border-top: 5px solid #aaa;
-  border-right: 5px solid transparent;
-  border-left: 5px solid transparent;
-}
-
 body#popup #view-options {
   grid-column: 1/3;
   box-sizing: border-box;
@@ -170,7 +132,7 @@ body#popup #view-options {
 
 /* #endregion */
 
-/* #region Toggle Switches */
+/* #region Toggle Switches & Dropdowns*/
 .switch {
   display: inline-block;
   position: relative;
@@ -193,7 +155,7 @@ body.non-binary .slider {
   left: 0;
   right: 0;
   bottom: 0;
-  transition: 0.75s ease-in-out;
+  transition: 0.5s ease-in-out;
   width: 64px;
   height: 36px;
 }
@@ -230,81 +192,73 @@ body.non-binary .slider::after {
   border-radius: 50%;
 }
 
-/* #region Theme Changing Switch & Container */
-/* Switch */
-#trans-nb-theme-toggle-container .slider {
-  background-image: linear-gradient(#55cdfc, #55cdfc), linear-gradient(#f7a8b8, #f7a8b8), linear-gradient(#ffffff, #ffffff), linear-gradient(#f7a8b8, #f7a8b8), linear-gradient(#55cdfc, #55cdfc);
-  background-size: 100% calc(1 * (100% / 5)), 100% calc(2 * (100% / 5)), 100% calc(3 * (100% / 5)), 100% calc(4 * (100% / 5)), 100% calc(5 * (100% / 5));
-  background-repeat: no-repeat;
-}
-
-#trans-nb-theme-toggle-container .slider::before {
-  position: absolute;
-  content: "";
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  opacity: 0;
-  transition: 0.75s ease-in-out;
-
-  background-image: linear-gradient(#fff430, #fff430), linear-gradient(#ffffff, #ffffff), linear-gradient(#9c59d1, #9c59d1), linear-gradient(#000000, #000000);
-  background-size: 100% calc(1 * (100% / 4)), 100% calc(2 * (100% / 4)), 100% calc(3 * (100% / 4)), 100% calc(4 * (100% / 4));
-  background-repeat: no-repeat;
-}
-
-#trans-nb-theme-toggle-container input:checked + .slider::before {
-  opacity: 1;
-}
-
-#trans-nb-theme-toggle-container input + .slider {
-  box-shadow: -13px -10px 10px -6px #55cdfc, 13px -10px 10px -6px #55cdfc, -13px 10px 10px -6px #f7a8b8, 13px 10px 10px -6px #f7a8b8;
-}
-
-#trans-nb-theme-toggle-container input:checked + .slider {
-  box-shadow: -13px -10px 10px -6px #fff430, 13px -10px 10px -6px #fff430, -13px 10px 10px -6px #9c59d1, 13px 10px 10px -6px #9c59d1;
-}
-
-/* Container */
+/* #region Theme Changing Dropdown */
 #theme-toggle-container {
-  display: inline-grid;
-  float: right;
-  width: 300px;
-  grid-template-columns: 33% 33% 33%;
-}
-
-#theme-toggle-container h4 {
-  grid-column: 1/4;
-  text-align: center;
-  margin: 10px 0;
-}
-
-#theme-toggle-container div {
-  display: flex;
-  align-items: center;
-  justify-content: center;
   width: 100%;
   height: 100%;
-  box-sizing: border-box;
+  position: relative;
 }
 
-#theme-toggle-container .trans {
-  padding-left: 20px;
+body.trans #theme-toggle-container,
+body.non-binary #theme-toggle-container {
+  display: block;
+  background-color: #e6e6e6;
+  border-radius: 8px;
+  line-height: 100%;
+}
+
+#theme-toggle-container select {
+  width: 100%;
+  height: 100%;
+  padding: 8px 24px 8px 10px;
+}
+
+body.trans #theme-toggle-container select,
+body.non-binary #theme-toggle-container select {
+  border: none;
+  background-color: transparent;
+  appearance: none;
+}
+
+body.trans #theme-toggle-container option,
+body.non-binary #theme-toggle-container option {
+  background-color: #e6e6e6;
+}
+
+body.trans #theme-toggle-container:after,
+body.non-binary #theme-toggle-container:after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  right: 8px;
+  width: 0;
+  height: 0;
+  margin-top: -2px;
+  border-top: 5px solid #aaa;
+  border-right: 5px solid transparent;
+  border-left: 5px solid transparent;
+}
+
+/* Options Page Container */
+#theme-toggle-container-options {
+  display: inline-flex;
+  justify-content: right;
+  align-self: right;
+  align-items: center;
+  gap: 15px;
+  width: 40%;
+}
+
+#theme-toggle-container-options > h4 {
+  width: 65%;
   text-align: right;
+  margin: 0;
+  padding: 0;
 }
 
-#theme-toggle-container .non-binary {
-  text-align: left;
+#theme-toggle-container-options > div {
+  width: 35%;
 }
-
-#theme-toggle-container label[for="high-contrast"] {
-  grid-column: 1/4;
-  text-align: center;
-}
-/* #endregion */
-
-/* #region Stealth Mode Switch & Container */
-
 /* #endregion */
 
 /* #endregion */
@@ -327,7 +281,7 @@ body.non-binary .text-slide-background {
   -webkit-text-fill-color: transparent;
   -moz-background-clip: text;
   -moz-text-fill-color: transparent;
-  transition: background-position 0.75s ease-in-out;
+  transition: background-position 1s ease-in-out;
 }
 
 body.trans button,
@@ -366,7 +320,7 @@ body.non-binary button:hover {
 body.trans .option-toggle-container .slider,
 body.non-binary .option-toggle-container .slider {
   background-color: gray;
-  transition: box-shadow 0.75s ease-in-out;
+  transition: box-shadow 0.5s ease-in-out;
 }
 
 body.trans .option-toggle:checked + .slider {
@@ -414,13 +368,20 @@ body.non-binary button {
 /* #endregion */
 
 /* #region High Contrast */
-body.high-contrast {
+body.high-contrast-light {
   background-color: white;
   color: black;
   font-family: "Times New Roman", Times, serif;
 }
 
-body.high-contrast button {
+body.high-contrast-dark {
+  background-color: #3d3d3d;
+  color: white;
+  font-family: "Times New Roman", Times, serif;
+}
+
+body.high-contrast-light button,
+body.high-contrast-dark button {
   width: 410px;
   height: 40px;
   font-size: 18px;

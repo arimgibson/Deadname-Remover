@@ -5,23 +5,22 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Deadname Remover Options</title>
     <link rel="stylesheet" href="styles.css" />
-    <link rel="icon" type="image/x-icon" href="transgender.ico" />
+    <link rel="icon" type="image/x-icon" />
     <script src="options.js" defer></script>
   </head>
-  <body>
+  <body class="trans">
     <header>
       <h1 class="text-slide-background">Deadname Remover - Name Settings</h1>
-      <div id="theme-toggle-container" aria-hidden="true">
+      <div id="theme-toggle-container-options" aria-hidden="true">
         <h4>Change Extension Theme</h4>
-        <p class="trans">Transgender</p>
-        <div>
-          <label id="trans-nb-theme-toggle-container" class="switch" for="trans-nb-theme-toggle">
-            <input type="checkbox" id="trans-nb-theme-toggle" />
-            <span class="slider round"></span>
-          </label>
+        <div id="theme-toggle-container">
+          <select id="theme-toggle">
+            <option value="transgender">Transgender</option>
+            <option value="non-binary">Non-Binary</option>
+            <option value="high-contrast-light">High Contrast - Light</option>
+            <option value="high-contrast-dark">High Contrast - Dark</option>
+          </select>
         </div>
-        <p class="non-binary">Non-Binary</p>
-        <label for="high-contrast">High Contrast Theme?<input type="checkbox" id="high-contrast" /></label>
       </div>
     </header>
 
@@ -42,26 +41,14 @@
         <button id="show-hide-deadnames" aria-controls="deadname-form" aria-label="Show or Hide Deadnames" data-text="Show/Hide Deadnames"></button>
         <form id="deadname-form" aria-label="Set your dead first, middle, and last names" hidden>
           <p>
-            <strong>Add <i>one</i> deadname per field</strong>
+            <strong>Seperate deadnames using commas (e.g. Foo, Bar, Baz)</strong>
           </p>
-          <label>First Name(s)</label>
-          <input type="text" data-deadname="first" aria-label="First dead first name" />
-          <input type="text" data-deadname="first" aria-label="Second dead first name" />
-          <input type="text" data-deadname="first" aria-label="Third dead first name" />
-          <input type="text" data-deadname="first" aria-label="Fourth dead first name" />
-          <input type="text" data-deadname="first" aria-label="Fifth dead first name" />
-          <label>Middle Name(s)</label>
-          <input type="text" data-deadname="middle" aria-label="First dead middle name" />
-          <input type="text" data-deadname="middle" aria-label="Second dead middle name" />
-          <input type="text" data-deadname="middle" aria-label="Third dead middle name" />
-          <input type="text" data-deadname="middle" aria-label="Fourth dead middle name" />
-          <input type="text" data-deadname="middle" aria-label="Fifth dead middle name" />
-          <label>Last Name(s)</label>
-          <input type="text" data-deadname="last" aria-label="First dead last name" />
-          <input type="text" data-deadname="last" aria-label="Second dead last name" />
-          <input type="text" data-deadname="last" aria-label="Third dead last name" />
-          <input type="text" data-deadname="last" aria-label="Fourth dead last name" />
-          <input type="text" data-deadname="last" aria-label="Fifth dead last name" />
+          <label for="dead-first-name">First Name(s)</label>
+          <input type="text" id="dead-first-name" />
+          <label for="dead-middle-name">Middle Name(s)</label>
+          <input type="text" id="dead-middle-name" />
+          <label for="dead-last-name">Last Name(s)</label>
+          <input type="text" id="dead-last-name" />
         </form>
       </section>
       <section id="options">
