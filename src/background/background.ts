@@ -72,7 +72,7 @@ function getAllTabs(query: chrome.tabs.QueryInfo) {
     });
 }
 
-// TODO: Don't forget to add a implementation to get a `site-list` behavior.
+// TODO: Add a implementation to get a `site-list` behavior.
 const getTabMessage = (url: string, frameURL: string) => {
     return getSettings();
 };
@@ -141,7 +141,7 @@ function disableStealth() {
     chrome.browserAction.setTitle({title: 'Deadname Remover Options'});
 }
 
-async function onUIMessage(port: chrome.runtime.Port, {type, data, id}) {
+function onUIMessage(port: chrome.runtime.Port, {type, data, id}) {
     switch (type) {
         case 'get-data': {
             const data = getSettings();
@@ -154,9 +154,11 @@ async function onUIMessage(port: chrome.runtime.Port, {type, data, id}) {
         }
         case 'enable-stealth-mode': {
             enableStealth();
+            break;
         }
         case 'disable-stealth-mode': {
             disableStealth();
+            break;
         }
     }
 }

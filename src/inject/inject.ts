@@ -1,129 +1,131 @@
 import {UserSettings, DEFAULT_SETTINGS, Name} from '../types';
-import {addDOMReadyListener, isDOMReady} from './dom';
+import {domAction} from './dom';
 
-let alivename: Name = null;
-let deadname: Name[] = null;
-let alivenames: string[] = [];
-let deadnames: string[] = [];
+const cachedWords = new Map<string, string>();
 let observer: MutationObserver = null;
-const cachedNames = new Map<string, string>();
+let aliveName: Name = null;
+let deadName: Name[] = null;
+let newWords: string[] = [];
+let oldWords: string[] = [];
 let revert = false;
 let highlight: boolean;
 
 export function start(settings: UserSettings = DEFAULT_SETTINGS) {
-    console.log('Starting.');
     cleanUp();
     if (!settings.enabled) {
         return;
     }
     highlight = settings.highlight;
-    loadNames(settings);
+    aliveName = settings.name;
+    deadName = settings.deadname;
+    initalizeWords();
+    replaceDOMWithNewWords();
 }
 
 function cleanUp() {
-    if (alivenames.length === 0 || deadnames.length === 0) {
+    if (newWords.length === 0 || oldWords.length === 0) {
         return;
     }
     observer && observer.disconnect();
     revert = true;
-    replaceNames(alivenames, deadnames);
-    observer && observer.disconnect();
+    [newWords, oldWords] = [oldWords, newWords];
+    replaceDOMWithNewWords();
+    [newWords, oldWords] = [oldWords, newWords];
     revert = false;
-    cachedNames.clear();
+    cachedWords.clear();
 
 }
 
-function loadNames(settings: UserSettings) {
-    alivename = settings.name;
-    deadname = settings.deadname;
-    changeContent();
-}
-
-function changeContent() {
-    alivenames = [];
-    deadnames = [];
-    const isAliveNameFirst = Boolean(alivename.first);
-    const isAliveNameMiddle = Boolean(alivename.middle);
-    const isAliveNameLast = Boolean(alivename.last);
-    for (let x = 0, len = deadname.length; x < len; x++) {
-        const isDeadNameFirst = Boolean(deadname[x].first);
-        const isDeadNameMiddle = Boolean(deadname[x].middle);
-        const isDeadNameLast = Boolean(deadname[x].last);
+function initalizeWords() {
+    newWords = [];
+    oldWords = [];
+    const isAliveNameFirst = !!aliveName.first;
+    const isAliveNameMiddle = !!aliveName.middle;
+    const isAliveNameLast = !!aliveName.last;
+    for (let x = 0, len = deadName.length; x < len; x++) {
+        const isDeadNameFirst = !!deadName[x].first;
+        const isDeadNameMiddle = !!deadName[x].middle;
+        const isDeadNameLast = !!deadName[x].last;
         if (
             isAliveNameFirst && isDeadNameFirst &&
             isAliveNameMiddle && isDeadNameMiddle &&
             isAliveNameLast && isDeadNameLast
         ) {
-            const fullAlive = `${alivename.first} ${alivename.middle} ${alivename.last}`;
-            const fullDead = `${deadname[x].first} ${deadname[x].middle} ${deadname[x].last}`;
-            alivenames.push(fullAlive);
-            deadnames.push(fullDead);
+            const fullAlive = `${aliveName.first} ${aliveName.middle} ${aliveName.last}`;
+            const fullDead = `${deadName[x].first} ${deadName[x].middle} ${deadName[x].last}`;
+            newWords.push(fullAlive);
+            oldWords.push(fullDead);
         }
 
         if (isAliveNameFirst && isDeadNameFirst) {
-            alivenames.push(alivename.first);
-            deadnames.push(deadname[x].first);
+            newWords.push(aliveName.first);
+            oldWords.push(deadName[x].first);
         }
 
         if (isDeadNameMiddle) {
-            alivenames.push(isAliveNameMiddle ? alivename.middle : '');
-            deadnames.push(deadname[x].middle);
+            newWords.push(isAliveNameMiddle ? aliveName.middle : '');
+            oldWords.push(deadName[x].middle);
         }
 
         if (isAliveNameLast && isDeadNameLast) {
-            alivenames.push(alivename.last);
-            deadnames.push(deadname[x].last);
+            newWords.push(aliveName.last);
+            oldWords.push(deadName[x].last);
         }
 
         if (
             isAliveNameFirst && isDeadNameFirst &&
             isAliveNameLast && isDeadNameLast
         ) {
-            alivenames.push(alivename.first + alivename.last);
-            deadnames.push(deadname[x].first + deadname[x].last);
+            newWords.push(aliveName.first + aliveName.last);
+            oldWords.push(deadName[x].first + deadName[x].last);
         }
     }
-    replaceNames(deadnames, alivenames);
 }
 
 const acceptableCharacters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_';
 
-function replaceText(orginialText: string, oldText: string, newText: string, isTitle?: boolean) {
-    if (oldText === newText) {
-        return orginialText;
-    }
-    if (!revert && highlight && !isTitle) {
-        newText = `<mark replaced="">${newText}</mark>`;
-    }
-    let replacementText = orginialText;
-    oldText = oldText.toLowerCase();
-    if (revert && highlight && !isTitle) {
-        oldText = `<mark replaced="">${oldText}</mark>`;
-    }
-    const oldTextLen = oldText.length;
-    let index = replacementText.toLowerCase().indexOf(oldText);
-    while (index !== -1) {
-        const end = index + oldTextLen;
-        if (acceptableCharacters.indexOf(replacementText[end]) === -1 && acceptableCharacters.indexOf(replacementText[index - 1]) === -1) {
-            replacementText = replacementText.substring(0, index) + newText + replacementText.substring(end);
+function replaceText(text: string, isTitle?: boolean) {
+    let currentIndex = 0;
+    let index: number, end: number;
+    const getIndex = (searchString: string, position?: number) => index = text.toLowerCase().indexOf(searchString, position);
+    const getNextIndex = (position: number) => {
+        index = getIndex(oldWords[currentIndex], position);
+        while (index === -1) {
+            if (currentIndex + 1 === oldWords.length) {
+                return false;
+            } else {
+                currentIndex++;
+                index = getIndex(oldWords[currentIndex]);
+            }
         }
-        index = replacementText.toLocaleLowerCase().indexOf(oldText, end);
+        return true;
+    };
+    oldWords = oldWords.map(oldText => oldText.toLowerCase());
+    if (highlight && !isTitle) {
+        revert ? oldWords : newWords = (revert ? oldWords : newWords).map(text => `<mark replaced="">${text}</mark>`);
     }
-    return replacementText;
+    const oldTextsLen = oldWords.map(word => word.length);
+    while (getNextIndex(end)) {
+        end = index + oldTextsLen[currentIndex];
+        if (acceptableCharacters.indexOf(text[end]) === -1 && acceptableCharacters.indexOf(text[index - 1]) === -1) {
+            text = text.substring(0, index) + newWords[currentIndex] + text.substring(end);
+        }
+    }
+    return text;
 }
 
-function checkNodeForReplacement(node: Node, dead: string[], replacement: string[]) {
+function checkNodeForReplacement(node: Node) {
     if (!node || (!revert && node['replaced'])) {
         return;
     }
     if (revert) {
         if (highlight) {
-            const cachedText = cachedNames.get((node as HTMLElement).innerHTML);
+            const cachedText = cachedWords.get((node as HTMLElement).innerHTML);
             if (cachedText) {
                 (node as HTMLElement).innerHTML = cachedText.toString();
             }
         } else {
-            const cachedText = cachedNames.get(node.nodeValue);
+            const cachedText = cachedWords.get(node.nodeValue);
             if (cachedText) {
                 node.parentElement && node.parentElement.replaceChild(document.createTextNode(cachedText.toString()), node);
             }
@@ -133,29 +135,27 @@ function checkNodeForReplacement(node: Node, dead: string[], replacement: string
     if (node.nodeType === 3) {
         const oldText = node.nodeValue;
         let newText = node.nodeValue;
-        for (let i = 0, len = dead.length; i < len; i++) {
-            newText = replaceText(newText, dead[i], replacement[i]);
-        }
+        newText = replaceText(newText);
         if (newText !== oldText) {
-            cachedNames.set(newText, oldText);
+            cachedWords.set(newText, oldText);
             if (node.parentElement) {
                 node.parentElement.innerHTML = newText;
             }
         }
     } else if (node.hasChildNodes()) {
         for (let i = 0, len = node.childNodes.length; i < len; i++) {
-            checkNodeForReplacement(node.childNodes[i], dead, replacement);
+            checkNodeForReplacement(node.childNodes[i]);
         }
     }
 }
 
-function setupListener(dead: string[], replacement: string[]) {
+function setupListener() {
     observer = new MutationObserver((mutations: Array<MutationRecord>) => {
         for (let i = 0, len = mutations.length; i < len; i++) {
             const mutation: MutationRecord = mutations[i];
             if (mutation.type === 'childList') {
                 mutation.addedNodes.forEach((node: Node) => {
-                    checkNodeForReplacement(node, dead, replacement);
+                    checkNodeForReplacement(node);
                 });
             }
         }
@@ -163,35 +163,22 @@ function setupListener(dead: string[], replacement: string[]) {
     observer.observe(document, {childList: true, subtree: true});
 }
 
-function checkElementForTextNodes(dead: string[], replacement: string[]) {
+function checkElementForTextNodes() {
     if (revert && highlight) {
         const elements = document.body.querySelectorAll('mark[replaced]');
         for (let i = 0, len = elements.length; i < len; i++) {
-            checkNodeForReplacement(elements[i].parentElement, dead, replacement);
+            checkNodeForReplacement(elements[i].parentElement);
         }
     }
     const iterator = document.createNodeIterator(document.body, NodeFilter.SHOW_TEXT);
     let currentTextNode: Node;
-    while (currentTextNode = iterator.nextNode()) {
-        checkNodeForReplacement(currentTextNode, dead, replacement);
+    while ((currentTextNode = iterator.nextNode())) {
+        checkNodeForReplacement(currentTextNode);
     }
-    if (!revert) {
-        setupListener(dead, replacement);
-    }
+    !revert && setupListener();
 }
 
-function replaceNames(old: string[], replacement: string[]) {
-    if (!isDOMReady()) {
-        addDOMReadyListener(() => {
-            for (let i = 0, len = old.length; i < len; i++) {
-                document.title = replaceText(document.title, old[i], replacement[i], true);
-            }
-            checkElementForTextNodes(old, replacement);
-        });
-    } else {
-        for (let i = 0, len = old.length; i < len; i++) {
-            document.title = replaceText(document.title, old[i], replacement[i], true);
-        }
-        checkElementForTextNodes(old, replacement);
-    }
+function replaceDOMWithNewWords() {
+    document.title = replaceText(document.title, true);
+    domAction(() => checkElementForTextNodes());
 }
