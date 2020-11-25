@@ -136,7 +136,8 @@ function disableStealth() {
     if (!chrome.browserAction.setIcon) {
         return;
     }
-    chrome.browserAction.setIcon({path: 'icons/icon19.png'});
+    const {theme} = settings;
+    chrome.browserAction.setIcon({path: theme === 'trans' ? 'icons/trans19.png' : theme === 'non-binary' ? 'icons/nb19.png' : 'icons/stealth.svg'});
     chrome.browserAction.setPopup({popup: 'popup/popup.html'});
     chrome.browserAction.setTitle({title: 'Deadname Remover Options'});
 }

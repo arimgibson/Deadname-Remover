@@ -2,18 +2,19 @@
   * @author: WillHayCode
   */
 
-export type Name = {
+export interface Name {
     first: string;
     middle: string;
     last: string;
 }
 
-export type UserSettings = {
+export interface UserSettings {
     name: Name;
     deadname: Name[];
     enabled: boolean;
     stealthMode: boolean;
     highlight: boolean;
+    theme: 'trans' | 'non-binary' | 'high-contrast-light' | 'hight-contrast-dark';
 }
 
 export const DEFAULT_SETTINGS: UserSettings = {
@@ -30,4 +31,5 @@ export const DEFAULT_SETTINGS: UserSettings = {
     enabled: true,
     stealthMode: false,
     highlight: false,
+    theme: 'trans',
 };

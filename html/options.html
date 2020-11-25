@@ -6,7 +6,6 @@
     <title>Deadname Remover Options</title>
     <link rel="stylesheet" href="styles.css" />
     <link rel="icon" type="image/x-icon" />
-    <script src="helpers.js" defer></script>
     <script src="options.js" defer></script>
   </head>
   <body class="trans">
@@ -16,7 +15,7 @@
         <h4>Change Extension Theme</h4>
         <div id="theme-toggle-container">
           <select id="theme-toggle">
-            <option value="transgender">Transgender</option>
+            <option value="trans">Transgender</option>
             <option value="non-binary">Non-Binary</option>
             <option value="high-contrast-light">High Contrast - Light</option>
             <option value="high-contrast-dark">High Contrast - Dark</option>
@@ -61,8 +60,8 @@
         </label>
         <p>Hides the transgender or non-binary flag icon associated with the extension</p>
         <h3>Highlight Indicator</h3>
-        <label id="highlight-indicator-toggle-container" class="switch option-toggle-container" for="highlight-indicator-toggle">
-          <input type="checkbox" id="highlight-indicator-toggle" class="option-toggle" />
+        <label id="highlight-toggle-container" class="switch option-toggle-container" for="highlight-toggle">
+          <input type="checkbox" id="highlight-toggle" class="option-toggle" />
           <span class="slider round"></span>
         </label>
         <p>Adds trans flag, non-binary flag, or yellow background to names that have been replaced by this extension. Flag is chosen based on extension theme.</p>
