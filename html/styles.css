@@ -46,7 +46,7 @@ form input {
 
 #options {
   display: grid;
-  grid-template-columns: 12.5% 12.5% 12.5% 12.5% 12.5% 12.5% 12.5% 12.5%;
+  grid-template-columns: 15% 10% 15% 10% 15% 10% 15% 10%;
   grid-template-rows: 40px 50px 100px;
 
   margin: 10px 0;
@@ -281,7 +281,6 @@ body.non-binary .text-slide-background {
   -webkit-text-fill-color: transparent;
   -moz-background-clip: text;
   -moz-text-fill-color: transparent;
-  transition: background-position 1s ease-in-out;
 }
 
 body.trans button,

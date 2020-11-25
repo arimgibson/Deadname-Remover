@@ -6,11 +6,12 @@
     <title>Deadname Remover Options</title>
     <link rel="stylesheet" href="styles.css" />
     <link rel="icon" type="image/x-icon" />
+    <script src="helpers.js" defer></script>
     <script src="options.js" defer></script>
   </head>
   <body class="trans">
     <header>
-      <h1 class="text-slide-background">Deadname Remover - Name Settings</h1>
+      <h1 class="text-slide-background">Deadname Remover Options</h1>
       <div id="theme-toggle-container-options" aria-hidden="true">
         <h4>Change Extension Theme</h4>
         <div id="theme-toggle-container">
@@ -41,7 +42,7 @@
         <button id="show-hide-deadnames" aria-controls="deadname-form" aria-label="Show or Hide Deadnames" data-text="Show/Hide Deadnames"></button>
         <form id="deadname-form" aria-label="Set your dead first, middle, and last names" hidden>
           <p>
-            <strong>Seperate deadnames using commas (e.g. Foo, Bar, Baz)</strong>
+            <strong>Separate deadnames using commas (e.g. Foo, Bar, Baz)</strong>
           </p>
           <label for="dead-first-name">First Name(s)</label>
           <input type="text" id="dead-first-name" />
@@ -59,9 +60,9 @@
           <span class="slider round"></span>
         </label>
         <p>Hides the transgender or non-binary flag icon associated with the extension</p>
-        <h3>Color Indicator</h3>
-        <label id="color-indicator-toggle-container" class="switch option-toggle-container" for="color-indicator-toggle">
-          <input type="checkbox" id="color-indicator-toggle" class="option-toggle" />
+        <h3>Highlight Indicator</h3>
+        <label id="highlight-indicator-toggle-container" class="switch option-toggle-container" for="highlight-indicator-toggle">
+          <input type="checkbox" id="highlight-indicator-toggle" class="option-toggle" />
           <span class="slider round"></span>
         </label>
         <p>Adds trans flag, non-binary flag, or yellow background to names that have been replaced by this extension. Flag is chosen based on extension theme.</p>
