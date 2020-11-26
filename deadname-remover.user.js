@@ -16,7 +16,7 @@
 
 (function() {
     'use strict';
-    var settings = 	{
+    const settings = {
 		name: {
 			first: "",
 			middle: "",
@@ -30,7 +30,8 @@
 			}
 		],
 		enabled: true,
-		stealthMode: false
+		stealthMode: false,
+		highlight: false
 	}
     DeadnameRemover.start(settings);
 })();

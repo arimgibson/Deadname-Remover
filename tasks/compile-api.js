@@ -10,8 +10,8 @@ async function api() {
 
     const settings = JSON.stringify(types.DEFAULT_SETTINGS, null, '\t').split('\n');
     for (let x = 0, len = settings.length; x < len; x++) {
-        settings[x] = `\t${settings[x].replace(/.+?(?=\:)/g, (m$) => {
-            return m$.replace(/\"/g, '');
+        settings[x] = `\t${settings[x].replace(/.+?(?=:)/g, (m$) => {
+            return m$.replace(/"/g, '');
         })}`;
     }
 
@@ -46,7 +46,7 @@ async function api() {
         '',
         '(function() {',
         `${indent}'use strict';`,
-        `${indent}var settings = ${settings.join('\n')}`,
+        `${indent}const settings = ${settings.join('\n')}`,
         `${indent}DeadnameRemover.start(settings);`,
         '})();',
         ''

@@ -314,6 +314,7 @@ body.non-binary button::after {
 body.trans button:hover,
 body.non-binary button:hover {
   animation: slide-background 15s linear infinite;
+  cursor: pointer;
 }
 
 body.trans .option-toggle-container .slider,

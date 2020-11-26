@@ -1,7 +1,6 @@
-import {Name, UserSettings, DEFAULT_SETTINGS} from '../types';
+import {Name, UserSettings} from '../types';
 
 const port = chrome.runtime.connect({name: 'popup'});
-let deadNameCounter = 0;
 let counter = 0;
 let settings: UserSettings = null;
 
@@ -43,32 +42,56 @@ getData().then(($settings: UserSettings) => {
     readyStateListeners.clear();
 });
 
-function saveCurrentDeadName(index: number) {
-    const deadName: Name = {
-        first: (document.getElementById('txtFirstDeadname') as HTMLInputElement).value.trim(),
-        middle: (document.getElementById('txtMidDeadname') as HTMLInputElement).value.trim(),
-        last: (document.getElementById('txtLastDeadname') as HTMLInputElement).value.trim()
-    };
-    if (deadName.first || deadName.middle || deadName.last) {
-        settings.deadname[index] = deadName;
-    } else {
-        settings.deadname.splice(index, 1);
-    }
+function changeTheme(theme: UserSettings['theme']) {
+    const toggleDeadNameButton = (document.querySelector('#show-hide-deadnames') as HTMLButtonElement);
+    const saveButton = (document.querySelector('#save') as HTMLButtonElement);
+    const isHighContrast = theme.startsWith('high-contrast');
+
+    document.body.className = theme;
+    toggleDeadNameButton.dataset.text = isHighContrast ? '' : 'Show/Hide Deadnames';
+    toggleDeadNameButton.innerHTML = isHighContrast ? 'Show/Hide Deadnames' : '';
+    saveButton.dataset.text = isHighContrast ? '' : 'Save Chosen and Deadname Settings';
+    saveButton.innerHTML = isHighContrast ? 'Save Chosen and Deadname Settings' : '';
 }
 
 function loadDOM() {
-    (document.getElementById('chosen-first-name') as HTMLInputElement).value = settings.name.first;
-    (document.getElementById('chosen-first-name') as HTMLInputElement).value = settings.name.middle;
-    (document.getElementById('chosen-last-name') as HTMLInputElement).value = settings.name.last;
+    // Loading settings into the DOM.
+    (document.querySelector('#chosen-first-name') as HTMLInputElement).value = settings.name.first;
+    (document.querySelector('#chosen-middle-name') as HTMLInputElement).value = settings.name.middle;
+    (document.querySelector('#chosen-last-name') as HTMLInputElement).value = settings.name.last;
 
-    (document.getElementById('txtFirstDeadname') as HTMLInputElement).value = settings.deadname[deadNameCounter].first;
-    (document.getElementById('txtMidDeadname') as HTMLInputElement).value = settings.deadname[deadNameCounter].middle;
-    (document.getElementById('txtLastDeadname') as HTMLInputElement).value = settings.deadname[deadNameCounter].last;
+    for (let x = 0; x < settings.deadname.length; x++) {
+        (document.getElementById('dead-first-name') as HTMLInputElement).value += settings.deadname[x].first + ', ';
+        (document.getElementById('dead-middle-name') as HTMLInputElement).value += settings.deadname[x].middle + ', ';
+        (document.getElementById('dead-last-name') as HTMLInputElement).value += settings.deadname[x].last + ', ';
+    }
 
-    (document.getElementById('stealth-option') as HTMLInputElement).checked = settings.stealthMode;
-    (document.getElementById('highlight-option') as HTMLInputElement).checked = settings.highlight;
+    (document.querySelector('#stealth-toggle') as HTMLInputElement).checked = settings.stealthMode;
+    (document.querySelector('#highlight-toggle') as HTMLInputElement).checked = settings.highlight;
 
-    renderDeadName(0, 0);
+    // Registering events
+    (document.querySelector('#save') as HTMLButtonElement).addEventListener('click', saveSettings);
+    (document.querySelector('#show-hide-deadnames') as HTMLButtonElement).addEventListener('click', () => {
+        const formElement: HTMLFormElement = document.querySelector('#deadname-form');
+        formElement.hidden = !formElement.hidden;
+    });
+    (document.querySelector('#theme-toggle') as HTMLSelectElement).addEventListener('change', (evt) => {
+        changeTheme(((evt.target as HTMLSelectElement).value as any));
+    });
+    (document.querySelector('#stealth-toggle') as HTMLInputElement).addEventListener('click', (evt) => {
+        if (!evt.target) {
+            return;
+        }
+        settings.stealthMode = (evt.target as HTMLInputElement).checked;
+    });
+    (document.querySelector('#highlight-toggle') as HTMLInputElement).addEventListener('click', (evt) => {
+        if (!evt.target) {
+            return;
+        }
+        settings.highlight = (evt.target as HTMLInputElement).checked;
+    });
+    changeTheme(settings.theme);
+    changeIcon(settings.theme);
 }
 
 function changeSettings($settings: Partial<UserSettings>) {
@@ -82,7 +105,6 @@ document.addEventListener('DOMContentLoaded', () => {
         loadDOM();
     }
 });
-
 const saveSettings = () => {
     const name: Name = {
         first: (document.getElementById('chosen-first-name') as HTMLInputElement).value.trim(),
@@ -90,89 +112,46 @@ const saveSettings = () => {
         last: (document.getElementById('chosen-last-name') as HTMLInputElement).value.trim()
     };
 
-    saveCurrentDeadName(deadNameCounter);
+    const deadname: Name[] = [];
 
+    const firstDeadNames = (document.getElementById('dead-first-name') as HTMLInputElement).value.split(',');
+    const middleDeadNames = (document.getElementById('dead-middle-name') as HTMLInputElement).value.split(',');
+    const lastDeadNames = (document.getElementById('dead-last-name') as HTMLInputElement).value.split(',');
+    const occurences = Math.max(...[firstDeadNames.length - 1, middleDeadNames.length - 1, lastDeadNames.length - 1], 0);
+
+    for (let x = 0; x < occurences; x++) {
+        deadname[x] = {
+            first: firstDeadNames[x].trim(),
+            middle: middleDeadNames[x].trim(),
+            last : lastDeadNames[x].trim(),
+        };
+    }
+
+    const {stealthMode, highlight} = settings;
     const $settings: Partial<UserSettings> = {
-        name: name,
-        deadname: settings.deadname,
-        stealthMode: settings.stealthMode,
-        highlight: settings.highlight,
+        name,
+        deadname,
+        stealthMode,
+        highlight
     };
-
     changeSettings($settings);
 
-    document.getElementById('deadnames').classList.add('hide');
+    const savedFlash: HTMLHeadingElement = document.querySelector('#saved');
+    savedFlash.hidden = false;
+    savedFlash.classList.add('flash-alert');
+    setTimeout(() => {
+        savedFlash.hidden = true;
+        savedFlash.classList.remove('flash-alert');
+    }, 5000);
 };
-document.getElementById('btnSave').addEventListener('click', saveSettings);
 
-const coll = document.getElementsByClassName('hide');
-
-for (let i = 0, len = coll.length; i < len; i++) {
-    coll[i].addEventListener('click', (event: MouseEvent) => {
-        const content = (event.target as HTMLInputElement).nextElementSibling as HTMLElement;
-        if (content.style.maxHeight){
-            content.style.maxHeight = null;
-        } else {
-            content.style.maxHeight = 'max-content';
-        }
-    });
-}
-
-const leftArrow = document.querySelector('.leftArrow');
-const rightArrow = document.querySelector('.rightArrow');
-leftArrow.addEventListener('click', () => {
-    renderDeadName(deadNameCounter, --deadNameCounter);
-});
-
-rightArrow.addEventListener('click', () => {
-    renderDeadName(deadNameCounter, ++deadNameCounter);
-});
-
-(document.getElementById('stealth-option') as HTMLInputElement).addEventListener('change', (e: Event) => {
-    settings.stealthMode = (e.target as HTMLInputElement).checked;
-});
-
-(document.getElementById('highlight-option') as HTMLInputElement).addEventListener('change', (e: Event) => {
-    settings.highlight = (e.target as HTMLInputElement).checked;
-});
-
-function onChangeInput() {
-    function changeInput() {
-        const deadName: Name = {
-            first: (document.getElementById('txtFirstDeadname') as HTMLInputElement).value.trim(),
-            middle: (document.getElementById('txtMidDeadname') as HTMLInputElement).value.trim(),
-            last: (document.getElementById('txtLastDeadname') as HTMLInputElement).value.trim()
-        };
-        if (deadName.first || deadName.middle || deadName.last) {
-            rightArrow.classList.toggle('active', true);
-        } else {
-            saveCurrentDeadName(deadNameCounter);
-            renderDeadName(deadNameCounter, deadNameCounter, {disableSave: true});
-        }
-    }
-    (document.getElementById('txtFirstDeadname') as HTMLInputElement).addEventListener('change', changeInput);
-    (document.getElementById('txtMidDeadname') as HTMLInputElement).addEventListener('change', changeInput);
-    (document.getElementById('txtLastDeadname') as HTMLInputElement).addEventListener('change', changeInput);
-}
-
-onChangeInput();
-
-function renderDeadName(oldIndex: number, newIndex: number, options: {disableSave: boolean} = {disableSave: false}) {
-    if (!options.disableSave) {
-        saveCurrentDeadName(oldIndex);
-    }
-    if (newIndex === 0) {
-        leftArrow.classList.toggle('active', false);
+function changeIcon(theme: UserSettings['theme']) {
+    const iconElement: HTMLLinkElement = document.querySelector("link[rel='icon']");
+    if (theme === 'non-binary') {
+        iconElement.href = '../icons/nb19.png';
+    } else if (theme === 'trans') {
+        iconElement.href = '../icons/trans19.png';
     } else {
-        leftArrow.classList.toggle('active', true);
+        iconElement.href = '../icons/stealth.svg';
     }
-    if (newIndex === settings.deadname.length) {
-        settings.deadname.push(DEFAULT_SETTINGS.deadname[0]);
-        rightArrow.classList.toggle('active', false);
-    } else {
-        rightArrow.classList.toggle('active', true);
-    }
-    (document.getElementById('txtFirstDeadname') as HTMLInputElement).value = settings.deadname[newIndex].first;
-    (document.getElementById('txtMidDeadname') as HTMLInputElement).value = settings.deadname[newIndex].middle;
-    (document.getElementById('txtLastDeadname') as HTMLInputElement).value = settings.deadname[newIndex].last;
 }
