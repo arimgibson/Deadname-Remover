@@ -43,6 +43,7 @@ getData().then(($settings: UserSettings) => {
 });
 
 function changeTheme(theme: UserSettings['theme']) {
+    settings.theme = theme;
     const toggleDeadNameButton = (document.querySelector('#show-hide-deadnames') as HTMLButtonElement);
     const saveButton = (document.querySelector('#save') as HTMLButtonElement);
     const isHighContrast = theme.startsWith('high-contrast');
@@ -68,6 +69,7 @@ function loadDOM() {
 
     (document.querySelector('#stealth-toggle') as HTMLInputElement).checked = settings.stealthMode;
     (document.querySelector('#highlight-toggle') as HTMLInputElement).checked = settings.highlight;
+    (document.querySelector('#theme-toggle') as HTMLSelectElement).value = settings.theme;
 
     // Registering events
     (document.querySelector('#save') as HTMLButtonElement).addEventListener('click', saveSettings);
@@ -127,12 +129,13 @@ const saveSettings = () => {
         };
     }
 
-    const {stealthMode, highlight} = settings;
+    const {stealthMode, highlight, theme} = settings;
     const $settings: Partial<UserSettings> = {
         name,
         deadname,
         stealthMode,
-        highlight
+        highlight,
+        theme
     };
     changeSettings($settings);
 

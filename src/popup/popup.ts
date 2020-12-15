@@ -31,6 +31,7 @@ const changeSettings = () => {
         enabled: (document.querySelector('#extension-toggle') as HTMLInputElement).checked,
         stealthMode: (document.querySelector('#stealth-toggle') as HTMLInputElement).checked,
         highlight: (document.querySelector('#highlight-indicator-toggle') as HTMLInputElement).checked,
+        theme: (document.querySelector('#theme-toggle') as HTMLSelectElement).value as UserSettings['theme'],
     };
     port.postMessage({type: 'save-data', data: settings});
 };
@@ -41,6 +42,7 @@ function loadSettings() {
         (document.querySelector('#extension-toggle') as HTMLInputElement).checked = settings.enabled;
         (document.querySelector('#stealth-toggle') as HTMLInputElement).checked = settings.stealthMode;
         (document.querySelector('#highlight-indicator-toggle') as HTMLInputElement).checked = settings.highlight;
+        (document.querySelector('#theme-toggle') as HTMLSelectElement).value = settings.theme;
     });
 }
 
