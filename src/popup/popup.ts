@@ -59,6 +59,7 @@ const registerEvents = () => {
     (document.querySelector('#theme-toggle') as HTMLSelectElement).onchange = (evt) => {
         changeTheme(((evt.target as HTMLSelectElement).value as any));
     };
+
     (document.querySelector('#extension-toggle') as HTMLInputElement).onchange = changeSettings;
     (document.querySelector('#stealth-toggle') as HTMLInputElement).onchange = changeSettings;
     (document.querySelector('#highlight-indicator-toggle') as HTMLInputElement).onchange = changeSettings;
