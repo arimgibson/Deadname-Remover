@@ -12,7 +12,7 @@ async function debug() {
             sourcemap: 'inline',
             format: 'iife',
             bundle: true,
-            minify: false,
+            minifySyntax: true,
         });
     });
 }

@@ -10,9 +10,8 @@ async function production() {
             entryPoints: [options.src],
             outfile: options.out,
             format: 'iife',
-            minify: true,
             bundle: true,
-            sourcemap: false,
+            minifySyntax: true,
         });
     });
 }
