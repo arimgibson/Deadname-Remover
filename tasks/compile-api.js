@@ -20,7 +20,7 @@ async function api() {
         outfile: 'deadname-remover.require.js',
         format: 'iife',
         globalName: 'DeadnameRemover',
-        minify: true,
+        minifySyntax: true,
         bundle: true,
         sourcemap: false,
     });
