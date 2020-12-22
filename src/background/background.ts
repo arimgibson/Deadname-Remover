@@ -54,7 +54,7 @@ chrome.runtime.onConnect.addListener((port) => {
 
 chrome.runtime.onConnect.addListener((port) => {
     if (port.name === 'popup') {
-        port.onMessage.addListener(async (message) => await onUIMessage(port, message));
+        port.onMessage.addListener((message) => onUIMessage(port, message));
     }
 });
 
