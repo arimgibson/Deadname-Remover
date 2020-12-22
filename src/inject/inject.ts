@@ -102,7 +102,11 @@ function replaceText(text: string, isTitle?: boolean) {
     };
     oldWords = oldWords.map(oldText => oldText.toLowerCase());
     if (highlight && !isTitle) {
-        revert ? oldWords : newWords = (revert ? oldWords : newWords).map(text => `<mark replaced="">${text}</mark>`);
+        if (revert) {
+            oldWords = oldWords.map(text => `<mark replaced="">${text}</mark>`);
+        } else {
+            newWords = newWords.map(text => `<mark replaced="">${text}</mark>`);
+        }
     }
     const oldTextsLen = oldWords.map(word => word.length);
     while (getNextIndex(end)) {
