@@ -10,8 +10,11 @@ async function production() {
             entryPoints: [options.src],
             outfile: options.out,
             format: 'iife',
-            bundle: true,
             minifySyntax: true,
+            bundle: true,
+            sourcemap: false,
+            charset: 'utf8',
+            treeShaking: true,
         });
     });
 }

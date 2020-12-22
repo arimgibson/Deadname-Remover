@@ -13,6 +13,8 @@ async function debug() {
             format: 'iife',
             bundle: true,
             minifySyntax: true,
+            charset: 'utf8',
+            treeShaking: true,
         });
     });
 }
