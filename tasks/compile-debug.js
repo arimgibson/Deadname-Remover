@@ -12,7 +12,9 @@ async function debug() {
             sourcemap: 'inline',
             format: 'iife',
             bundle: true,
-            minify: false,
+            minifySyntax: true,
+            charset: 'utf8',
+            treeShaking: true,
         });
     });
 }
