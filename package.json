@@ -31,7 +31,7 @@
     "@types/chrome": "0.0.127",
     "@typescript-eslint/eslint-plugin": "4.11.1",
     "@typescript-eslint/parser": "4.11.1",
-    "esbuild": "0.8.27",
+    "esbuild": "0.8.29",
     "eslint": "7.16.0",
     "fs-extra": "9.0.1",
     "typescript": "4.1.3"
