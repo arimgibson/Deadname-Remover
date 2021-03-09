@@ -139,7 +139,7 @@ function checkNodeForReplacement(node: Node) {
     if (node.nodeType === 3) {
         const oldText = node.nodeValue;
         let newText = node.nodeValue;
-        newText = replaceText(newText);
+        newText = replaceText(newText, false);
         if (newText !== oldText) {
             cachedWords.set(newText, oldText);
             if (node.parentElement) {
