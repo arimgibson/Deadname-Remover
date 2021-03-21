@@ -14,3 +14,11 @@ Requires Node LTS or higher
  - To compile the project type `npm run debug` for debug, and `npm run production` for production-ready files
  - The building process will collate a formatted use-able plugin structure into the dist/-folder
  - From this folder it can be side-loaded into Firefox or Chromium-based browsers
+
+# Settings
+## Stealth Mode
+Changes the extension icon to a hollow red circle. Useful if you don't want someone to see the pride flag.
+
+## Add Highlight
+Highlights your name on the page if it was replaced. Useful for identifying when the app incorrectly
+mistakes someone else with you.
