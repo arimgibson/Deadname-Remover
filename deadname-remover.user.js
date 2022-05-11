@@ -9,9 +9,9 @@
 // @run-at       document-start
 // @namespace    https://github.com/WillHayCode/Deadname-Remover
 // @supportURL   https://github.com/WillHayCode/Deadname-Remover/issues
-// @require      https://github.com/WillHayCode/Deadname-Remover/blob/master/deadname-remover.require.js
-// @updateURL    https://github.com/WillHayCode/Deadname-Remover/blob/master/deadname-remover.meta.js
-// @downloadURL  https://github.com/WillHayCode/Deadname-Remover/blob/master/deadname-remover.user.js
+// @require      https://github.com/WillHayCode/Deadname-Remover/raw/master/deadname-remover.require.js
+// @updateURL    https://github.com/WillHayCode/Deadname-Remover/raw/master/deadname-remover.meta.js
+// @downloadURL  https://github.com/WillHayCode/Deadname-Remover/raw/master/deadname-remover.user.js
 // ==/UserScript==
 
 (function() {
