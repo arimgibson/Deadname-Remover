@@ -1,3 +1,6 @@
+# 2022 Note from WillHayCode
+I've not been in a position to work on this in a long time, and realistically I don't know if I will be any time soon. However I really don't want everyone's wonderful ideas and changes to go to waste - if you're interested in taking over the project (or becoming a maintainer), please send me an email at WillHayCode@gmail.com and we can talk about how to move forward.
+
 # Dead-Name-Remover
 An easy to use browser plugin to automatically replace dead names with preferred names
 
