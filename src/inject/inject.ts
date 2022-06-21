@@ -103,9 +103,13 @@ function replaceText(text: string, isTitle?: boolean) {
     oldWords = oldWords.map(oldText => oldText.toLowerCase());
     if (highlight && !isTitle) {
         if (revert) {
-            oldWords = oldWords.map(text => `<mark replaced="">${text}</mark>`);
+            // Avoid wrapping text in mark tags if it is already wrapped
+            oldWords = oldWords.map(text =>
+                /^<mark replaced="">[\s\S]*<\/mark>$/.test(text) ? text : `<mark replaced="">${text}</mark>`);
         } else {
-            newWords = newWords.map(text => `<mark replaced="">${text}</mark>`);
+            // Avoid wrapping text in mark tags if it is already wrapped
+            newWords = newWords.map(text =>
+                /^<mark replaced="">[\s\S]*<\/mark>$/.test(text) ? text : `<mark replaced="">${text}</mark>`);
         }
     }
     const oldTextsLen = oldWords.map(word => word.length);
@@ -126,7 +130,7 @@ function checkNodeForReplacement(node: Node) {
         if (highlight) {
             const cachedText = cachedWords.get((node as HTMLElement).innerHTML);
             if (cachedText) {
-                (node as HTMLElement).innerHTML = cachedText.toString();
+                node.parentElement && node.parentElement.replaceChild(document.createTextNode(cachedText.toString()), node);
             }
         } else {
             const cachedText = cachedWords.get(node.nodeValue);
@@ -142,8 +146,15 @@ function checkNodeForReplacement(node: Node) {
         newText = replaceText(newText, false);
         if (newText !== oldText) {
             cachedWords.set(newText, oldText);
-            if (node.parentElement) {
-                node.parentElement.innerHTML = newText;
+            if (highlight) {
+                if (node.parentElement) {
+                    const elem = document.createElement('span');
+                    node.parentElement.replaceChild(elem, node);
+                    elem.outerHTML = newText;
+                }
+            }
+            else {
+                node.nodeValue = newText;
             }
         }
     } else if (node.hasChildNodes()) {
