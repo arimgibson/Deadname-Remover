@@ -28,7 +28,7 @@
   },
   "homepage": "https://github.com/WillHayCode/Deadname-Remover#readme",
   "devDependencies": {
-    "@types/chrome": "0.0.133",
+    "@types/chrome": "0.0.191",
     "@typescript-eslint/eslint-plugin": "4.16.1",
     "@typescript-eslint/parser": "4.16.1",
     "esbuild": "0.8.54",
