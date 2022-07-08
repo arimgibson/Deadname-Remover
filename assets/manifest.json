@@ -1,47 +1,46 @@
 {
+  "manifest_version": 3,
   "name": "Deadname Remover",
   "version": "2.0.0",
-  "manifest_version": 2,
+
+  "action": {
+    "default_icon": "icons/trans16.png",
+    "default_title": "Deadname Remover Options",
+    "default_popup": "popup.html"
+  },
+  "default_locale": "en",
   "description": "An easy to use Google Chrome plugin to automatically remove and replace deadnames",
-  "homepage_url": "https://github.com/arimgibson/Deadname-Remover",
   "icons": {
     "16": "icons/trans16.png",
     "32": "icons/trans32.png",
     "48": "icons/trans48.png",
     "128": "icons/trans128.png"
   },
+
+  "author": "WillHayCode & Ari Gibson",
   "background": {
-    "scripts": [
-      "background.js"
-    ],
-    "persistent": true
+    "service_worker": "background.js",
+    "type": "module"
   },
- "options_ui": {
-    "open_in_tab": true,
-    "page": "popup/options.html"
-  },
-  "browser_action": {
-    "default_icon": "icons/trans16.png",
-     "default_title": "Deadname Remover Options",
-     "default_popup": "popup/popup.html"
-  },
-  "permissions": [
-    "storage",
-    "<all_urls>"
-  ],
   "content_scripts": [
     {
-      "matches": [
-        "<all_urls>"
-      ],
-      "js": [
-        "inject.js"
-      ],
+      "matches": ["<all_urls>"],
+      "js": ["inject.js"],
       "run_at": "document_start",
       "all_frames": true,
       "match_about_blank": true
     }
   ],
+  "homepage_url": "https://github.com/arimgibson/Deadname-Remover",
+
+
+
+  "options_ui": {
+    "open_in_tab": true,
+    "page": "popup/options.html"
+  },
+
+  "permissions": ["storage", "<all_urls>"],
   "browser_specific_settings": {
     "gecko": {
       "id": "deadname-remover@willhaycode.com",
