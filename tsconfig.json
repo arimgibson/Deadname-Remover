@@ -1,26 +1,16 @@
 {
-  "include": [
-    "**/*.ts"
-  ],
-  "exclude": [
-    "node_modules"
-  ],
+  "include": ["**/*.ts"],
+  "exclude": ["node_modules"],
   "compilerOptions": {
-    "rootDir": "./src",
+    "rootDir": "old-src",
     "outDir": "build",
     "target": "ESNext",
     "alwaysStrict": true,
     "moduleResolution": "node",
-    "lib": [
-      "ES2015",
-      "ES2017",
-      "DOM"
-    ],
+    "lib": ["ES2015", "ES2017", "DOM"],
     "downlevelIteration": true,
     "noEmit": true,
     "incremental": true
   },
-  "types": [
-    "chrome"
-  ]
+  "types": ["chrome"]
 }
