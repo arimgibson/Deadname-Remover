@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en" style="width: 425px">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="styles.css" />
+    <script src="popup.js" defer></script>
+  </head>
+  <body id="popup">
+    <header>
+      <h2 class="text-slide-background">Deadname Remover Options</h2>
+    </header>
+
+    <main>
+      <h3 aria-hidden="true">Extension Theme</h3>
+      <div id="theme-toggle-container" aria-hidden="true">
+        <select id="theme-toggle">
+          <option value="trans">Transgender</option>
+          <option value="non-binary">Non-Binary</option>
+          <option value="high-contrast-light">High Contrast - Light</option>
+          <option value="high-contrast-dark">High Contrast - Dark</option>
+        </select>
+      </div>
+      <h3>Enable Extension</h3>
+      <label id="extension-toggle-container" class="switch option-toggle-container" for="extension-toggle">
+        <input type="checkbox" id="extension-toggle" class="option-toggle" />
+        <span class="slider round"></span>
+      </label>
+      <h3>Stealth Mode</h3>
+      <label id="stealth-toggle-container" class="switch option-toggle-container" for="stealth-toggle">
+        <input type="checkbox" id="stealth-toggle" class="option-toggle" />
+        <span class="slider round"></span>
+      </label>
+      <h3>Highlight Indicator</h3>
+      <label id="highlight-indicator-toggle-container" class="switch option-toggle-container" for="highlight-indicator-toggle">
+        <input type="checkbox" id="highlight-indicator-toggle" class="option-toggle" />
+        <span class="slider round"></span>
+      </label>
+      <button id="view-options" aria-label="View All Options" data-text="View All Options"></button>
+    </main>
+  </body>
+</html>

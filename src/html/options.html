@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Deadname Remover Options</title>
+    <link rel="stylesheet" href="styles.css" />
+    <link rel="icon" type="image/x-icon" />
+    <script src="options.js" defer></script>
+  </head>
+  <body class="trans">
+    <header>
+      <h1 class="text-slide-background">Deadname Remover Options</h1>
+      <div id="theme-toggle-container-options" aria-hidden="true">
+        <h4>Change Extension Theme</h4>
+        <div id="theme-toggle-container">
+          <select id="theme-toggle">
+            <option value="trans">Transgender</option>
+            <option value="non-binary">Non-Binary</option>
+            <option value="high-contrast-light">High Contrast - Light</option>
+            <option value="high-contrast-dark">High Contrast - Dark</option>
+          </select>
+        </div>
+      </div>
+    </header>
+
+    <main>
+      <section id="chosen-name">
+        <h2>Your Chosen Name</h2>
+        <form id="chosen-name-form" aria-label="Set your chosen first, middle, and last names">
+          <label for="chosen-first-name">First Name</label>
+          <input type="text" id="chosen-first-name" />
+          <label for="chosen-middle-name">Middle Name</label>
+          <input type="text" id="chosen-middle-name" />
+          <label for="chosen-last-name">Last Name</label>
+          <input type="text" id="chosen-last-name" />
+        </form>
+      </section>
+      <section id="deadname">
+        <h2>Your Deadname(s)</h2>
+        <button id="show-hide-deadnames" aria-controls="deadname-form" aria-label="Show or Hide Deadnames" data-text="Show/Hide Deadnames"></button>
+        <form id="deadname-form" aria-label="Set your dead first, middle, and last names" hidden>
+          <p>
+            <strong>Separate deadnames using commas (e.g. Foo, Bar, Baz)</strong>
+          </p>
+          <label for="dead-first-name">First Name(s)</label>
+          <input type="text" id="dead-first-name" />
+          <label for="dead-middle-name">Middle Name(s)</label>
+          <input type="text" id="dead-middle-name" />
+          <label for="dead-last-name">Last Name(s)</label>
+          <input type="text" id="dead-last-name" />
+        </form>
+      </section>
+      <section id="options">
+        <h2>Other Options</h2>
+        <h3>Stealth Mode</h3>
+        <label id="stealth-toggle-container" class="switch option-toggle-container" for="stealth-toggle">
+          <input type="checkbox" id="stealth-toggle" class="option-toggle" />
+          <span class="slider round"></span>
+        </label>
+        <p>Hides the transgender or non-binary flag icon associated with the extension</p>
+        <h3>Highlight Indicator</h3>
+        <label id="highlight-toggle-container" class="switch option-toggle-container" for="highlight-toggle">
+          <input type="checkbox" id="highlight-toggle" class="option-toggle" />
+          <span class="slider round"></span>
+        </label>
+        <p>Adds yellow background to names that have been replaced by this extension.</p>
+      </section>
+      <button id="save" aria-label="Save Chosen and Deadname Settings" data-text="Save Chosen and Deadname Settings"></button>
+      <h2 id="saved" class="text-slide-background" hidden>Saved!</h2>
+    </main>
+
+    <footer>
+      <p>
+        Have an issue or want to contribute? Check out
+        <a class="text-slide-background" href="https://github.com/WillHayCode/Deadname-Remover">Deadname Remover on GitHub.</a>
+      </p>
+    </footer>
+  </body>
+</html>
