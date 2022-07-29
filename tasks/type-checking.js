@@ -1,4 +1,4 @@
-const {execFile} = require('child_process');
+import { execFile } from 'child_process';
 
 async function typeCheck() {
     await new Promise((resolve, reject) => {
@@ -12,4 +12,4 @@ async function typeCheck() {
     });
 }
 
-module.exports = {typeCheck};
+export default {typeCheck};

@@ -1,14 +1,14 @@
-const {build} = require('esbuild');
-const fs = require('fs-extra');
-const pjson = require('../package.json');
-const types = require('../types');
+import { build } from 'esbuild';
+import { remove, writeFile } from 'fs-extra';
+import { version } from '../package.json';
+import { DEFAULT_SETTINGS } from '../types';
 
 async function api() {
-    await fs.remove('deadname-remover.require.js');
-    await fs.remove('deadname-remover.meta.js');
-    await fs.remove('deadname-remover.user.js');
+    await remove('deadname-remover.require.js');
+    await remove('deadname-remover.meta.js');
+    await remove('deadname-remover.user.js');
 
-    const settings = JSON.stringify(types.DEFAULT_SETTINGS, null, '\t').split('\n');
+    const settings = JSON.stringify(DEFAULT_SETTINGS, null, '\t').split('\n');
     for (let x = 0, len = settings.length; x < len; x++) {
         settings[x] = `\t${settings[x].replace(/.+?(?=:)/g, (m$) => {
             return m$.replace(/"/g, '');
@@ -30,7 +30,7 @@ async function api() {
     const data = [
         '// ==UserScript==',
         '// @name         Deadname-Remover',
-        `// @version      ${pjson.version}`,
+        `// @version      ${version}`,
         '// @description  Replace dead names with preffered names.',
         '// @author       William Hayward',
         '// @license      MIT',
@@ -51,19 +51,19 @@ async function api() {
         '})();',
         ''
     ].join('\n');
-    await fs.writeFile('deadname-remover.user.js', data, {encoding: 'utf8'});
+    await writeFile('deadname-remover.user.js', data, {encoding: 'utf8'});
 
     const metaData = [
         '// ==UserScript==',
         '// @name        Deadname-Remover',
-        `// @version     ${pjson.version}`,
+        `// @version     ${version}`,
         '// @namespace   https://github.com/WillHayCode/Deadname-Remover',
         '// ==/UserScript==',
         ''
     ].join('\n');
-    await fs.writeFile('deadname-remover.meta.js', metaData, {encoding: 'utf8'});
+    await writeFile('deadname-remover.meta.js', metaData, {encoding: 'utf8'});
 
-    await fs.remove('types.js');
+    await remove('types.js');
 }
 
 api();

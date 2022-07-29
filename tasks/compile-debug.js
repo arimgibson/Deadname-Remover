@@ -1,5 +1,5 @@
-const {build} = require('esbuild');
-const {clean, files, copyFiles} = require('./utils');
+import { build } from 'esbuild';
+import { clean, files, copyFiles } from './utils';
 
 async function debug() {
     await clean();
@@ -19,6 +19,6 @@ async function debug() {
     });
 }
 
-module.exports = {
+export default {
     debug,
 };

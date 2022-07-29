@@ -1,5 +1,5 @@
 const {build} = require('esbuild');
-const {clean, files, copyFiles} = require('./utils');
+const {clean, files, copyFiles} = require('./utils').default;
 
 async function production() {
     await clean();

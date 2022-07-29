@@ -1,6 +1,6 @@
-const {debug} = require('./compile-debug');
-const {production} = require('./compile-production');
-const {typeCheck} = require('./type-checking');
+import { debug } from './compile-debug';
+import { production } from './compile-production';
+import { typeCheck } from './type-checking';
 
 async function run() {
     const args = process.argv.slice(2);
