@@ -4,6 +4,8 @@
   "description": "An easy to use browser plugin to automatically remove and replace deadnames",
   "private": true,
   "scripts": {
+    "lint": "eslint",
+    "lint:fix": "eslint --fix",
     "api": "node tasks/generate-types.js && node tasks/compile-api.js",
     "code-style": "eslint --fix \"src/**/*.ts\" \"tasks/**/*.js\"",
     "debug": "node tasks/build.js --debug",
@@ -29,10 +31,13 @@
   "homepage": "https://github.com/arimgibson/Deadname-Remover#readme",
   "devDependencies": {
     "@types/chrome": "^0.0.190",
-    "@typescript-eslint/eslint-plugin": "^5.29.0",
-    "@typescript-eslint/parser": "^5.29.0",
+    "@typescript-eslint/eslint-plugin": "^5.31.0",
+    "@typescript-eslint/parser": "^5.31.0",
     "esbuild": "^0.14.47",
-    "eslint": "^8.18.0",
+    "eslint": "^8.20.0",
+    "eslint-config-airbnb-base": "^15.0.0",
+    "eslint-config-airbnb-typescript": "^17.0.0",
+    "eslint-plugin-import": "^2.26.0",
     "fs-extra": "^10.1.0",
     "typescript": "^4.7.4"
   }
