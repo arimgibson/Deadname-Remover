@@ -1,3 +1,5 @@
+## Extremely, extremely broken version in development. As @arimgibson is the only current developer, they're largely using this branch to mess around, write bad code, make breaking changes, and push awful commit messages.
+
 ### Expect this README.md to change as the primary maintainer of this repo was updated. Huge thank you to [@WillHayCode](https://github.com/WillHayCode) for her idea, creation, and maintenance of this project (Mar 2018 - June 2022). Credit as well to [@Gusted](https://github.com/Gusted) for Gusted's continued contributions and maintenance.
 
 # Deadname Remover

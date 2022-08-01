@@ -10,24 +10,24 @@ export interface UserSettings {
   enabled: boolean;
   stealthMode: boolean;
   highlight: boolean;
-  theme: "trans" | "non-binary" | "high-contrast-light" | "hight-contrast-dark";
+  theme: 'trans' | 'non-binary' | 'high-contrast-light' | 'hight-contrast-dark';
 }
 
 export const DEFAULT_SETTINGS: UserSettings = {
   name: {
-    first: "",
-    middle: "",
-    last: "",
+    first: '',
+    middle: '',
+    last: '',
   },
   deadname: [
     {
-      first: "",
-      middle: "",
-      last: "",
+      first: '',
+      middle: '',
+      last: '',
     },
   ],
   enabled: true,
   stealthMode: false,
   highlight: false,
-  theme: "trans",
+  theme: 'trans',
 };

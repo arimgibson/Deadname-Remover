@@ -4,8 +4,8 @@
   "description": "An easy to use browser plugin to automatically remove and replace deadnames",
   "private": true,
   "scripts": {
-    "lint": "eslint",
-    "lint:fix": "eslint --fix",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
     "api": "node tasks/generate-types.js && node tasks/compile-api.js",
     "code-style": "eslint --fix \"src/**/*.ts\" \"tasks/**/*.js\"",
     "debug": "node tasks/build.js --debug",

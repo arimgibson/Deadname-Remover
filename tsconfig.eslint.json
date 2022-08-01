@@ -3,6 +3,8 @@
   "extends": "./tsconfig.json",
   "include": [
     // these are the eslint-only inclusions
-    ".eslintrc.cjs"
-  ]
+    ".eslintrc.cjs",
+    "tasks/*.js"
+  ],
+  "exclude": ["tasks/*.js"]
 }
