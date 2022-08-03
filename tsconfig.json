@@ -7,10 +7,10 @@
     "target": "ESNext",
     "alwaysStrict": true,
     "moduleResolution": "node",
-    "lib": ["ES2015", "ES2017", "DOM", "dom.iterable"],
+    "lib": ["ES2019", "DOM", "dom.iterable"],
     "downlevelIteration": true,
     "noEmit": true,
     "incremental": true
-  },
+  }
   // "types": ["chrome"]
 }

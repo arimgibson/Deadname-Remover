@@ -1,11 +1,7 @@
-import { names, deadnames } from './shared';
+import { handleNode } from './replace';
 
-function handleText(textNode) {
-  textNode.nodeValue = textNode.nodeValue.replace(/ari/gi, 'Arianna'); // eslint-disable-line
-  textNode.nodeValue = textNode.nodeValue.replace(/gibson/gi, 'Greene'); // eslint-disable-line
-}
-
-function walk(node) {
+// https://stackoverflow.com/questions/5904914/javascript-regex-to-replace-text-not-in-html-attributes/5904945#5904945
+export default function walk(node: Document | Node): void {
   let child;
   let next;
 
@@ -21,10 +17,8 @@ function walk(node) {
       }
       break;
     case 3: // Text node
-      handleText(node);
+      handleNode(node);
       break;
     default: break;
   }
 }
-
-walk(document);
