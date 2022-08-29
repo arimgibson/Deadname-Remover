@@ -1,5 +1,5 @@
 {
-  "include": ["src/**/*.ts"],
+  "include": ["src/**/*.ts", "esbuild.mjs", "tasks/*.js"],
   "exclude": ["node_modules"],
   "compilerOptions": {
     "rootDir": "src",
