@@ -6,10 +6,8 @@
   "scripts": {
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
-    "api": "node tasks/generate-types.js && node tasks/compile-api.js",
-    "code-style": "eslint --fix \"src/**/*.ts\" \"tasks/**/*.js\"",
-    "debug": "node tasks/build.js --debug",
-    "production": "node tasks/build.js --production"
+    "build": "node esbuild.mjs",
+    "dev": "concurrently \"node esbuild.mjs --watch\" \"web-ext run --source-dir ./dist/ --target chromium\""
   },
   "repository": {
     "type": "git",

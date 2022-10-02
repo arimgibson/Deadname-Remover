@@ -10,7 +10,8 @@
     "lib": ["ES2019", "DOM", "dom.iterable"],
     "downlevelIteration": true,
     "noEmit": true,
-    "incremental": true
-  }
-  // "types": ["chrome"]
+    "incremental": true,
+    "sourceMap": true
+  },
+  "types": ["chrome"]
 }

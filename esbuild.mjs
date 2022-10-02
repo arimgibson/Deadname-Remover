@@ -18,10 +18,11 @@ build({
     './src/content.ts',
   ],
   format: 'iife',
-  minify: true,
+  minify: false,
   outdir: 'dist',
   platform: 'browser',
   watch: argWatch,
+  sourcemap: true,
 }).then(() => {
   if (argWatch) console.log('ESBuild: Watching...');
 });
