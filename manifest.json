@@ -1,0 +1,41 @@
+{
+  "manifest_version": 3,
+  "name": "Deadname Remover",
+  "version": "2.0.0",
+
+  "action": {
+    "default_icon": "icons/trans16.png",
+    "default_title": "Deadname Remover Options",
+    "default_popup": "popup.html"
+  },
+  "description": "An easy to use Google Chrome plugin to automatically remove and replace deadnames",
+  "icons": {
+    "16": "icons/trans16.png",
+    "32": "icons/trans32.png",
+    "48": "icons/trans48.png",
+    "128": "icons/trans128.png"
+  },
+
+  "author": "WillHayCode & Ari Gibson",
+  "background": {
+    "service_worker": "background.js",
+    "type": "module"
+  },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["content.js"],
+      "run_at": "document_end",
+      "all_frames": true,
+      "match_about_blank": true
+    }
+  ],
+  "homepage_url": "https://github.com/arimgibson/Deadname-Remover",
+
+  "permissions": ["storage", "tabs"],
+
+  "externally_connectable": {
+    "ids": ["*"],
+    "matches": ["*://*.google.com/*"]
+  }
+}

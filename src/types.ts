@@ -10,6 +10,10 @@ export type NamesKind = {
   [key: string]: string; // format is properName: deadname; i.e. "jack: jackie"
 };
 
+export type MessageToTab = {
+  status: string;
+};
+
 export interface UserSettings {
   names: Names;
   deadnames: Names;

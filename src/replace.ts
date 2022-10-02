@@ -23,10 +23,17 @@ function matchCase(original: string, replacement: string): string {
   }
 }
 
+const excludeFromBackground = ['title', 'input'];
+
 /* eslint-disable-next-line import/prefer-default-export */
 export function handleNode(textNode: Node) {
-  textNode.nodeValue = textNode.nodeValue.replace(deadnames, (match: string) => { // eslint-disable-line no-param-reassign, max-len
+  if (!textNode.parentElement?.innerHTML) throw Error(`${textNode.parentElement.nodeName}`);
+  textNode.parentElement.innerHTML = textNode.parentElement.innerHTML.replace(deadnames, (match: string) => { // eslint-disable-line no-param-reassign, max-len
     const properName = flatten(names)[match.toLowerCase()];
-    return matchCase(match, properName);
+    const matchedCase = matchCase(match, properName);
+    if (excludeFromBackground.includes(textNode.parentElement.nodeName.toLowerCase())) {
+      return matchedCase;
+    }
+    return `<mark deadname>${matchedCase}</mark>`;
   });
 }

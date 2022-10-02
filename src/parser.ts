@@ -21,4 +21,8 @@ export default function walk(node: Document | Node): void {
       break;
     default: break;
   }
+  // eslint-disable-next-line no-useless-return
+  return;
+  // needed so the content script doesn't continue until walking is finished
+  // i.e. ensures that content script runs synchronously
 }
