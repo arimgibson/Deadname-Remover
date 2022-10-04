@@ -1,6 +1,6 @@
-### Personal data
+### Personal Data
 
-Deadname-Remover had never collected and will never collect any personal data, browsing history etc.
+Deadname-Remover had never collected and will never collect any personal data, browsing history etc. Data is stored solely with the user who inputs it, although this data 
 
 ### Third Party
 

@@ -1,6 +1,6 @@
 import { handleNode } from './replace';
 
-// https://stackoverflow.com/questions/5904914/javascript-regex-to-replace-text-not-in-html-attributes/5904945#5904945
+// Based off https://stackoverflow.com/questions/5904914/javascript-regex-to-replace-text-not-in-html-attributes/5904945#5904945
 export default function walk(node: Document | Node): void {
   let child;
   let next;

@@ -23,7 +23,7 @@ export interface UserSettings {
   theme: 'trans' | 'non-binary' | 'high-contrast-light' | 'hight-contrast-dark';
 }
 
-export const DEFAULT_SETTINGS: UserSettings = {
+export const defaultSettings: Settings = {
   names: {
     first: {},
     middle: {},
