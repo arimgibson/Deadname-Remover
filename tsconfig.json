@@ -13,5 +13,5 @@
     "incremental": true,
     "sourceMap": true
   },
-  "types": ["chrome", "cypress"]
+  "types": ["chrome"]
 }
