@@ -7,7 +7,10 @@
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "build": "node esbuild.mjs",
-    "dev": "concurrently \"node esbuild.mjs --watch\" \"web-ext run --source-dir ./dist/ --target chromium\""
+    "build:dev": "node esbuild.mjs --dev",
+    "build:dev:watch": "node esbuild.mjs --dev --watch",
+    "build:prod": "node esbuild.mjs --prod",
+    "dev": "concurrently \"pnpm build:dev:watch\" \"web-ext run --source-dir ./dist/ --target chromium\""
   },
   "repository": {
     "type": "git",
