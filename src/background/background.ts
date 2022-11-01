@@ -8,8 +8,10 @@ loadSettings().then(($setting) => {
     }
 });
 
-chrome.runtime.onInstalled.addListener(() => {
-    chrome.runtime.openOptionsPage();
+chrome.runtime.onInstalled.addListener((e) => {
+    if(e.reason === "installed") {
+        chrome.runtime.openOptionsPage();
+    }
 });
 
 interface PortInfo {
