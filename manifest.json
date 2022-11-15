@@ -18,7 +18,7 @@
 
   "author": "WillHayCode & Ari Gibson",
   "background": {
-    "service_worker": "background.js",
+    "service_worker": "index.js",
     "type": "module"
   },
   "content_scripts": [
