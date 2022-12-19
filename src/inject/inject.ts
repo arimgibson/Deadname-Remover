@@ -105,7 +105,7 @@ function replaceText(text: string, isTitle?: boolean) {
         if (revert) {
             oldWords = oldWords.map(text => `<mark replaced="">${text}</mark>`);
         } else {
-            newWords = newWords.map(text => `<mark replaced="">${text}</mark>`);
+            newWords = newWords.map(text => text.includes("replaced") ? text : `<mark replaced="">${text}</mark>`);
         }
     }
     const oldTextsLen = oldWords.map(word => word.length);
