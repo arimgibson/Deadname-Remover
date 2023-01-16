@@ -3,31 +3,31 @@
   */
 
 export type Name = {
-    first: string;
-    middle: string;
-    last: string;
-}
+  first: string;
+  middle: string;
+  last: string;
+};
 
 export type UserSettings = {
-    name: Name;
-    deadname: Name[];
-    enabled: boolean;
-    stealthMode: boolean;
-    highlight: boolean;
-}
+  name: Name;
+  deadname: Name[];
+  enabled: boolean;
+  stealthMode: boolean;
+  highlight: boolean;
+};
 
 export const DEFAULT_SETTINGS: UserSettings = {
-    name: {
-        first: '',
-        middle: '',
-        last: ''
-    },
-    deadname: [{
-        first: '',
-        middle: '',
-        last: ''
-    }],
-    enabled: true,
-    stealthMode: false,
-    highlight: false,
+  name: {
+    first: '',
+    middle: '',
+    last: '',
+  },
+  deadname: [{
+    first: '',
+    middle: '',
+    last: '',
+  }],
+  enabled: true,
+  stealthMode: false,
+  highlight: false,
 };

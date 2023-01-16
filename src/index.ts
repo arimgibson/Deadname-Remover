@@ -1,13 +1,13 @@
-import {start} from './inject/inject';
+import { start } from './inject/inject';
 
 if (!window.chrome) {
-    window.chrome = {} as any;
+  window.chrome = {} as any;
 }
 if (!chrome.runtime) {
-    chrome.runtime = {} as any;
+  chrome.runtime = {} as any;
 }
 
-const port = chrome.runtime.connect({name: 'tab'});
+const port = chrome.runtime.connect({ name: 'tab' });
 port.onMessage.addListener((settings) => {
-    start(settings);
+  start(settings);
 });
