@@ -12,6 +12,7 @@ specifiers:
   eslint-config-airbnb-typescript: ^17.0.0
   eslint-plugin-import: ^2.27.4
   fs-extra: ^11.1.0
+  husky: ^8.0.3
   prettier: ^2.8.3
   typescript: ^4.9.4
   web-ext: ^7.4.0
@@ -28,6 +29,7 @@ devDependencies:
   eslint-config-airbnb-typescript: 17.0.0_xdtyvx7l2ikkoglzdi2mkdgmve
   eslint-plugin-import: 2.27.4_d7sd2krenkbelnt3n7nqqoxduu
   fs-extra: 11.1.0
+  husky: 8.0.3
   prettier: 2.8.3
   typescript: 4.9.4
   web-ext: 7.4.0
@@ -2293,6 +2295,12 @@ packages:
   /human-signals/1.1.1:
     resolution: {integrity: sha512-SEQu7vl8KjNL2eoGBLF3+wAjpsNfA9XMlXAYj/3EdaNfAlxKthD1xjEQfGOUhllCGGJVNY34bRr6lPINhNjyZw==}
     engines: {node: '>=8.12.0'}
+    dev: true
+
+  /husky/8.0.3:
+    resolution: {integrity: sha512-+dQSyqPh4x1hlO1swXBiNb2HzTDN1I2IGLQx1GrBuiqFJfoMrnZWwVmatvSiO+Iz8fBUnf+lekwNo4c2LlXItg==}
+    engines: {node: '>=14'}
+    hasBin: true
     dev: true
 
   /ieee754/1.2.1:

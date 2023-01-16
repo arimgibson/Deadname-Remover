@@ -1,0 +1,8 @@
+#!/usr/bin/env sh
+. "$(dirname -- "$0")/_/husky.sh"
+
+pnpm update
+pnpm lint
+
+# Not yet applicable as tests aren't built
+# pnpm test
