@@ -1,26 +1,17 @@
 {
-  "include": [
-    "**/*.ts"
-  ],
-  "exclude": [
-    "node_modules"
-  ],
+  "include": ["src/**/*.ts", "esbuild.mjs", "tasks/*.js"],
+  "exclude": ["node_modules"],
   "compilerOptions": {
-    "rootDir": "./src",
+    "rootDir": "src",
     "outDir": "build",
     "target": "ESNext",
     "alwaysStrict": true,
     "moduleResolution": "node",
-    "lib": [
-      "ES2015",
-      "ES2017",
-      "DOM"
-    ],
+    "lib": ["ES2019", "DOM", "dom.iterable"],
     "downlevelIteration": true,
     "noEmit": true,
-    "incremental": true
+    "incremental": true,
+    "sourceMap": true
   },
-  "types": [
-    "chrome"
-  ]
+  "types": ["chrome"]
 }

@@ -3,7 +3,10 @@
   "version": "1.1.2",
   "description": "An easy to use browser plugin to automatically remove and replace deadnames",
   "private": true,
+  "type": "module",
   "scripts": {
+    "lint": "eslint .; prettier --check .",
+    "lint:fix": "eslint . --fix; prettier --write .",
     "api": "node tasks/generate-types.js && node tasks/compile-api.js",
     "code-style": "eslint --fix \"src/**/*.ts\" \"tasks/**/*.js\"",
     "debug": "node tasks/build.js --debug",
@@ -43,6 +46,7 @@
     "eslint-config-airbnb-typescript": "^17.0.0",
     "eslint-plugin-import": "^2.27.4",
     "fs-extra": "^11.1.0",
+    "prettier": "^2.8.3",
     "typescript": "^4.9.4",
     "web-ext": "^7.4.0"
   },
