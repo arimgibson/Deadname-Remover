@@ -1,4 +1,4 @@
-const fs = require('fs-extra');
+import fs from 'fs-extra';
 
 async function clean() {
   await fs.remove('dist/');
@@ -32,7 +32,7 @@ const files = [
   },
 ];
 
-module.exports = {
+export {
   clean,
   files,
   copyFiles,

@@ -1,4 +1,4 @@
-const { build } = require('esbuild');
+import { build } from 'esbuild';
 
 async function generateType() {
   await build({
