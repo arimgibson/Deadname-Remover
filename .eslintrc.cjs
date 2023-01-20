@@ -12,5 +12,5 @@ module.exports = {
   },
   plugins: ['@typescript-eslint'],
   rules: {},
-  // ignorePatterns: ['.eslintrc.cjs', 'old-src'],
+  ignorePatterns: ['deadname-remover.*.js'],
 };
