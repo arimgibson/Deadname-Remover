@@ -1,8 +1,9 @@
-const { execFile } = require('child_process');
+import { execFile } from 'child_process';
+import { createRequire } from 'module';
 
-async function typeCheck() {
+export async function typeCheck() {
   await new Promise((resolve, reject) => {
-    execFile(process.execPath, [require.resolve('typescript/lib/tsc.js'), '--project', 'tsconfig.json'], (err) => {
+    execFile(process.execPath, [createRequire(import.meta.url).resolve('typescript/lib/tsc.js'), '--project', 'tsconfig.json'], (err) => {
       if (err) {
         reject(new Error(`tsc has exited with error: ${err.message}`));
       } else {
@@ -11,5 +12,3 @@ async function typeCheck() {
     });
   });
 }
-
-module.exports = { typeCheck };

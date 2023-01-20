@@ -1,7 +1,7 @@
-const { build } = require('esbuild');
-const fs = require('fs-extra');
-const pjson = require('../package.json');
-const types = require('../types');
+import { build } from 'esbuild';
+import fs from 'fs-extra';
+import pjson from '../package.json';
+import types from '../src/types';
 
 async function api() {
   await fs.remove('deadname-remover.require.js');
