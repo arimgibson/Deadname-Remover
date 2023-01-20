@@ -1,14 +1,14 @@
-const {build} = require('esbuild');
+const { build } = require('esbuild');
 
 async function generateType() {
-    await build({
-        entryPoints: ['src/types.ts'],
-        outfile: 'types.js',
-        format: 'cjs',
-        sourcemap: false,
-        minify: false,
-        bundle: false,
-    });
+  await build({
+    entryPoints: ['src/types.ts'],
+    outfile: 'types.js',
+    format: 'cjs',
+    sourcemap: false,
+    minify: false,
+    bundle: false,
+  });
 }
 
 generateType();
