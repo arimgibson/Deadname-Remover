@@ -118,7 +118,7 @@ function replaceText(text: string, isTitle?: boolean) {
 }
 
 function checkNodeForReplacement(node: Node) {
-  if (!node || (!revert && node as any)) {
+  if (!node || (!revert && (node as any).replaced)) {
     return;
   }
   if (revert) {
