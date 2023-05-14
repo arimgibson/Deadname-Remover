@@ -1,7 +1,7 @@
 import { build } from 'esbuild';
 import fs from 'fs-extra';
-import pjson from '../package.json';
-import types from '../src/types';
+import pjson from '../package.json' assert { type: 'json' };
+import * as types from '../types.js';
 
 async function api() {
   await fs.remove('deadname-remover.require.js');
