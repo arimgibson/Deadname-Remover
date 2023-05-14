@@ -1,77 +1,73 @@
 <html>
-  <head>
-    <title>Deadname Remover Options</title>
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <link rel="stylesheet" href="styles.css" />
-    <script src="options.js" defer></script>
-  </head>
-  <body>
-    <h1>Name Settings</h1>
-    <div class="flexbox">
-      <div class="flexbox-1">
-        <div class="flex-content-1">
-          <h2>Your Preferred Name</h2>
-          <div class="content">
-            <p>First name:</p>
-            <input type="text" id="txtFirstName" />
-            <p>Middle name:</p>
-            <input type="text" id="txtMidName" />
-            <p>Last name:</p>
-            <input type="text" id="txtLastName" />
-          </div>
+
+<head>
+  <title>Deadname Remover Options</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <link rel="stylesheet" href="styles.css" />
+  <script src="options.js" defer></script>
+</head>
+
+<body>
+  <h1>Name Settings</h1>
+  <div class="flexbox">
+    <div class="flexbox-1">
+      <div class="flex-content-1">
+        <h2>Your Preferred Name</h2>
+        <div class="content">
+          <p>First name:</p>
+          <input type="text" id="txtFirstName" />
+          <p>Middle name:</p>
+          <input type="text" id="txtMidName" />
+          <p>Last name:</p>
+          <input type="text" id="txtLastName" />
         </div>
-        <div class="flex-content-2">
-          <h2>Your Deadname</h2>
-          <input
-            type="button"
-            id="btnToggleDeadnames"
-            value="Show/Hide"
-            class="hide"
-          />
-          <div class="hidden-content content" id="deadnames">
-            <p>First name:</p>
-            <input type="text" id="txtFirstDeadname" />
-            <p>Middle name:</p>
-            <input type="text" id="txtMidDeadname" />
-            <p>Last name:</p>
-            <input type="text" id="txtLastDeadname" />
-            <div class="arrows">
-              <span class="leftArrow">⇐</span>
-              <span class="rightArrow">⇒</span>
-            </div>
+      </div>
+      <div class="flex-content-2">
+        <h2>Your Deadname</h2>
+        <input type="button" id="btnToggleDeadnames" value="Show/Hide" class="hide" />
+        <div class="hidden-content content" id="deadnames">
+          <p>First name:</p>
+          <input type="text" id="txtFirstDeadname" />
+          <p>Middle name:</p>
+          <input type="text" id="txtMidDeadname" />
+          <p>Last name:</p>
+          <input type="text" id="txtLastDeadname" />
+          <div class="arrows">
+            <span class="leftArrow">⇐</span>
+            <span class="rightArrow">⇒</span>
           </div>
         </div>
       </div>
-      <div class="flexbox-2">
-        <div class="option">
-          <label class="toggle">
-            <input
-              class="toggle-checkbox"
-              id="stealth-option"
-              type="checkbox"
-            />
-            <div class="toggle-switch"></div>
-            <span class="toggle-label">Stealth mode</span>
-          </label>
-        </div>
-        <div class="option">
-          <label class="toggle">
-            <input
-              class="toggle-checkbox"
-              id="highlight-option"
-              type="checkbox"
-            />
-            <div class="toggle-switch"></div>
-            <span class="toggle-label">Add highlight</span>
-          </label>
-        </div>
+    </div>
+    <div class="flexbox-2">
+      <div class="option">
+        <label class="toggle">
+          <input class="toggle-checkbox" id="stealth-option" type="checkbox" />
+          <div class="toggle-switch"></div>
+          <span class="toggle-label">Stealth mode</span>
+        </label>
+      </div>
+      <div class="option">
+        <label class="toggle">
+          <input class="toggle-checkbox" id="highlight-option" type="checkbox" />
+          <div class="toggle-switch"></div>
+          <span class="toggle-label">Add highlight</span>
+        </label>
       </div>
     </div>
-    <div class="footer">
-      <input type="button" id="btnSave" value="Save" />
-      <a href="https://groups.google.com/u/3/g/deadname-remover"
-        >Report a bug or suggest a feature.</a
-      >
+    <div class="option">
+      <label class="toggle">
+        <input class="toggle-checkbox" id="ignore-case-option" type="checkbox" />
+        <div class="toggle-switch"></div>
+        <span class="toggle-label">Ignore Case</span>
+      </label>
     </div>
-  </body>
+  </div>
+  </div>
+  <div class="footer">
+    <input type="button" id="btnSave" value="Save" />
+    <a href="https://groups.google.com/u/3/g/deadname-remover">Report a bug or suggest a feature.</a>
+  </div>
+</body>
+
 </html>

@@ -14,23 +14,25 @@
 // @downloadURL  https://github.com/arimgibson/Deadname-Remover/raw/main/deadname-remover.user.js
 // ==/UserScript==
 
-(function () {
-  const settings = {
-    name: {
-      first: '',
-      middle: '',
-      last: '',
-    },
-    deadname: [
-      {
-        first: '',
-        middle: '',
-        last: '',
-      },
-    ],
-    enabled: true,
-    stealthMode: false,
-    highlight: false,
-  };
-  DeadnameRemover.start(settings);
-}());
+(function() {
+    'use strict';
+    const settings = 	{
+		name: {
+			first: "",
+			middle: "",
+			last: ""
+		},
+		deadname: [
+			{
+				first: "",
+				middle: "",
+				last: ""
+			}
+		],
+		enabled: true,
+		stealthMode: false,
+		highlight: false,
+		ignoreCase: true
+	}
+    DeadnameRemover.start(settings);
+})();

@@ -67,6 +67,7 @@ function loadDOM() {
 
   (document.getElementById('stealth-option') as HTMLInputElement).checked = settings.stealthMode;
   (document.getElementById('highlight-option') as HTMLInputElement).checked = settings.highlight;
+  (document.getElementById('ignore-case-option') as HTMLInputElement).checked = settings.ignoreCase;
 
   renderDeadName(0, 0);
 }
@@ -97,6 +98,7 @@ const saveSettings = () => {
     deadname: settings.deadname,
     stealthMode: settings.stealthMode,
     highlight: settings.highlight,
+    ignoreCase: settings.ignoreCase,
   };
 
   changeSettings($settings);
@@ -134,6 +136,9 @@ rightArrow.addEventListener('click', () => {
 
 (document.getElementById('highlight-option') as HTMLInputElement).addEventListener('change', (e: Event) => {
   settings.highlight = (e.target as HTMLInputElement).checked;
+});
+(document.getElementById('ignore-case-option') as HTMLInputElement).addEventListener('change', (e: Event) => {
+  settings.ignoreCase = (e.target as HTMLInputElement).checked;
 });
 
 function onChangeInput() {

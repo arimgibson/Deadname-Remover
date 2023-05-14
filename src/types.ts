@@ -14,6 +14,7 @@ export type UserSettings = {
   enabled: boolean;
   stealthMode: boolean;
   highlight: boolean;
+  ignoreCase: boolean;
 };
 
 export const DEFAULT_SETTINGS: UserSettings = {
@@ -30,4 +31,5 @@ export const DEFAULT_SETTINGS: UserSettings = {
   enabled: true,
   stealthMode: false,
   highlight: false,
+  ignoreCase: true,
 };
