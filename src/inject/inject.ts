@@ -12,6 +12,9 @@ let highlight: boolean;
 
 export function start(settings: UserSettings = DEFAULT_SETTINGS) {
   cleanUp();
+  if(settings.websiteSpecificSettings && settings.websiteSpecificSettings[window.location.hostname]) {
+    settings = {...settings,...settings.websiteSpecificSettings[window.location.hostname]};
+  }
   if (!settings.enabled) {
     return;
   }
