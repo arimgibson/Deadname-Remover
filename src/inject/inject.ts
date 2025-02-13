@@ -142,7 +142,17 @@ function checkNodeForReplacement(node: Node) {
     if (newText !== oldText) {
       cachedWords.set(newText, oldText);
       if (node.parentElement) {
-        node.parentElement.innerHTML = newText;
+        const parent = node.parentElement;
+        if(parent.childNodes.length > 1) {
+          for(let i = 0, len = parent.childNodes.length; i < len; i++) {
+            if(parent.childNodes[i].nodeValue === oldText) {
+              parent.childNodes[i].nodeValue = newText;
+              break;
+            }
+          }
+        }else {
+          parent.innerHTML = newText;
+        }
       }
     }
   } else if (node.hasChildNodes()) {
