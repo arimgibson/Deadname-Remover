@@ -21,4 +21,4 @@ Defaults to opt out. This can be opted in and out via the settings.
 
 * This doesn't mean just signing into an account (e.g. Google account) in your browser. This is if your browser profile is connected via a cloud-synced account (e.g. a Google account for Chrome). Learn more here.
 
-###### Updated: January 20, 2025 [(see update history)](https://github.com/arimgibosn/Deadname-Remover/commits/main/PRIVACY_POLICY.md)
+###### Updated: January 20, 2025 [(see update history)](https://github.com/arimgibson/Deadname-Remover/commits/main/PRIVACY_POLICY.md)
