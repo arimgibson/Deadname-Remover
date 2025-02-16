@@ -1,0 +1,9 @@
+{
+  "eslint.format.enable": true,
+  "svelte.enable-ts-plugin": true,
+  "[svelte]": {
+    "editor.defaultFormatter": "dbaeumer.vscode-eslint"
+  },
+  "cSpell.words": ["deadname", "deadnames", "tseslint", "valibot"],
+  "eslint.validate": ["javascript", "typescript", "svelte"]
+}

@@ -1,0 +1,67 @@
+{
+  "name": "Deadname Remover",
+  "version": "2.0.0",
+  "description": "An easy to use browser plugin to automatically remove and replace deadnames",
+  "private": true,
+  "type": "module",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/arimgibson/Deadname-Remover.git"
+  },
+  "keywords": [
+    "trans",
+    "transgender",
+    "dead",
+    "name",
+    "deadname",
+    "lgbtq",
+    "lgbtq+",
+    "queer",
+    "non-binary",
+    "gender"
+  ],
+  "author": "Ari Gibson",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/arimgibson/Deadname-Remover/issues"
+  },
+  "homepage": "https://github.com/arimgibson/Deadname-Remover#readme",
+  "scripts": {
+    "dev": "wxt",
+    "dev:firefox": "wxt -b firefox",
+    "build": "wxt build",
+    "build:firefox": "wxt build -b firefox",
+    "zip": "wxt zip",
+    "zip:firefox": "wxt zip -b firefox",
+    "lint": "eslint .",
+    "check": "svelte-check --tsconfig ./tsconfig.json && tsc --noEmit",
+    "compile": "tsc --noEmit",
+    "postinstall": "wxt prepare"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.20.0",
+    "@iconify-json/material-symbols": "^1.2.14",
+    "@iconify-json/twemoji": "^1.2.2",
+    "@onu-ui/preset": "^1.1.5",
+    "@stylistic/eslint-plugin": "^3.1.0",
+    "@types/chrome": "^0.0.304",
+    "@wxt-dev/module-svelte": "^2.0.3",
+    "@wxt-dev/unocss": "^1.0.0",
+    "eslint": "^9.20.1",
+    "eslint-plugin-svelte": "^2.46.1",
+    "globals": "^15.15.0",
+    "svelte": "^5.20.1",
+    "svelte-check": "^4.1.4",
+    "typescript": "^5.7.3",
+    "typescript-eslint": "^8.24.0",
+    "unocss": "^65.5.0",
+    "wxt": "^0.19.27"
+  },
+  "dependencies": {
+    "compare-versions": "^6.1.1",
+    "microdiff": "^1.5.0",
+    "svelte-french-toast": "^1.2.0",
+    "text-security": "^3.2.1",
+    "valibot": "^1.0.0-rc.0"
+  }
+}

@@ -1,0 +1,43 @@
+# Changelog
+
+## v2.0.0 🎉
+
+### Added or Changed
+- Complete rewrite of the extension using modern technologies/patterns:
+  - Improved performance via new name replacement mechanism
+  - Simplified replacement logic via cleaner browser-built in functions (such as document.createNodeIterator)
+  - Migration to WXT extension framework for easier development and maintenance
+  - Removed need for complicated build and task systems
+  - Rewrote UI to be more modern, user friendly, and accessible
+  - Integrated mutation observer to detect changes to the DOM and update the UI accordingly
+  - Re-analyzed which fields are processed to better follow user expectations
+  - Ensured full feature parity with the previous version (except for TamperMonkey scripts)
+- New features:
+  - Ability to add infinite deadnames and chosen names to process
+  - Theme support with trans pride and non-binary pride gradient options
+    - Name highlighting with pride-colored gradients
+  - Syncing settings across devices is now optional in case of privacy concerns
+  - Content blocking to prevent flashing of deadnames
+  - Support for shadow DOM elements, meaning more websites are supported
+  - Metrics to track the performance of the extension, implement easier debugging
+- Improved accessibility:
+  - Additional support for screen readers by processing ARIA attributes, `alt` tags
+  - High contrast theme option
+  - Improved keyboard navigation and accessibility in settings pages
+- Enhanced developer experience:
+  - Focus on leveraging WXT features and packages to improve development speed and quality
+  - Less code to maintain
+  - Better codebase structure to reduce barriers to entry for new contributors
+  - Svelte for UI components to speed up development, allow more flexibility in UI development
+  - OnuUI and UnoCSS for styling; modern, consistent, and easy to use
+  - Valibot for data validation and type safety
+  - Scripts for linting, type checking, building, etc.
+- Misc:
+  - Added this changelog :)
+  - More detailed and improved communication in Privacy Policy
+  - Recreated README to be accurate considering all the changes in this version
+
+### Removed
+- Entire previous codebase to modernize and improve the extension
+- Support for TamperMonkey scripts
+  - May be added back in the future if there is a need for it, though likely not used frequently and adds additional maintenance burden
