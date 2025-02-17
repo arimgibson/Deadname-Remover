@@ -3,6 +3,8 @@ import { TextProcessor } from './textProcessor'
 export class DOMObserver {
   private observer: MutationObserver | null = null
   private textProcessor: TextProcessor
+  /** Maximum depth for DOM traversal to prevent excessive processing on deeply nested structures */
+  private static readonly MAX_PROCESSING_DEPTH = 10
 
   constructor(textProcessor: TextProcessor) {
     this.textProcessor = textProcessor
@@ -17,11 +19,11 @@ export class DOMObserver {
         if (mutation.type === 'childList') {
           mutation.addedNodes.forEach((node) => {
             if (node instanceof HTMLElement) {
-              this.textProcessor.processSubtree(node, replacements)
+              this.textProcessor.processSubtree(node, replacements, DOMObserver.MAX_PROCESSING_DEPTH)
             }
             else if (node.nodeType === Node.TEXT_NODE && node.parentElement) {
               // Process the parent element if needed.
-              this.textProcessor.processSubtree(node.parentElement, replacements)
+              this.textProcessor.processSubtree(node.parentElement, replacements, DOMObserver.MAX_PROCESSING_DEPTH)
             }
           })
         }
@@ -30,7 +32,7 @@ export class DOMObserver {
           // to ensure we catch all related changes
           const parentElement = mutation.target.parentElement
           if (parentElement) {
-            this.textProcessor.processSubtree(parentElement, replacements)
+            this.textProcessor.processSubtree(parentElement, replacements, DOMObserver.MAX_PROCESSING_DEPTH)
           }
         }
       }
