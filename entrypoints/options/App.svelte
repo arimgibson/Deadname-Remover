@@ -23,9 +23,9 @@
   import {
     filterEmptyArraysFromDiff,
     debugLog,
-    checkForDuplicateDeadnames,
     errorLog,
   } from '@/utils'
+  import { validateNoDuplicateDeadnames } from '@/utils/validations'
   import type { UserSettings } from '@/utils/types'
   import { themes } from '@/utils/types'
   import { generalSettingKeys, nameKeys } from '@/utils/constants'
@@ -161,7 +161,7 @@
       return
     }
 
-    const noDuplicates = checkForDuplicateDeadnames(settings.names)
+    const noDuplicates = validateNoDuplicateDeadnames(settings.names)
     if (!noDuplicates) {
       setDeadnameError(target, name, index, 'Deadname already exists')
       return

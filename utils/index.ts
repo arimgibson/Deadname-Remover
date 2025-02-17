@@ -1,5 +1,5 @@
 import type { Difference } from 'microdiff'
-import { NameEntry, Names } from './types'
+import { Names } from './types'
 
 export function debugLog(message: string, ...data: unknown[]) {
   console.debug(`Deadname Remover: ${message}`, ...data)
@@ -7,17 +7,6 @@ export function debugLog(message: string, ...data: unknown[]) {
 
 export function errorLog(message: string, ...data: unknown[]) {
   console.error(`Deadname Remover: ${message}`, ...data)
-}
-
-/**
- * Checks if there are any duplicate deadnames across all name categories (first, middle, last)
- * @param nameMappings - Object containing arrays of NameEntry for each name category
- * @returns boolean - true if no duplicates found, false if duplicates exist
- */
-export function checkForDuplicateDeadnames(nameMappings: Names) {
-  const nameTuples = (Object.values(nameMappings).flat() as NameEntry[]).flatMap(({ mappings }) => mappings[0])
-  const duplicates = nameTuples.filter((item, index) => nameTuples.indexOf(item) !== index)
-  return duplicates.length === 0
 }
 
 /**
