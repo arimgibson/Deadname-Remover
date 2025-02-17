@@ -133,7 +133,9 @@ export class TextProcessor {
         // not just a duplicate check from createNodeIterator
         if (!this.shouldProcessElement(currentNode as HTMLElement)) return
         this.processElementNode(currentNode, replacements)
-        processedDepth++
+         if (!this.shouldProcessElement(currentNode as HTMLElement)) return
+         processedDepth++
+         this.processElementNode(currentNode, replacements)
       }
     }
   }
