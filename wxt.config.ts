@@ -37,7 +37,7 @@ export default defineConfig({
       ? { email: 'hi@arimgibson.com' }
       : 'Ari Gibson',
     homepage_url: 'https://github.com/arimgibson/Deadname-Remover',
-    version: '2.0.0',
+    version: '2.0.1',
     offline_enabled: true,
   }),
 })
