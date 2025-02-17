@@ -3,6 +3,7 @@ import { TextProcessor } from './textProcessor'
 export class DOMObserver {
   private observer: MutationObserver | null = null
   private textProcessor: TextProcessor
+  /** Maximum depth for DOM traversal to prevent excessive processing on deeply nested structures */
   private static readonly MAX_PROCESSING_DEPTH = 10
 
   constructor(textProcessor: TextProcessor) {
