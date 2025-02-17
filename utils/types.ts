@@ -1,5 +1,5 @@
 import * as v from 'valibot'
-import { checkForDuplicateDeadnames } from '.'
+import { validateNoDuplicateDeadnames, validateNoRecursiveMappings, validateNoSelfMappings } from './validations'
 
 const trimmedString = v.pipe(v.string(), v.trim(), v.nonEmpty())
 const NameTuple = v.tuple([trimmedString, trimmedString])
@@ -36,11 +36,16 @@ export const themes = [{
 }] as const
 
 export const UserSettings = v.object({
-  names: v.pipe(v.object({
-    first: v.array(NameEntry),
-    middle: v.array(NameEntry),
-    last: v.array(NameEntry),
-  }), v.check(checkForDuplicateDeadnames, 'Duplicate deadnames found')),
+  names: v.pipe(
+    v.object({
+      first: v.array(NameEntry),
+      middle: v.array(NameEntry),
+      last: v.array(NameEntry),
+    }),
+    v.check(validateNoDuplicateDeadnames, 'Duplicate deadnames found'),
+    v.check(validateNoSelfMappings, 'Self mappings found'),
+    v.check(validateNoRecursiveMappings, 'Recursive mappings found'),
+  ),
   enabled: v.boolean(),
   stealthMode: v.boolean(),
   blockContentBeforeDone: v.boolean(),

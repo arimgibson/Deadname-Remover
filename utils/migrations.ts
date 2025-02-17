@@ -104,6 +104,53 @@ function deduplicateNameMappings(settings: UserSettings): UserSettings {
   return deduped
 }
 
+/**
+ * Removes self mappings from the user settings.
+ * Filters out any NameEntry from each name type in settings.names
+ * where the dead name (mappings[0]) is identical to the live name (mappings[1]).
+ * @param settings - UserSettings containing the names property
+ * @returns UserSettings with self mappings removed from names
+ */
+export function removeSelfMappings(settings: UserSettings): UserSettings {
+  const updatedSettings = { ...settings }
+
+  // Remove self mappings for each name type (first, middle, last)
+  for (const type of ['first', 'middle', 'last'] as const) {
+    // Filter out mappings where the dead name is the same as the live name
+    updatedSettings.names[type] = settings.names[type].filter(mapping => mapping.mappings[0] !== mapping.mappings[1])
+  }
+
+  return updatedSettings
+}
+
+/**
+ * Removes recursive mappings from the user settings.
+ * Filters out any NameEntry from each name type in settings.names
+ * where the live name (mappings[1]) is identical to the dead name (other.mappings[0])
+ * in any other mapping (self-mappings are ignored).
+ * @param settings - UserSettings containing the names property
+ * @returns UserSettings with recursive mappings removed from names
+ */
+export function removeRecursiveMappings(settings: UserSettings): UserSettings {
+  const updatedSettings = { ...settings }
+
+  // Remove recursive mappings for each name type (first, middle, last)
+  for (const type of ['first', 'middle', 'last'] as const) {
+    updatedSettings.names[type] = settings.names[type].filter((candidate, idx, arr) => {
+      const candidateLive = candidate.mappings[1]
+      // Check if any other mapping (ignoring self) has its dead name equal to candidate's live name
+      // and that other mapping is not a self mapping.
+      const isRecursive = arr.some((other, otherIdx) => {
+        if (otherIdx === idx) return false // skip the same mapping
+        return other.mappings[0] === candidateLive && other.mappings[0] !== other.mappings[1]
+      })
+      return !isRecursive
+    })
+  }
+
+  return updatedSettings
+}
+
 export async function checkAndMigrateSettings(): Promise<void> {
   const legacySettings = await getLegacySettings()
 
@@ -130,6 +177,18 @@ export async function checkAndMigrateSettings(): Promise<void> {
       const dedupedSettings = deduplicateNameMappings(newSettings)
       await setConfig(dedupedSettings)
       debugLog('deduped settings successfully saved to sync storage')
+    }
+    else if (typedError.message.includes('Self mappings found')) {
+      // Remove self mappings and try saving again
+      const removedSelfMappings = removeSelfMappings(newSettings)
+      await setConfig(removedSelfMappings)
+      debugLog('removed self mappings successfully saved to sync storage')
+    }
+    else if (typedError.message.includes('Recursive mappings found')) {
+      // Remove recursive mappings and try saving again
+      const removedRecursiveMappings = removeRecursiveMappings(newSettings)
+      await setConfig(removedRecursiveMappings)
+      debugLog('removed recursive mappings successfully saved to sync storage')
     }
     else {
       errorLog('error saving settings', error)

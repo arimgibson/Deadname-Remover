@@ -23,9 +23,13 @@
   import {
     filterEmptyArraysFromDiff,
     debugLog,
-    checkForDuplicateDeadnames,
     errorLog,
   } from '@/utils'
+  import {
+    validateNoDuplicateDeadnames,
+    validateNoRecursiveMappings,
+    validateNoSelfMappings,
+  } from '@/utils/validations'
   import type { UserSettings } from '@/utils/types'
   import { themes } from '@/utils/types'
   import { generalSettingKeys, nameKeys } from '@/utils/constants'
@@ -81,6 +85,14 @@
       answer: 'You can submit bugs or feature requests through GitHub Issues or email. Visit <a class="link" href="https://github.com/arimgibson/deadname-remover/issues/new" target="_blank" rel="noreferrer">github.com/arimgibson/deadname-remover/issues</a> to create a new issue, or email <a class="link" href="mailto:hi@arigibson.com">hi@arigibson.com</a> if you prefer not to use GitHub. I\'ll add it in the GitHub Issues board for tracking and email you back the link to follow along.',
     },
   ]
+
+  const errorMessages = {
+    emptyDeadname: 'Deadname must not be empty',
+    emptyProperName: 'Proper name must not be empty',
+    duplicate: 'Deadname already exists',
+    self: 'Cannot set deadname to proper name',
+    recursive: 'Cannot set deadname to a name that has already been replaced',
+  } as const
 
   onMount(async () => {
     const config = await getConfig()
@@ -151,40 +163,97 @@
     previousStealthMode = settings.stealthMode
   })
 
-  function validateDeadname(
-    target: HTMLInputElement,
-    name: string,
-    index: number,
-  ) {
+  function validateNameField({
+    target,
+    type,
+    name,
+    index,
+  }: {
+    target: HTMLInputElement
+    type: 'deadname' | 'properName'
+    name: string
+    index: number
+  }) {
     if (target.value.trim().length === 0) {
-      setDeadnameError(target, name, index, 'Deadname must not be empty')
+      setNameFieldError({
+        target,
+        type,
+        name,
+        index,
+        errorType: type === 'deadname' ? 'emptyDeadname' : 'emptyProperName',
+      })
       return
     }
 
-    const noDuplicates = checkForDuplicateDeadnames(settings.names)
-    if (!noDuplicates) {
-      setDeadnameError(target, name, index, 'Deadname already exists')
+    if (type === 'deadname') {
+      const noDuplicates = validateNoDuplicateDeadnames(settings.names)
+      if (!noDuplicates) {
+        setNameFieldError({
+          target,
+          type,
+          name,
+          index,
+          errorType: 'duplicate',
+        })
+        return
+      }
+    }
+
+    const noSelfMappings = validateNoSelfMappings(settings.names)
+    if (!noSelfMappings) {
+      setNameFieldError({
+        target,
+        type,
+        name,
+        index,
+        errorType: 'self',
+      })
       return
     }
 
-    target.ariaInvalid = 'false'
+    const noRecursiveMappings = validateNoRecursiveMappings(settings.names)
+    if (!noRecursiveMappings) {
+      setNameFieldError({
+        target,
+        type,
+        name,
+        index,
+        errorType: 'recursive',
+      })
+      return
+    }
+
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-    document.querySelector(`#deadname-error-${name}-${String(index)}`)!.textContent
-      = ''
-    target.removeAttribute('aria-describedby')
+    const errorField: HTMLParagraphElement = document.querySelector(`#nameField-error-${name}-${String(index)}`)!
+    if (errorField.dataset.errorType === 'self' || errorField.dataset.nameType === type) {
+      target.ariaInvalid = 'false'
+      errorField.dataset.nameType = ''
+      errorField.dataset.errorType = ''
+      errorField.textContent = ''
+      target.removeAttribute('aria-describedby')
+    }
   }
 
-  function setDeadnameError(
-    target: HTMLInputElement,
-    name: string,
-    index: number,
-    message: string,
-  ) {
-    target.ariaInvalid = 'true'
+  function setNameFieldError({
+    target,
+    type,
+    name,
+    index,
+    errorType,
+  }: {
+    target: HTMLInputElement
+    type: 'deadname' | 'properName'
+    name: string
+    index: number
+    errorType: keyof typeof errorMessages
+  }) {
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-    document.querySelector(`#deadname-error-${name}-${String(index)}`)!.textContent
-      = message
-    target.setAttribute('aria-describedby', `deadname-error-${name}-${String(index)}`)
+    const errorField: HTMLParagraphElement = document.querySelector(`#nameField-error-${name}-${String(index)}`)!
+    target.ariaInvalid = 'true'
+    errorField.dataset.nameType = type
+    errorField.dataset.errorType = errorType
+    errorField.textContent = errorMessages[errorType]
+    target.setAttribute('aria-describedby', `nameField-error-${name}-${String(index)}`)
   }
 
   // Reset page state if config changes (to keep in sync with popup changes)
@@ -421,17 +490,19 @@
                           }
                         }}
                         oninput={(e) => {
-                          validateDeadname(
-                            (e as Event).target as HTMLInputElement,
-                            name.value,
+                          validateNameField({
+                            target: (e as Event).target as HTMLInputElement,
+                            type: 'deadname',
+                            name: name.value,
                             index,
-                          )
+                          })
                         }}
                       />
                       <input
                         type="text"
-                        class="input border rounded"
+                        class="input border rounded peer"
                         placeholder="Proper name"
+                        aria-required="true"
                         aria-label="Proper name"
                         bind:value={settings.names[name.value][index]
                           .mappings[1]}
@@ -444,9 +515,17 @@
                             // Wait for DOM update then focus new input
                             setTimeout(() => {
                               // eslint-disable-next-line @typescript-eslint/no-non-null-assertion, @typescript-eslint/no-unnecessary-type-assertion
-                              ((document.querySelector(`#deadname-${name.value}-${String(settings.names[name.value].length - 1)}`)!) as HTMLInputElement).focus()
+                              ((document.querySelector(`#properName-${name.value}-${String(settings.names[name.value].length - 1)}`)!) as HTMLInputElement).focus()
                             }, 0)
                           }
+                        }}
+                        oninput={(e) => {
+                          validateNameField({
+                            target: (e as Event).target as HTMLInputElement,
+                            type: 'properName',
+                            name: name.value,
+                            index,
+                          })
                         }}
                       />
                       <button
@@ -462,8 +541,8 @@
                         ></i>
                       </button>
                       <p
-                        id={`deadname-error-${name.value}-${String(index)}`}
-                        class="text-red-500 text-sm input-error"
+                        id={`nameField-error-${name.value}-${String(index)}`}
+                        class="text-red-500 text-sm input-error col-span-full"
                       ></p>
                     </div>
                   {/each}
