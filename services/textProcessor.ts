@@ -104,6 +104,9 @@ export class TextProcessor {
   }
 
   processSubtree(root: HTMLElement, replacements: ReplacementsMap, depth = Number.POSITIVE_INFINITY): void {
+    if (depth === 0) return
+    if (depth < 0) throw new Error('Depth cannot be negative')
+
     const nodeIterator = this.createNodeIterator(root)
 
     let processedDepth = 0
@@ -132,10 +135,8 @@ export class TextProcessor {
         // Can be called from DOMObserver, which doesn't check shouldProcessElement
         // not just a duplicate check from createNodeIterator
         if (!this.shouldProcessElement(currentNode as HTMLElement)) return
+        processedDepth++
         this.processElementNode(currentNode, replacements)
-         if (!this.shouldProcessElement(currentNode as HTMLElement)) return
-         processedDepth++
-         this.processElementNode(currentNode, replacements)
       }
     }
   }
