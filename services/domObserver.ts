@@ -17,11 +17,11 @@ export class DOMObserver {
         if (mutation.type === 'childList') {
           mutation.addedNodes.forEach((node) => {
             if (node instanceof HTMLElement) {
-              this.textProcessor.processSubtree(node, replacements)
+              this.textProcessor.processSubtree(node, replacements, 10)
             }
             else if (node.nodeType === Node.TEXT_NODE && node.parentElement) {
               // Process the parent element if needed.
-              this.textProcessor.processSubtree(node.parentElement, replacements)
+              this.textProcessor.processSubtree(node.parentElement, replacements, 10)
             }
           })
         }
@@ -30,7 +30,7 @@ export class DOMObserver {
           // to ensure we catch all related changes
           const parentElement = mutation.target.parentElement
           if (parentElement) {
-            this.textProcessor.processSubtree(parentElement, replacements)
+            this.textProcessor.processSubtree(parentElement, replacements, 10)
           }
         }
       }

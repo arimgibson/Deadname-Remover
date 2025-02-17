@@ -103,11 +103,13 @@ export class TextProcessor {
     }
   }
 
-  processSubtree(root: HTMLElement, replacements: ReplacementsMap): void {
+  processSubtree(root: HTMLElement, replacements: ReplacementsMap, depth = Infinity): void {
     const nodeIterator = this.createNodeIterator(root)
 
+    let processedDepth = 0
+
     let currentNode: Node | null
-    while ((currentNode = nodeIterator.nextNode())) {
+    while ((currentNode = nodeIterator.nextNode()) && processedDepth < depth) {
       if (currentNode.nodeType === Node.TEXT_NODE) {
         const textNode = currentNode as Text
         if (!this.processedNodes.has(textNode)) {
@@ -118,10 +120,20 @@ export class TextProcessor {
         }
       }
       else {
+      // Skip <mark> elements with the 'deadname' attribute
+        if (
+          currentNode.nodeType === Node.ELEMENT_NODE
+          && (currentNode as HTMLElement).tagName.toLowerCase() === 'mark'
+          && (currentNode as HTMLElement).hasAttribute('deadname')
+        ) {
+          continue
+        }
+
         // Can be called from DOMObserver, which doesn't check shouldProcessElement
         // not just a duplicate check from createNodeIterator
         if (!this.shouldProcessElement(currentNode as HTMLElement)) return
         this.processElementNode(currentNode, replacements)
+        processedDepth++
       }
     }
   }
