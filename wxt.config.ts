@@ -18,7 +18,7 @@ export default defineConfig({
       // ID is static and can't be changed
       gecko: {
         id: 'deadname-remover@willhaycode.com',
-        strict_min_version: '57.0',
+        strict_min_version: '58.0',
       },
     },
     icons: {
