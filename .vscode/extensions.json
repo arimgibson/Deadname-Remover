@@ -2,6 +2,7 @@
   "recommendations": [
     "svelte.svelte-vscode",
     "dbaeumer.vscode-eslint",
-    "unocss.unocss"
+    "unocss.unocss",
+    "vitest.explorer"
   ]
 }
