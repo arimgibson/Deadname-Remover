@@ -1,6 +1,6 @@
 {
   "name": "Deadname Remover",
-  "version": "2.0.1",
+  "version": "2.0.2",
   "description": "An easy to use browser plugin to automatically remove and replace deadnames",
   "private": true,
   "type": "module",
