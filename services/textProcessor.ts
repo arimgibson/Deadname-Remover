@@ -103,7 +103,7 @@ export class TextProcessor {
     }
   }
 
-  processSubtree(root: HTMLElement, replacements: ReplacementsMap, depth = Infinity): void {
+  processSubtree(root: HTMLElement, replacements: ReplacementsMap, depth = Number.POSITIVE_INFINITY): void {
     const nodeIterator = this.createNodeIterator(root)
 
     let processedDepth = 0
