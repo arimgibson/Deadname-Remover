@@ -6,3 +6,7 @@ dist/
 old/
 todo
 tsconfig.tsbuildinfo
+.output
+.vscode
+.wxt
+.env.submit*
