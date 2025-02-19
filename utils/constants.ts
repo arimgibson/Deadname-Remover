@@ -29,7 +29,7 @@ export const generalSettingKeys = [
     label: 'Block Page Until Replacements Finished',
     value: 'blockContentBeforeDone',
     description:
-      'Block the page until all replacements are finished to avoid displaying a deadname before replacement.',
+      'Block the page until all replacements are finished to avoid displaying a deadname before replacement. Can cause slowdowns on lower-end devices.',
   },
   {
     label: 'Highlight Replaced Names',

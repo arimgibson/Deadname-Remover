@@ -19,11 +19,11 @@ export class DOMObserver {
         if (mutation.type === 'childList') {
           mutation.addedNodes.forEach((node) => {
             if (node instanceof HTMLElement) {
-              this.textProcessor.processSubtree(node, replacements, DOMObserver.MAX_PROCESSING_DEPTH)
+              void this.textProcessor.processSubtree(node, replacements, true)
             }
             else if (node.nodeType === Node.TEXT_NODE && node.parentElement) {
               // Process the parent element if needed.
-              this.textProcessor.processSubtree(node.parentElement, replacements, DOMObserver.MAX_PROCESSING_DEPTH)
+              void this.textProcessor.processSubtree(node.parentElement, replacements, true)
             }
           })
         }
@@ -32,7 +32,7 @@ export class DOMObserver {
           // to ensure we catch all related changes
           const parentElement = mutation.target.parentElement
           if (parentElement) {
-            this.textProcessor.processSubtree(parentElement, replacements, DOMObserver.MAX_PROCESSING_DEPTH)
+            void this.textProcessor.processSubtree(parentElement, replacements, true)
           }
         }
       }
