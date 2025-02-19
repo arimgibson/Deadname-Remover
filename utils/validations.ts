@@ -6,7 +6,7 @@ import type { NameEntry, Names, NameTuple } from './types'
  * @returns boolean - true if no duplicates found, false if duplicates exist
  */
 export function validateNoDuplicateDeadnames(nameMappings: Names) {
-  const nameTuples = (Object.values(nameMappings).flat() as NameEntry[]).flatMap(({ mappings }) => mappings[0])
+  const nameTuples = (Object.values(nameMappings).flat() as NameEntry[]).flatMap(({ mappings }) => mappings[0].toLowerCase())
   const duplicates = nameTuples.filter((item, index) => nameTuples.indexOf(item) !== index)
   return duplicates.length === 0
 }
@@ -18,7 +18,7 @@ export function validateNoDuplicateDeadnames(nameMappings: Names) {
  */
 export function validateNoSelfMappings(nameMappings: Names) {
   const nameTuples: NameTuple[] = (Object.values(nameMappings).flat() as NameEntry[]).map(({ mappings }) => mappings)
-  const selfMappings = nameTuples.filter(item => item[0] === item[1])
+  const selfMappings = nameTuples.filter(item => item[0].toLowerCase() === item[1].toLowerCase())
   return selfMappings.length === 0
 }
 
@@ -33,7 +33,7 @@ export function validateNoRecursiveMappings(nameMappings: Names) {
   // Identify any mapping where a live name (entry.mappings[1]) is used as a dead name (other.mappings[0])
   // in any other mapping (self-mappings are ignored)
   const recursiveMappings = nameEntries.some((entry, i) =>
-    nameEntries.some((other, j) => i !== j && entry.mappings[1] === other.mappings[0]),
+    nameEntries.some((other, j) => i !== j && entry.mappings[1].toLowerCase() === other.mappings[0].toLowerCase()),
   )
 
   return !recursiveMappings
