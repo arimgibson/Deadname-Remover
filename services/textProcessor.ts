@@ -66,16 +66,94 @@ export class TextProcessor {
     }
   }
 
-  processDocument({
+  /**
+   * Processes the subtree either asynchronously (in batches) or synchronously.
+   * @param root - The root element.
+   * @param replacements - Map of replacement regex patterns and strings.
+   * @param asyncProcessing - If true, process nodes in batches asynchronously; if false, process synchronously.
+   *
+   * When asyncProcessing is false, the entire subtree is processed in one go (which is useful
+   * for the initial page load when you need to block until processing finishes).
+   */
+  processSubtree(
+    root: HTMLElement,
+    replacements: ReplacementsMap,
+    asyncProcessing = true,
+  ): Promise<void> | void {
+    if (asyncProcessing) {
+      return new Promise((resolve) => {
+        const iterator = this.createNodeIterator(root)
+        const batchSize = 30 // Adjust as needed.
+        let count = 0
+        let node: Node | null = null
+
+        const processBatch = () => {
+          count = 0
+          while (count < batchSize && (node = iterator.nextNode())) {
+            if (node.nodeType === Node.TEXT_NODE) {
+              const textNode = node as Text
+              if (!this.processedNodes.has(textNode)) {
+                const matches = this.findMatches(textNode.nodeValue ?? '', replacements)
+                if (matches.length > 0) {
+                  this.replaceTextInNode(textNode, matches)
+                }
+              }
+            }
+            else if (node.nodeType === Node.ELEMENT_NODE) {
+              if (this.shouldProcessElement(node as HTMLElement)) {
+                this.processElementNode(node, replacements)
+              }
+            }
+            count++
+          }
+          if (!node) {
+            // No more nodes to process.
+            resolve()
+          }
+          else {
+            // Schedule the next batch.
+            requestAnimationFrame(processBatch)
+          }
+        }
+
+        requestAnimationFrame(processBatch)
+      })
+    }
+    else {
+      // Synchronous processing.
+      const iterator = this.createNodeIterator(root)
+      let node: Node | null
+      while ((node = iterator.nextNode())) {
+        if (node.nodeType === Node.TEXT_NODE) {
+          const textNode = node as Text
+          if (!this.processedNodes.has(textNode)) {
+            const matches = this.findMatches(textNode.nodeValue ?? '', replacements)
+            if (matches.length > 0) {
+              this.replaceTextInNode(textNode, matches)
+            }
+          }
+        }
+        else if (node.nodeType === Node.ELEMENT_NODE) {
+          if (this.shouldProcessElement(node as HTMLElement)) {
+            this.processElementNode(node, replacements)
+          }
+        }
+      }
+    }
+  }
+
+  async processDocument({
     root,
     replacements,
+    asyncProcessing = true,
   }: {
     root: HTMLElement
     replacements: ReplacementsMap
-  }): void {
+    asyncProcessing?: boolean
+  }): Promise<void> {
     const startTime = performance.now()
 
-    // Store and process document title
+    // Process document title synchronously.
     if (document.title) {
       TextProcessor.originalTitle = document.title
       replacements.forEach((replacement, pattern) => {
@@ -88,7 +166,7 @@ export class TextProcessor {
       })
     }
 
-    this.processSubtree(root, replacements)
+    await this.processSubtree(root, replacements, asyncProcessing)
 
     this.metrics.processingTime = performance.now() - startTime
 
@@ -100,44 +178,6 @@ export class TextProcessor {
         accessibilityAttributesUpdated: this.metrics.accessibilityAttributesUpdated,
         processingTime: `${this.metrics.processingTime.toFixed(2)}ms`,
       })
-    }
-  }
-
-  processSubtree(root: HTMLElement, replacements: ReplacementsMap, depth = Number.POSITIVE_INFINITY): void {
-    if (depth === 0) return
-    if (depth < 0) throw new Error('Depth cannot be negative')
-
-    const nodeIterator = this.createNodeIterator(root)
-
-    let processedDepth = 0
-
-    let currentNode: Node | null
-    while ((currentNode = nodeIterator.nextNode()) && processedDepth < depth) {
-      if (currentNode.nodeType === Node.TEXT_NODE) {
-        const textNode = currentNode as Text
-        if (!this.processedNodes.has(textNode)) {
-          const matches = this.findMatches(textNode.nodeValue ?? '', replacements)
-          if (matches.length > 0) {
-            this.replaceTextInNode(textNode, matches)
-          }
-        }
-      }
-      else {
-      // Skip <mark> elements with the 'deadname' attribute
-        if (
-          currentNode.nodeType === Node.ELEMENT_NODE
-          && (currentNode as HTMLElement).tagName.toLowerCase() === 'mark'
-          && (currentNode as HTMLElement).hasAttribute('deadname')
-        ) {
-          continue
-        }
-
-        // Can be called from DOMObserver, which doesn't check shouldProcessElement
-        // not just a duplicate check from createNodeIterator
-        if (!this.shouldProcessElement(currentNode as HTMLElement)) return
-        processedDepth++
-        this.processElementNode(currentNode, replacements)
-      }
     }
   }
 
@@ -319,7 +359,8 @@ export class TextProcessor {
 
   private shouldProcessElement(element: HTMLElement): boolean {
     return !(
-      element.tagName.toLowerCase() === 'script'
+      (element.tagName.toLowerCase() === 'mark' && element.hasAttribute('deadname'))
+      || element.tagName.toLowerCase() === 'script'
       || element.tagName.toLowerCase() === 'style'
       || element.tagName.toLowerCase() === 'noscript'
       || element.tagName.toLowerCase() === 'template'

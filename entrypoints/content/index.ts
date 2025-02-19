@@ -58,6 +58,15 @@ async function configureAndRunProcessor({ config }: { config: UserSettings }): P
     document.querySelector('style[deadname]')?.remove()
   }
 
+  // Always update theme if it changed or on first enable
+  if (!previousEnabled || themeChanged || highlightChanged) {
+    setStyle({
+      document,
+      theme: config.theme,
+      highlight: config.highlightReplacedNames,
+    })
+  }
+
   // Only proceed with setup if enabled and either it's the first run or names changed
   if (!previousEnabled || namesChanged) {
     // Disconnect previous observer to clean up and avoid memory leaks
@@ -77,9 +86,12 @@ async function configureAndRunProcessor({ config }: { config: UserSettings }): P
 
     await waitUntilDOMReady()
     debugLog('Initial document processing starting')
-    textProcessor.processDocument({
+
+    // Await the full processing of the document body.
+    await textProcessor.processDocument({
       root: document.body,
       replacements,
+      asyncProcessing: !config.blockContentBeforeDone,
     })
     debugLog('Initial document processing complete')
 
@@ -88,19 +100,10 @@ async function configureAndRunProcessor({ config }: { config: UserSettings }): P
       unblockContent()
     }
 
-    // Set up observer for future changes
+    // Set up the observer for handling subsequent mutations (which do not block content).
     debugLog('Setting up mutation observer')
     currentObserver.setup(replacements)
     debugLog('Observer setup complete')
-  }
-
-  // Always update theme if it changed or on first enable
-  if (!previousEnabled || themeChanged || highlightChanged) {
-    setStyle({
-      document,
-      theme: config.theme,
-      highlight: config.highlightReplacedNames,
-    })
   }
 
   // Move these assignments to after all processing is complete
