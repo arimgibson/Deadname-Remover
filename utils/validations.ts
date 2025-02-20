@@ -18,7 +18,8 @@ export function validateNoDuplicateDeadnames(nameMappings: Names) {
  */
 export function validateNoSelfMappings(nameMappings: Names) {
   const nameTuples: NameTuple[] = (Object.values(nameMappings).flat() as NameEntry[]).map(({ mappings }) => mappings)
-  const selfMappings = nameTuples.filter(item => item[0].toLowerCase() === item[1].toLowerCase())
+  const hasSelfMapping = nameTuples.some(item => item[0].toLowerCase() === item[1].toLowerCase())
+  return !hasSelfMapping
   return selfMappings.length === 0
 }
 
