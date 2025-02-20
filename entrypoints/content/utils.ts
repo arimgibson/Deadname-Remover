@@ -67,14 +67,18 @@ export function setStyle({
 
   const style: Element = document.createElement('style')
   style.setAttribute('deadname', '')
-  style.innerHTML = ` 
-  /* Styling for the Ari's Deadname Remover extension. Selection based on attribute to avoid styling conflicts based on class. */
-  mark[deadname] {
-    background: ${highlight ? backgroundStyling[theme] : 'none'};
-    color: ${highlight ? 'black' : 'inherit'};
-  }
-  `
   document.head.appendChild(style)
+
+  // Add CSS rules directly to the style element
+  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+  const sheet = (style as HTMLStyleElement).sheet!
+  sheet.insertRule(`
+    /* Styling for the Ari's Deadname Remover extension. Selection based on attribute to avoid styling conflicts based on class. */
+    mark[deadname] {
+      background: ${highlight ? backgroundStyling[theme] : 'none'};
+      color: ${highlight ? 'black' : 'inherit'};
+    }
+  `)
 }
 
 /**
