@@ -6,9 +6,9 @@ import type { NameEntry, Names, NameTuple } from './types'
  * @returns boolean - true if no duplicates found, false if duplicates exist
  */
 export function validateNoDuplicateDeadnames(nameMappings: Names) {
-  const nameTuples = (Object.values(nameMappings).flat() as NameEntry[]).flatMap(({ mappings }) => mappings[0].toLowerCase())
-  const duplicates = nameTuples.filter((item, index) => nameTuples.indexOf(item) !== index)
-  return duplicates.length === 0
+  const deadnames = (Object.values(nameMappings).flat() as NameEntry[]).flatMap(({ mappings }) => mappings[0].toLowerCase())
+  const uniqueDeadnames = new Set(deadnames)
+  return uniqueDeadnames.size === deadnames.length
 }
 
 /**
@@ -30,11 +30,16 @@ export function validateNoSelfMappings(nameMappings: Names) {
 export function validateNoRecursiveMappings(nameMappings: Names) {
   const nameEntries = Object.values(nameMappings).flat() as NameEntry[]
 
-  // Identify any mapping where a live name (entry.mappings[1]) is used as a dead name (other.mappings[0])
-  // in any other mapping (self-mappings are ignored)
-  const recursiveMappings = nameEntries.some((entry, i) =>
-    nameEntries.some((other, j) => i !== j && entry.mappings[1].toLowerCase() === other.mappings[0].toLowerCase()),
+  // Create a Map of lowercase live names to their indices
+  const liveNameMap = new Map(
+    nameEntries.map((entry, index) => [entry.mappings[1].toLowerCase(), index]),
   )
+
+  // Check if any dead name exists as a live name (excluding self)
+  const recursiveMappings = nameEntries.some((entry, i) => {
+    const matchingLiveNameIndex = liveNameMap.get(entry.mappings[0].toLowerCase())
+    return matchingLiveNameIndex !== undefined && matchingLiveNameIndex !== i
+  })
 
   return !recursiveMappings
 }
