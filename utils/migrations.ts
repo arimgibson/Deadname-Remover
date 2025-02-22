@@ -60,6 +60,7 @@ function convertLegacyToNewFormat(legacy: LegacySettings): UserSettings {
       first: [],
       middle: [],
       last: [],
+      email: [],
     },
   }
 
