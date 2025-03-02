@@ -12,6 +12,7 @@ export const defaultSettings: UserSettings = {
   enabled: true,
   blockContentBeforeDone: true,
   stealthMode: false,
+  hideDebugInfo: false,
   highlightReplacedNames: true,
   syncSettingsAcrossDevices: false,
   theme: 'trans',
