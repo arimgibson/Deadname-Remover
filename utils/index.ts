@@ -1,7 +1,11 @@
 import type { Difference } from 'microdiff'
 import { Names } from './types'
+import { getConfig } from '@/services/configService'
 
-export function debugLog(message: string, ...data: unknown[]) {
+export async function debugLog(message: string, ...data: unknown[]) {
+  const { hideDebugInfo } = await getConfig()
+  if (hideDebugInfo) return
+  
   console.debug(`Deadname Remover: ${message}`, ...data)
 }
 

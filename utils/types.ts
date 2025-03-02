@@ -48,6 +48,7 @@ export const UserSettings = v.object({
   ),
   enabled: v.boolean(),
   stealthMode: v.boolean(),
+  hideDebugInfo: v.boolean(),
   blockContentBeforeDone: v.boolean(),
   highlightReplacedNames: v.boolean(),
   syncSettingsAcrossDevices: v.boolean(),

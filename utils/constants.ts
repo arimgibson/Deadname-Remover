@@ -26,6 +26,12 @@ export const generalSettingKeys = [
       'Hide gender-related elements to protect privacy and accidentally being outed. Disables text highlighting, replaces the extension icon, and hides the popup options when the extension\'s icon is clicked.',
   },
   {
+    label: 'Hide Debug Info',
+    value: 'hideDebugInfo',
+    description:
+      'Hide debug information from the console. This can help protect your privacy by not exposing potentially sensitive information.',
+  },
+  {
     label: 'Block Page Until Replacements Finished',
     value: 'blockContentBeforeDone',
     description:
