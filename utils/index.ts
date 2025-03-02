@@ -5,7 +5,7 @@ import { getConfig } from '@/services/configService'
 export async function debugLog(message: string, ...data: unknown[]) {
   const { hideDebugInfo } = await getConfig()
   if (hideDebugInfo) return
-  
+
   console.debug(`Deadname Remover: ${message}`, ...data)
 }
 
