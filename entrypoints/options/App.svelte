@@ -63,6 +63,8 @@
   let showFaqModal = $state(false)
   let showFaqTooltip = $state(false)
 
+  let captureShortcut = $state(false)
+
   const faqs = [
     {
       question: 'How do I add multiple names?',
@@ -281,6 +283,27 @@
       })
     }
   }
+
+  function formatKeyboardShortcut(shortcut: UserSettings['toggleKeybinding']): string | null {
+    if (!shortcut) return null
+
+    const parts: string[] = []
+
+    if (shortcut.ctrl) parts.push('Ctrl')
+    if (shortcut.alt) parts.push('Alt')
+    if (shortcut.shift) parts.push('Shift')
+    if (shortcut.meta) parts.push('Meta')
+
+    // Format key nicely
+    let key = shortcut.key
+    if (key === ' ') key = 'Space'
+    else if (key.length === 1) key = key.toUpperCase()
+    else if (key === 'Escape') key = 'Esc'
+
+    parts.push(key)
+
+    return parts.join(' + ')
+  }
 </script>
 
 <Toaster />
@@ -424,6 +447,63 @@
             </div>
             <p class="text-sm text-gray-500 mt-2">
               Changes the color of the highlight on replaced names.
+            </p>
+          </div>
+
+          <div>
+            <label for="keyboard-shortcut" class="text-gray-700 text-base">Toggle Extension Shortcut</label>
+            <div class="mt-2">
+              <div
+                id="keyboard-shortcut"
+                class="input border rounded flex items-center justify-between p-2 cursor-pointer"
+                tabindex="0"
+                role="button"
+                aria-label="Press keys to set shortcut"
+                onclick={() => captureShortcut = true}
+                onkeydown={(e) => {
+                  if (captureShortcut) {
+                    e.preventDefault()
+
+                    // Skip if only modifier keys are pressed
+                    const isModifierKey = ['Control', 'Alt', 'Shift', 'Meta'].includes(e.key)
+                    if (!isModifierKey) {
+                      settings.toggleKeybinding = {
+                        key: e.key,
+                        alt: e.altKey,
+                        ctrl: e.ctrlKey,
+                        shift: e.shiftKey,
+                        meta: e.metaKey,
+                      }
+                      captureShortcut = false
+                    }
+                  }
+                }}
+                onblur={() => captureShortcut = false}
+              >
+                <span class={captureShortcut ? 'text-theme-500' : 'text-gray-700'}>
+                  {captureShortcut
+                    ? 'Press keys...'
+                    : settings.toggleKeybinding
+                      ? formatKeyboardShortcut(settings.toggleKeybinding)
+                      : 'Disabled -- Click Here to Set'}
+                </span>
+                <button
+                  type="button"
+                  class="text-gray-500 hover:text-gray-700"
+                  onclick={(e) => {
+                    e.stopPropagation()
+                    settings.toggleKeybinding = defaultSettings.toggleKeybinding
+                  }}
+                  aria-label="Reset to default shortcut"
+                >
+                  <i class="i-material-symbols:refresh text-lg" aria-hidden="true"></i>
+                </button>
+              </div>
+            </div>
+            <p class="text-sm text-gray-500 mt-2">
+              <strong>Note: it is recommended to ensure the key combination used is not already in use by another browser feature or extension.</strong>
+              <br /><br />
+              Keyboard shortcut to quickly enable or disable the extension. Does not show any indication of being toggled for privacy purposes.
             </p>
           </div>
         </div>
