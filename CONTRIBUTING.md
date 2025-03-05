@@ -35,6 +35,7 @@ Feature requests are very welcome! Before submitting, please check the existing 
 ### Prerequisites
 
 - Node.js (v20 or higher)
+  - If using Windows, Node v23 will not work. Node v22 is recommended. See [#595](https://github.com/arimgibson/Deadname-Remover/issues/595) for more information.
 - Bun (v1.0.0 or higher) -- used as the package manager
 - Git
 - A Chromium-based browser (Chrome, Edge, Brave, etc.) or Firefox installed for running the WXT development browser
