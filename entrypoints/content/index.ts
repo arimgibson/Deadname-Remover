@@ -1,5 +1,5 @@
 import { defineContentScript } from 'wxt/sandbox'
-import { getConfig, setupConfigListener } from '@/services/configService'
+import { getConfig, setConfig, setupConfigListener } from '@/services/configService'
 import { DOMObserver } from '@/services/domObserver'
 import { TextProcessor } from '@/services/textProcessor'
 import type { Names, UserSettings } from '@/utils/types'
@@ -113,6 +113,32 @@ async function configureAndRunProcessor({ config }: { config: UserSettings }): P
   previousHighlight = config.highlightReplacedNames
 }
 
+function registerKeyboardShortcut({
+  config,
+}: {
+  config: UserSettings
+}): void {
+  const toggleKeybinding = config.toggleKeybinding
+  if (!toggleKeybinding) {
+    debugLog('no toggle keybinding found, skipping keyboard shortcut registration')
+    return
+  }
+
+  debugLog('registering keyboard shortcut', toggleKeybinding)
+  document.addEventListener('keydown', (event) => {
+    if (event.key === toggleKeybinding.key
+      && event.altKey === toggleKeybinding.alt
+      && event.ctrlKey === toggleKeybinding.ctrl
+      && event.shiftKey === toggleKeybinding.shift
+      && event.metaKey === toggleKeybinding.meta
+    ) {
+      debugLog(`toggle keybinding pressed, ${config.enabled ? 'disabling' : 'enabling'}`)
+      config.enabled = !config.enabled
+      void setConfig(config)
+    }
+  })
+}
+
 export default defineContentScript({
   matches: ['<all_urls>'],
   runAt: 'document_start',
@@ -121,6 +147,7 @@ export default defineContentScript({
 
     const config = await getConfig()
     await configureAndRunProcessor({ config })
+    registerKeyboardShortcut({ config })
 
     // Handle configuration changes
     setupConfigListener(config => void configureAndRunProcessor({ config }))
