@@ -22,10 +22,14 @@ export async function handleUpdate(details: Runtime.OnInstalledDetailsType) {
 
   let config = await getConfig()
 
-  // Ensure the specific value is set to false if undefined
+  // Ensure hideDebugInfo is initialized
   if (config.hideDebugInfo === undefined) {
     config.hideDebugInfo = false
-    await setConfig(config)
+    try {
+      await setConfig(config)
+    } catch (error) {
+      errorLog('error setting hideDebugInfo config', error)
+    }
   }
 
   // If last version is less than 2.0.0, open the options page with the upgrade flag
