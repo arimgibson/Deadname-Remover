@@ -431,7 +431,7 @@
           </div>
 
           <div>
-            <label for="keyboard-shortcut" class="text-gray-700 text-base">Toggle Extension Shortcut</label>
+            <label for="keyboard-shortcut" class="text-gray-700 text-base">Enable/Disable Extension Keyboard Shortcut</label>
             <div class="mt-2">
               <div
                 id="keyboard-shortcut"
@@ -481,8 +481,8 @@
               </div>
             </div>
             <p class="text-sm text-gray-500 mt-2">
-              <strong>Note: it is recommended to ensure the key combination used is not already in use by another browser feature or extension.</strong>
-              <br /><br />
+              <strong class="mb-4 inline-block">Note: it is recommended to ensure the key combination used is not already in use by another browser feature or extension.</strong>
+              <br />
               Keyboard shortcut to quickly enable or disable the extension. Does not show any indication of being toggled for privacy purposes.
             </p>
           </div>
