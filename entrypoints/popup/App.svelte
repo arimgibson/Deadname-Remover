@@ -7,7 +7,7 @@
     setupConfigListener,
   } from '@/services/configService'
   import { checkForStealthUpgradeNotification, clearStealthUpgradeNotification } from '@/utils/migrations'
-  import { errorLog } from '@/utils'
+  import { errorLog, formatKeyboardShortcut } from '@/utils'
   import type { UserSettings } from '@/utils/types'
   import { themes } from '@/utils/types'
   import { generalSettingKeys } from '@/utils/constants'
@@ -154,6 +154,13 @@
                 class="i-material-symbols:arrow-drop-down text-xl absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none"
               ></i>
             </div>
+          </div>
+
+          <div class="flex justify-between items-center h-8 mt-3">
+            <span class="text-gray-700 text-base">Enable/Disable Shortcut</span>
+            <span class="text-sm text-gray-600 bg-gray-100 px-2 py-1 rounded">
+              {settings.toggleKeybinding ? formatKeyboardShortcut(settings.toggleKeybinding) : 'Disabled'}
+            </span>
           </div>
         </div>
       </section>
