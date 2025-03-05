@@ -22,6 +22,12 @@ export async function handleUpdate(details: Runtime.OnInstalledDetailsType) {
 
   let config = await getConfig()
 
+  // Ensure the specific value is set to false if undefined
+  if (config.hideDebugInfo === undefined) {
+    config.hideDebugInfo = false
+    await setConfig(config)
+  }
+
   // If last version is less than 2.0.0, open the options page with the upgrade flag
   if (details.previousVersion && compare(details.previousVersion, '2.0.0', '<')) {
     // If stealth mode is disabled, open the options page with the upgrade flag
