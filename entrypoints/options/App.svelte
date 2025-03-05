@@ -500,6 +500,7 @@
                       />
                       <input
                         type="text"
+                        id={`replacement-${name.value}-${String(index)}`}
                         class="input border rounded peer"
                         placeholder="Proper name"
                         aria-required="true"
@@ -530,6 +531,7 @@
                       />
                       <button
                         type="button"
+                        id={`remove-${name.value}-${String(index)}`}
                         onclick={() =>
                           settings.names[name.value].splice(index, 1)}
                         class="text-red-500 hover:text-red-700"
@@ -549,6 +551,7 @@
                 </div>
                 <button
                   type="button"
+                  id={`add-${name.value}`}
                   onclick={() => {
                     settings.names[name.value].push({ mappings: ['', ''] })
                     setTimeout(() => {
@@ -570,7 +573,7 @@
       </section>
 
       <!-- Save Button -->
-      <button type="submit" class="btn solid w-full" aria-label="Save settings">
+      <button type="submit" class="btn solid w-full" aria-label="Save settings" id="save-settings">
         Save Settings
       </button>
     </form>
