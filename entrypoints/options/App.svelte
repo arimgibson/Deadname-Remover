@@ -22,6 +22,7 @@
   } from '@/services/configService'
   import {
     filterEmptyArraysFromDiff,
+    formatKeyboardShortcut,
     debugLog,
     errorLog,
   } from '@/utils'
@@ -282,27 +283,6 @@
         className: 'h-12 text-lg',
       })
     }
-  }
-
-  function formatKeyboardShortcut(shortcut: UserSettings['toggleKeybinding']): string | null {
-    if (!shortcut) return null
-
-    const parts: string[] = []
-
-    if (shortcut.ctrl) parts.push('Ctrl')
-    if (shortcut.alt) parts.push('Alt')
-    if (shortcut.shift) parts.push('Shift')
-    if (shortcut.meta) parts.push('Meta')
-
-    // Format key nicely
-    let key = shortcut.key
-    if (key === ' ') key = 'Space'
-    else if (key.length === 1) key = key.toUpperCase()
-    else if (key === 'Escape') key = 'Esc'
-
-    parts.push(key)
-
-    return parts.join(' + ')
   }
 </script>
 
