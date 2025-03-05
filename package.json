@@ -36,6 +36,9 @@
     "lint": "eslint .",
     "check": "svelte-check --tsconfig ./tsconfig.json && tsc --noEmit",
     "test": "vitest",
+    "test:e2e": "bun run build && playwright test",
+    "test:e2e:ui": "bun run build && playwright test --ui",
+    "test:e2e:setup": "playwright install chromium",
     "compile": "tsc --noEmit",
     "postinstall": "wxt prepare"
   },
@@ -44,6 +47,7 @@
     "@iconify-json/material-symbols": "^1.2.16",
     "@iconify-json/twemoji": "^1.2.2",
     "@onu-ui/preset": "^1.1.5",
+    "@playwright/test": "^1.50.1",
     "@stylistic/eslint-plugin": "^4.2.0",
     "@types/chrome": "^0.0.309",
     "@typescript-eslint/parser": "^8.26.1",
