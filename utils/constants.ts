@@ -29,7 +29,7 @@ export const generalSettingKeys = [
     label: 'Hide Debug Info',
     value: 'hideDebugInfo',
     description:
-      'Hide debug information from the console. This can help protect your privacy by not exposing potentially sensitive information.',
+      'Hide debug information from the browser console. This can help protect your privacy by not exposing potentially sensitive information.',
   },
   {
     label: 'Block Page Until Replacements Finished',
