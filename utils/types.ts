@@ -2,7 +2,9 @@ import * as v from 'valibot'
 import { validateNoDuplicateDeadnames, validateNoRecursiveMappings, validateNoSelfMappings } from './validations'
 
 const trimmedString = v.pipe(v.string(), v.trim(), v.nonEmpty())
+export const trimmedEmail = v.pipe(trimmedString, v.email())
 const NameTuple = v.tuple([trimmedString, trimmedString])
+const EmailTuple = v.tuple([trimmedEmail, trimmedEmail])
 
 /**
  * Represents a mapping of proper names to deadnames.
@@ -10,18 +12,23 @@ const NameTuple = v.tuple([trimmedString, trimmedString])
  * @example
  * ["jack", "jackie"]  // deadname, properName
  */
-export type NameTuple = v.InferOutput<typeof NameTuple>
+export type NameTuple = v.InferOutput<typeof NameTuple | typeof EmailTuple>
 
 const NameEntry = v.object({
   mappings: NameTuple,
 })
+const EmailEntry = v.object({
+  mappings: EmailTuple,
+})
 
 export type NameEntry = v.InferOutput<typeof NameEntry>
+export type EmailEntry = v.InferOutput<typeof EmailEntry>
 
 export interface Names {
   first: NameEntry[]
   middle: NameEntry[]
   last: NameEntry[]
+  email: EmailEntry[]
 }
 
 export const themes = [{
@@ -41,6 +48,7 @@ export const UserSettings = v.object({
       first: v.array(NameEntry),
       middle: v.array(NameEntry),
       last: v.array(NameEntry),
+      email: v.array(EmailEntry),
     }),
     v.check(validateNoDuplicateDeadnames, 'Duplicate deadnames found'),
     v.check(validateNoSelfMappings, 'Self mappings found'),

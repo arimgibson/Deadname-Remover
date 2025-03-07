@@ -11,6 +11,10 @@ export const nameKeys = [
     label: 'Last Names',
     value: 'last',
   },
+  {
+    label: 'Email Addresses',
+    value: 'email',
+  },
 ] as const
 
 export const generalSettingKeys = [
