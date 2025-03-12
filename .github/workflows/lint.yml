@@ -22,7 +22,7 @@ jobs:
         run: bun install
 
       - name: ESLint
-        uses: wearerequired/lint-action@v2
+        uses: rkuykendall/lint-action@master
         with:
           eslint: true
           eslint_extensions: "js,ts,svelte"
