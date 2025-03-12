@@ -15,19 +15,21 @@ export async function handleInstall(_details: Runtime.OnInstalledDetailsType) {
 
 export async function handleUpdate(details: Runtime.OnInstalledDetailsType) {
   const currentVersion = browser.runtime.getManifest().version
-  debugLog('current version', currentVersion)
-  debugLog('previous version', details.previousVersion)
+  await debugLog('current version', currentVersion)
+  await debugLog('previous version', details.previousVersion)
 
   await checkAndMigrateSettings()
 
   let config = await getConfig()
 
   // Ensure hideDebugInfo is initialized
+  // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- clean up later
   if (config.hideDebugInfo === undefined) {
     config.hideDebugInfo = false
     try {
       await setConfig(config)
-    } catch (error) {
+    }
+    catch (error) {
       errorLog('error setting hideDebugInfo config', error)
     }
   }
@@ -44,13 +46,13 @@ export async function handleUpdate(details: Runtime.OnInstalledDetailsType) {
     await createStealthUpgradeNotification('2.0.0')
   }
   else if (details.previousVersion === '2.0.0' && currentVersion === '2.0.1') {
-    debugLog('migrating settings from v2.0.0 to v2.0.1')
+    await debugLog('migrating settings from v2.0.0 to v2.0.1')
     try {
-      debugLog('removing self mappings')
+      await debugLog('removing self mappings')
       config = removeSelfMappings(config)
-      debugLog('removing recursive mappings')
+      await debugLog('removing recursive mappings')
       config = removeRecursiveMappings(config)
-      debugLog('saving settings')
+      await debugLog('saving settings')
       await setConfig(config)
     }
     catch (error) {

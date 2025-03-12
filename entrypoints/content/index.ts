@@ -49,12 +49,12 @@ async function configureAndRunProcessor({ config }: { config: UserSettings }): P
   const highlightChanged = previousEnabled && previousHighlight !== config.highlightReplacedNames
 
   if (namesChanged) {
-    debugLog('names changed, reverting replacements to reapply with new names')
+    await debugLog('names changed, reverting replacements to reapply with new names')
     TextProcessor.revertAllReplacements()
   }
 
   if (themeChanged) {
-    debugLog('theme changed, removing style to apply new theme')
+    await debugLog('theme changed, removing style to apply new theme')
     document.querySelector('style[deadname]')?.remove()
   }
 
@@ -78,14 +78,14 @@ async function configureAndRunProcessor({ config }: { config: UserSettings }): P
 
     const replacements = createReplacementsMap(config.names)
 
-    debugLog('replacements', replacements)
+    await debugLog('replacements', replacements)
     if (config.blockContentBeforeDone) {
-      debugLog('blocking content')
+      await debugLog('blocking content')
       blockContent()
     }
 
     await waitUntilDOMReady()
-    debugLog('Initial document processing starting')
+    await debugLog('Initial document processing starting')
 
     // Await the full processing of the document body.
     await textProcessor.processDocument({
@@ -93,17 +93,17 @@ async function configureAndRunProcessor({ config }: { config: UserSettings }): P
       replacements,
       asyncProcessing: !config.blockContentBeforeDone,
     })
-    debugLog('Initial document processing complete')
+    await debugLog('Initial document processing complete')
 
     if (config.blockContentBeforeDone) {
-      debugLog('unblocking content')
+      await debugLog('unblocking content')
       unblockContent()
     }
 
     // Set up the observer for handling subsequent mutations (which do not block content).
-    debugLog('Setting up mutation observer')
+    await debugLog('Setting up mutation observer')
     currentObserver.setup(replacements)
-    debugLog('Observer setup complete')
+    await debugLog('Observer setup complete')
   }
 
   // Move these assignments to after all processing is complete
@@ -117,7 +117,7 @@ export default defineContentScript({
   matches: ['<all_urls>'],
   runAt: 'document_start',
   main: async () => {
-    debugLog('loaded')
+    await debugLog('loaded')
 
     const config = await getConfig()
     await configureAndRunProcessor({ config })

@@ -53,7 +53,7 @@
     if (initialSettings) {
       const changes = diff(initialSettings, settings)
       const filteredChanges = filterEmptyArraysFromDiff(changes)
-      debugLog('options page changes', filteredChanges)
+      void debugLog('options page changes', filteredChanges)
       return filteredChanges.length
     }
     return 0

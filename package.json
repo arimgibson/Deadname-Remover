@@ -46,6 +46,7 @@
     "@onu-ui/preset": "^1.1.5",
     "@stylistic/eslint-plugin": "^3.1.0",
     "@types/chrome": "^0.0.304",
+    "@typescript-eslint/parser": "^8.26.1",
     "@wxt-dev/module-svelte": "^2.0.3",
     "@wxt-dev/unocss": "^1.0.0",
     "eslint": "^9.20.1",
