@@ -364,6 +364,7 @@ export class TextProcessor {
       || element.tagName.toLowerCase() === 'style'
       || element.tagName.toLowerCase() === 'noscript'
       || element.tagName.toLowerCase() === 'template'
+      || element.tagName.toLowerCase() === 'svg'
     )
   }
 
