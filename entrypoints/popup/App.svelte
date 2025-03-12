@@ -120,7 +120,7 @@
               class="flex justify-between items-center text-gray-700 text-sm"
             >
               {setting.label}
-              <div class="switch switch-theme-400">
+              <div class="accessible-switch switch-theme-400">
                 <input
                   type="checkbox"
                   id={setting.value}
