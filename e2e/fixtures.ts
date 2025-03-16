@@ -1,6 +1,6 @@
 import { test as base, chromium, type BrowserContext, Page } from '@playwright/test'
-import { resolve } from 'path'
-import * as fs from 'fs'
+import { resolve } from 'node:path'
+import * as fs from 'node:fs'
 import { setupTestConfig } from './helpers/setupTestConfig'
 import { UserSettings } from '@/utils/types'
 
