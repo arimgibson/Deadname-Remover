@@ -114,7 +114,7 @@
       <!-- General Settings -->
       <section class="mb-4" aria-labelledby="general-settings-heading">
         <div class="space-y-3" role="group">
-          {#each generalSettingKeys as setting}
+          {#each generalSettingKeys as setting (setting.value)}
             <label
               for={setting.value}
               class="flex justify-between items-center text-gray-700 text-sm"
@@ -146,7 +146,7 @@
                 aria-label="Select theme"
                 onchange={handleSubmit}
               >
-                {#each themes as theme}
+                {#each themes as theme (theme.value)}
                   <option value={theme.value}>{theme.label}</option>
                 {/each}
               </select>
