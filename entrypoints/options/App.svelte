@@ -16,10 +16,9 @@
   import {
     getConfig,
     setConfig,
-    defaultSettings,
     setupConfigListener,
     deleteSyncedData,
-  } from '@/services/configService'
+  } from '@/services/configService/extension'
   import {
     filterEmptyArraysFromDiff,
     debugLog,

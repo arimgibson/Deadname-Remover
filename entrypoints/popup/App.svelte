@@ -1,11 +1,11 @@
 <script lang="ts">
   import { onMount } from 'svelte'
+  import { defaultSettings } from '@/services/configService'
   import {
     getConfig,
     setConfig,
-    defaultSettings,
     setupConfigListener,
-  } from '@/services/configService'
+  } from '@/services/configService/extension'
   import { checkForStealthUpgradeNotification, clearStealthUpgradeNotification } from '@/utils/migrations'
   import { errorLog } from '@/utils'
   import type { UserSettings } from '@/utils/types'
