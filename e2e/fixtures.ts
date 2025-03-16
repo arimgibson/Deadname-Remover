@@ -1,4 +1,4 @@
-import { test as base, chromium, type BrowserContext } from '@playwright/test'
+import { test as base, chromium, type BrowserContext, Page } from '@playwright/test'
 import { resolve } from 'path'
 import * as fs from 'fs'
 
@@ -6,13 +6,13 @@ import * as fs from 'fs'
 export const test = base.extend<{
   context: BrowserContext
   extensionId: string
+  optionsPage: Page
+  popupPage: Page
 }>({
   // eslint-disable-next-line no-empty-pattern
   context: async ({}, use) => {
     // Get the path to the built extension
     const extensionPath = resolve(import.meta.dirname, '../.output/chrome-mv3')
-
-    console.log(extensionPath)
 
     // Ensure the extension is built
     if (!fs.existsSync(extensionPath)) {
@@ -41,6 +41,20 @@ export const test = base.extend<{
 
     const extensionId = background.url().split('/')[2]
     await use(extensionId)
+  },
+
+  // Create a fixture for the options page
+  optionsPage: async ({ context, extensionId }, use) => {
+    const optionsPage = await context.newPage()
+    await optionsPage.goto(`chrome-extension://${extensionId}/options.html`)
+    await use(optionsPage)
+  },
+
+  // Create a fixture for the popup page
+  popupPage: async ({ context, extensionId }, use) => {
+    const popupPage = await context.newPage()
+    await popupPage.goto(`chrome-extension://${extensionId}/popup.html`)
+    await use(popupPage)
   },
 })
 
