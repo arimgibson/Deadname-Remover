@@ -1,22 +1,13 @@
+// This file contains browser extension-specific functionality for the configService.
+// It's kept separate to prevent browser extension APIs and polyfills from being
+// imported into other parts of the codebase, which would break the application
+// when running outside the extension context.
+
 import { UserSettings } from '@/utils/types'
 import { storage } from 'wxt/storage'
 import { browser } from 'wxt/browser'
 import * as v from 'valibot'
-
-export const defaultSettings: UserSettings = {
-  names: {
-    first: [],
-    middle: [],
-    last: [],
-  },
-  enabled: true,
-  blockContentBeforeDone: true,
-  stealthMode: false,
-  hideDebugInfo: false,
-  highlightReplacedNames: true,
-  syncSettingsAcrossDevices: false,
-  theme: 'trans',
-}
+import { defaultSettings } from '.'
 
 export async function getConfig(): Promise<UserSettings> {
   // Try local storage first

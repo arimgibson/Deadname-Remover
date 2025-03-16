@@ -1,7 +1,8 @@
 import { storage } from 'wxt/storage'
 import { browser } from 'wxt/browser'
 import { UserSettings } from '@/utils/types'
-import { defaultSettings, setConfig } from '@/services/configService'
+import { defaultSettings } from '@/services/configService'
+import { setConfig } from '@/services/configService/extension'
 import { errorLog, debugLog } from '.'
 
 // #region Update settings from v1.x.x to v2.0.0

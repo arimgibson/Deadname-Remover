@@ -1,6 +1,6 @@
 import type { Difference } from 'microdiff'
 import { Names } from './types'
-import { getConfig } from '@/services/configService'
+import { getConfig } from '@/services/configService/extension'
 
 export async function debugLog(message: string, ...data: unknown[]) {
   const { hideDebugInfo } = await getConfig()

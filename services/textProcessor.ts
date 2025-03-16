@@ -170,7 +170,6 @@ export class TextProcessor {
 
     this.metrics.processingTime = performance.now() - startTime
 
-    // @ts-expect-error -- values are defined by WXT
     if ((import.meta.env as { DEV: boolean }).DEV) {
       await debugLog('replacement metrics', {
         nodesProcessed: this.metrics.nodesProcessed,

@@ -1,7 +1,7 @@
 import { browser } from 'wxt/browser'
 import { defineBackground } from 'wxt/sandbox'
 import { handleInstall, handleUpdate } from './utils'
-import { getConfig, updateExtensionAppearance } from '@/services/configService'
+import { getConfig, updateExtensionAppearance } from '@/services/configService/extension'
 
 export default defineBackground({
   main: () => {

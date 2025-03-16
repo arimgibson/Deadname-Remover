@@ -6,7 +6,7 @@ import {
   removeRecursiveMappings,
 } from '@/utils/migrations'
 import { compare } from 'compare-versions'
-import { getConfig, setConfig } from '@/services/configService'
+import { getConfig, setConfig } from '@/services/configService/extension'
 import { debugLog, errorLog } from '@/utils'
 
 export async function handleInstall(_details: Runtime.OnInstalledDetailsType) {

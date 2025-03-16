@@ -1,3 +1,4 @@
+/// <reference types="vite/client" />
 import { defineConfig } from 'wxt'
 
 // See https://wxt.dev/api/config.html
@@ -39,4 +40,9 @@ export default defineConfig({
     homepage_url: 'https://github.com/arimgibson/Deadname-Remover',
     offline_enabled: true,
   }),
+  runner: {
+    disabled: (() => {
+      return import.meta.env.DISABLE_RUNNER === 'true'
+    })(),
+  },
 })
