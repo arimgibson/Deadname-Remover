@@ -11,7 +11,7 @@ export default tseslint.config(
   eslint.configs.recommended,
   tseslint.configs.strictTypeChecked,
   tseslint.configs.stylisticTypeChecked,
-  stylistic.configs['recommended-flat'],
+  stylistic.configs.recommended,
   eslintPluginSvelte.configs['flat/recommended'],
   {
     languageOptions: {
