@@ -27,7 +27,13 @@ export const generalSettingKeys = [
     label: 'Stealth Mode',
     value: 'stealthMode',
     description:
-      'Hide gender-related elements to protect privacy and accidentally being outed. Disables text highlighting, replaces the extension icon, and hides the popup options when the extension\'s icon is clicked.',
+      'Hide gender-related elements to protect privacy and accidentally being outed. Replaces the extension icon, and hides the popup options when the extension\'s icon is clicked. Recommended to disable text highlighting as well.',
+  },
+  {
+    label: 'Hide Debug Info',
+    value: 'hideDebugInfo',
+    description:
+      'Hide debug information from the browser console. This can help protect your privacy by not exposing potentially sensitive information.',
   },
   {
     label: 'Block Page Until Replacements Finished',

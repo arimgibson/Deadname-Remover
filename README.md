@@ -8,7 +8,7 @@ Deadname Remover is a browser extension that replaces deadnames with chosen name
 - **Pride themes**: Add trans pride and non-binary pride gradient highlights on replaced names
 - **Syncing settings across devices**: Keep your settings in sync across all your devices (disabled by default for privacy reasons)
 - **Content blocking**: Prevent flashing of deadnames by blocking page content before the extension has finished processing (optional)
-- **Stealth mode**: Hide the extension icon and disable text highlighting to protect privacy and avoid being outed
+- **Stealth mode**: Hide the extension icon to protect privacy and avoid being outed. Recommended to disable text highlighting as well.
 
 ## Installation & Usage
 
