@@ -7,7 +7,7 @@ import {
 } from '@/utils/migrations'
 import { compare } from 'compare-versions'
 import { getConfig, setConfig } from '@/services/configService'
-import { debugLog, errorLog } from '@/utils'
+import { debugLog, errorLog, filterEmptyNamePairs } from '@/utils'
 
 export async function handleInstall(_details: Browser.runtime.InstalledDetails) {
   await browser.tabs.create({ url: '/options.html?firstTime=true' })
@@ -21,6 +21,19 @@ export async function handleUpdate(details: Browser.runtime.InstalledDetails) {
   await checkAndMigrateSettings()
 
   let config = await getConfig()
+
+  // Migrate empty name pairs
+  try {
+    const cleanedNames = filterEmptyNamePairs(config.names)
+    if (JSON.stringify(cleanedNames) !== JSON.stringify(config.names)) {
+      await debugLog('removing empty name pairs')
+      await setConfig(config)
+      await debugLog('empty name pairs removed successfully')
+    }
+  }
+  catch (error) {
+    errorLog('error removing empty name pairs', error)
+  }
 
   // Ensure hideDebugInfo is initialized
   // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- clean up later

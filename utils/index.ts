@@ -88,3 +88,26 @@ export function formatKeyboardShortcut(shortcut: UserSettings['toggleKeybinding'
 
   return parts.join(' + ')
 }
+
+/**
+ * Filters out empty name pairs (where both deadname and proper name are empty)
+ * from all name categories
+ * @param nameMappings - Original name mappings object
+ * @returns Names - Filtered name mappings with empty pairs removed
+ */
+export function filterEmptyNamePairs(nameMappings: Names): Names {
+  const result: Names = {
+    first: [],
+    middle: [],
+    last: [],
+    email: [],
+  }
+
+  for (const category of ['first', 'middle', 'last', 'email'] as const) {
+    result[category] = nameMappings[category].filter(
+      pair => !(pair.mappings[0] === '' && pair.mappings[1] === ''),
+    )
+  }
+
+  return result
+}

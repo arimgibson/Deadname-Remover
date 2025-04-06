@@ -2,6 +2,7 @@ import { UserSettings } from '@/utils/types'
 import { storage } from '#imports'
 import { browser } from 'wxt/browser'
 import * as v from 'valibot'
+import { filterEmptyNamePairs } from '@/utils'
 
 export const defaultSettings: UserSettings = {
   names: {
@@ -37,8 +38,13 @@ export async function getConfig(): Promise<UserSettings> {
   return defaultSettings
 }
 
-export async function setConfig(config: UserSettings) {
-  const validatedConfig = v.parse(UserSettings, config)
+export async function setConfig(settings: UserSettings): Promise<void> {
+  const cleanedSettings = {
+    ...settings,
+    names: filterEmptyNamePairs(settings.names),
+  }
+
+  const validatedConfig = v.parse(UserSettings, cleanedSettings)
   const previousConfig = await getConfig()
 
   // Handle storage sync preference change
