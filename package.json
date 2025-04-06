@@ -40,32 +40,32 @@
     "postinstall": "wxt prepare"
   },
   "devDependencies": {
-    "@eslint/js": "^9.22.0",
-    "@iconify-json/material-symbols": "^1.2.16",
+    "@eslint/js": "^9.24.0",
+    "@iconify-json/material-symbols": "^1.2.17",
     "@iconify-json/twemoji": "^1.2.2",
     "@onu-ui/preset": "^1.1.5",
     "@stylistic/eslint-plugin": "^4.2.0",
-    "@types/chrome": "^0.0.309",
-    "@typescript-eslint/parser": "^8.26.1",
+    "@types/chrome": "^0.0.313",
+    "@typescript-eslint/parser": "^8.29.0",
     "@wxt-dev/module-svelte": "^2.0.3",
     "@wxt-dev/unocss": "^1.0.1",
-    "eslint": "^9.22.0",
-    "eslint-plugin-svelte": "^3.1.0",
+    "eslint": "^9.24.0",
+    "eslint-plugin-svelte": "^3.5.1",
     "globals": "^16.0.0",
-    "svelte": "^5.23.0",
+    "svelte": "^5.25.7",
     "svelte-check": "^4.1.5",
-    "svelte-eslint-parser": "^1.0.1",
-    "typescript": "^5.8.2",
-    "typescript-eslint": "^8.26.1",
-    "unocss": "^66.1.0-beta.5",
-    "vitest": "^3.0.8",
-    "wxt": "^0.19.29"
+    "svelte-eslint-parser": "^1.1.2",
+    "typescript": "^5.8.3",
+    "typescript-eslint": "^8.29.0",
+    "unocss": "^66.1.0-beta.10",
+    "vitest": "^3.1.1",
+    "wxt": "^0.20.0"
   },
   "dependencies": {
     "compare-versions": "^6.1.1",
     "microdiff": "^1.5.0",
     "svelte-french-toast": "^1.2.0",
     "text-security": "^3.2.1",
-    "valibot": "^1.0.0-rc.4"
+    "valibot": "^1.0.0"
   }
 }

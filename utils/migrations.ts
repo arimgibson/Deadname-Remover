@@ -1,4 +1,4 @@
-import { storage } from 'wxt/storage'
+import { storage } from '#imports'
 import { browser } from 'wxt/browser'
 import { UserSettings } from '@/utils/types'
 import { defaultSettings, setConfig } from '@/services/configService'

@@ -1,4 +1,4 @@
-import { defineContentScript } from 'wxt/sandbox'
+import { defineContentScript } from '#imports'
 import { getConfig, setupConfigListener } from '@/services/configService'
 import { DOMObserver } from '@/services/domObserver'
 import { TextProcessor } from '@/services/textProcessor'

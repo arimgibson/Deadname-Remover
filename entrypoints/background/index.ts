@@ -1,5 +1,5 @@
 import { browser } from 'wxt/browser'
-import { defineBackground } from 'wxt/sandbox'
+import { defineBackground } from '#imports'
 import { handleInstall, handleUpdate } from './utils'
 import { getConfig, updateExtensionAppearance } from '@/services/configService'
 
@@ -20,7 +20,7 @@ export default defineBackground({
         case 'update':
           void handleUpdate(details)
           break
-        case 'browser_update':
+        case 'chrome_update':
         default:
           break
       }

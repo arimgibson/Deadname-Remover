@@ -1,4 +1,4 @@
-import { browser, Runtime } from 'wxt/browser'
+import { browser, Browser } from 'wxt/browser'
 import {
   checkAndMigrateSettings,
   createStealthUpgradeNotification,
@@ -9,11 +9,11 @@ import { compare } from 'compare-versions'
 import { getConfig, setConfig } from '@/services/configService'
 import { debugLog, errorLog } from '@/utils'
 
-export async function handleInstall(_details: Runtime.OnInstalledDetailsType) {
+export async function handleInstall(_details: Browser.runtime.InstalledDetails) {
   await browser.tabs.create({ url: '/options.html?firstTime=true' })
 }
 
-export async function handleUpdate(details: Runtime.OnInstalledDetailsType) {
+export async function handleUpdate(details: Browser.runtime.InstalledDetails) {
   const currentVersion = browser.runtime.getManifest().version
   await debugLog('current version', currentVersion)
   await debugLog('previous version', details.previousVersion)
