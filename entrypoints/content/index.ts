@@ -1,5 +1,5 @@
 import { defineContentScript } from '#imports'
-import { getConfig, setupConfigListener } from '@/services/configService'
+import { getConfig, setConfig, setupConfigListener } from '@/services/configService'
 import { DOMObserver } from '@/services/domObserver'
 import { TextProcessor } from '@/services/textProcessor'
 import type { Names, UserSettings } from '@/utils/types'
@@ -17,6 +17,7 @@ let previousEnabled: boolean | undefined = undefined
 let previousNames: Names | undefined = undefined
 let previousTheme: UserSettings['theme'] | undefined = undefined
 let previousHighlight: boolean | undefined = undefined
+let toggleKeybindingListener: ((event: KeyboardEvent) => void) | null = null
 
 async function configureAndRunProcessor({ config }: { config: UserSettings }): Promise<void> {
   // Only run disable logic if we're transitioning from enabled to disabled
@@ -113,6 +114,46 @@ async function configureAndRunProcessor({ config }: { config: UserSettings }): P
   previousHighlight = config.highlightReplacedNames
 }
 
+async function registerKeyboardShortcut({
+  config,
+}: {
+  config: UserSettings
+}): Promise<void> {
+  // Remove previous listener if it exists
+  if (toggleKeybindingListener) {
+    document.removeEventListener('keydown', toggleKeybindingListener, true)
+    toggleKeybindingListener = null
+  }
+
+  const toggleKeybinding = config.toggleKeybinding
+  if (!toggleKeybinding) {
+    await debugLog('no toggle keybinding found, skipping keyboard shortcut registration')
+    return
+  }
+
+  await debugLog('registering keyboard shortcut', toggleKeybinding)
+
+  // Create a new listener function and store reference
+  toggleKeybindingListener = (event: KeyboardEvent) => {
+    if (event.key === toggleKeybinding.key
+      && event.altKey === toggleKeybinding.alt
+      && event.ctrlKey === toggleKeybinding.ctrl
+      && event.shiftKey === toggleKeybinding.shift
+      && event.metaKey === toggleKeybinding.meta
+    ) {
+      event.preventDefault()
+      void (async () => {
+        await debugLog(`toggle keybinding pressed, ${config.enabled ? 'disabling' : 'enabling'}`)
+        config.enabled = !config.enabled
+        void setConfig(config)
+      })()
+    }
+  }
+
+  // Add the new listener with capturing (true as third parameter)
+  document.addEventListener('keydown', toggleKeybindingListener, true)
+}
+
 export default defineContentScript({
   matches: ['<all_urls>'],
   runAt: 'document_start',
@@ -121,8 +162,12 @@ export default defineContentScript({
 
     const config = await getConfig()
     await configureAndRunProcessor({ config })
+    await registerKeyboardShortcut({ config })
 
     // Handle configuration changes
-    setupConfigListener(config => void configureAndRunProcessor({ config }))
+    setupConfigListener((config) => {
+      void configureAndRunProcessor({ config })
+      void registerKeyboardShortcut({ config })
+    })
   },
 })

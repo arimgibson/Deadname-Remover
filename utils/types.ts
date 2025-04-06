@@ -42,6 +42,14 @@ export const themes = [{
   value: 'high-contrast',
 }] as const
 
+export const ToggleKeybinding = v.object({
+  key: v.string(),
+  alt: v.boolean(),
+  ctrl: v.boolean(),
+  shift: v.boolean(),
+  meta: v.boolean(),
+})
+
 export const UserSettings = v.object({
   names: v.pipe(
     v.object({
@@ -61,6 +69,7 @@ export const UserSettings = v.object({
   highlightReplacedNames: v.boolean(),
   syncSettingsAcrossDevices: v.boolean(),
   theme: v.union(themes.map(x => v.literal(x.value))),
+  toggleKeybinding: v.union([v.null(), ToggleKeybinding]),
 })
 
 export type UserSettings = v.InferOutput<typeof UserSettings>

@@ -17,6 +17,7 @@ export const defaultSettings: UserSettings = {
   highlightReplacedNames: true,
   syncSettingsAcrossDevices: false,
   theme: 'trans',
+  toggleKeybinding: null,
 }
 
 export async function getConfig(): Promise<UserSettings> {
