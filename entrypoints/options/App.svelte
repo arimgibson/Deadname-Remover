@@ -26,21 +26,18 @@
     debugLog,
     errorLog,
   } from '@/utils'
-  import {
-    faqs,
-  } from './constants'
-  import {
-    validateNameField,
-  } from './utils'
   import type { UserSettings } from '@/utils/types'
   import { themes } from '@/utils/types'
-  import { generalSettingKeys, nameKeys } from '@/utils/constants'
+  import { generalSettingKeys } from '@/utils/constants'
   import toast, { Toaster } from 'svelte-french-toast'
   import 'text-security/text-security-disc.css'
   import diff from 'microdiff'
   import ToastWithButton from '@/components/UnsavedChangesToast.svelte'
   import WarningIcon from '@/components/WarningIcon.svelte'
   import { fade } from 'svelte/transition'
+  import UpgradeModal from './components/UpgradeModal.svelte'
+  import FaqModal from './components/FaqModal.svelte'
+  import NameMappings from './components/NameMappings.svelte'
 
   let settings = $state<UserSettings>(defaultSettings)
   let initialSettings = $state<UserSettings | null>(null)
@@ -367,146 +364,11 @@
       </section>
 
       <!-- Name Mappings -->
-      <section class="mb-8" aria-labelledby="name-replacement-heading">
-        <div class="flex justify-between items-center mb-4">
-          <h2
-            id="name-replacement-heading"
-            class="text-xl font-medium text-gray-700"
-          >
-            Name Replacement
-          </h2>
-          <button
-            type="button"
-            class="btn theme-400 text-sm flex items-center gap-2"
-            onclick={() => (hideDeadnames = !hideDeadnames)}
-            aria-label={hideDeadnames ? 'Show deadnames' : 'Hide deadnames'}
-          >
-            <i
-              class={`text-lg ${hideDeadnames ? 'i-material-symbols:visibility-off' : 'i-material-symbols:visibility'}`}
-              aria-hidden="true"
-            ></i>
-            {hideDeadnames ? 'Show' : 'Hide'} Deadnames
-          </button>
-        </div>
-        <div class="space-y-6">
-          {#each nameKeys as name (name.value)}
-            <fieldset>
-              <legend class="text-lg font-medium text-gray-600 mb-2"
-                >{name.label}</legend
-              >
-              <div class="relative">
-                <div class="space-y-2">
-                  {#each settings.names[name.value] as _names, index (name.value + '-' + String(index))}
-                    <div
-                      class="name-pair-row-grid gap-2 items-center"
-                      role="group"
-                      aria-label={`${name.label} pair ${String(index + 1)}`}
-                    >
-                      <input
-                        type="text"
-                        id={`deadname-${name.value}-${String(index)}`}
-                        class="input border rounded peer"
-                        class:obscured={hideDeadnames}
-                        placeholder={name.value === 'email' ? 'Old Email' : 'Deadname'}
-                        aria-required="true"
-                        aria-label="Deadname"
-                        autocomplete="off"
-                        bind:value={settings.names[name.value][index]
-                          .mappings[0]}
-                        onkeydown={(e: KeyboardEvent) => {
-                          if (e.key === 'Enter') {
-                            e.preventDefault()
-                            settings.names[name.value].push({
-                              mappings: ['', ''],
-                            })
-                            // Wait for DOM update then focus new input
-                            setTimeout(() => {
-                              // eslint-disable-next-line @typescript-eslint/no-non-null-assertion, @typescript-eslint/no-unnecessary-type-assertion
-                              ((document.querySelector(`#deadname-${name.value}-${String(settings.names[name.value].length - 1)}`)!) as HTMLInputElement).focus()
-                            }, 0)
-                          }
-                        }}
-                        oninput={(e) => {
-                          validateNameField({
-                            target: (e as Event).target as HTMLInputElement,
-                            type: 'deadname',
-                            nameCategory: name.value,
-                            index,
-                            names: settings.names,
-                          })
-                        }}
-                      />
-                      <input
-                        type="text"
-                        class="input border rounded peer"
-                        placeholder={name.value === 'email' ? 'New Email' : 'Old Email'}
-                        aria-required="true"
-                        aria-label="Proper name"
-                        bind:value={settings.names[name.value][index]
-                          .mappings[1]}
-                        onkeydown={(e: KeyboardEvent) => {
-                          if (e.key === 'Enter') {
-                            e.preventDefault()
-                            settings.names[name.value].push({
-                              mappings: ['', ''],
-                            })
-                            // Wait for DOM update then focus new input
-                            setTimeout(() => {
-                              // eslint-disable-next-line @typescript-eslint/no-non-null-assertion, @typescript-eslint/no-unnecessary-type-assertion
-                              ((document.querySelector(`#properName-${name.value}-${String(settings.names[name.value].length - 1)}`)!) as HTMLInputElement).focus()
-                            }, 0)
-                          }
-                        }}
-                        oninput={(e) => {
-                          validateNameField({
-                            target: (e as Event).target as HTMLInputElement,
-                            type: 'properName',
-                            nameCategory: name.value,
-                            index,
-                            names: settings.names,
-                          })
-                        }}
-                      />
-                      <button
-                        type="button"
-                        onclick={() =>
-                          settings.names[name.value].splice(index, 1)}
-                        class="text-red-500 hover:text-red-700"
-                        aria-label={`Remove ${name.label} pair ${String(index + 1)}`}
-                      >
-                        <i
-                          class="i-material-symbols:delete-outline text-xl"
-                          aria-hidden="true"
-                        ></i>
-                      </button>
-                      <p
-                        id={`nameField-error-${name.value}-${String(index)}`}
-                        class="text-red-500 text-sm input-error col-span-full"
-                      ></p>
-                    </div>
-                  {/each}
-                </div>
-                <button
-                  type="button"
-                  onclick={() => {
-                    settings.names[name.value].push({ mappings: ['', ''] })
-                    setTimeout(() => {
-                      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion, @typescript-eslint/no-unnecessary-type-assertion
-                      ((document.querySelector(`#deadname-${name.value}-${String(settings.names[name.value].length - 1)}`)!) as HTMLInputElement).focus()
-                    }, 0)
-                  }}
-                  class="btn btn-dashed border-2 w-full mt-2 hover:bg-theme-50"
-                  aria-label={`Add new ${name.label} pair`}
-                >
-                  <i class="i-material-symbols:add-2 text-lg" aria-hidden="true"
-                  ></i>
-                  Add {name.label}
-                </button>
-              </div>
-            </fieldset>
-          {/each}
-        </div>
-      </section>
+      <NameMappings
+        settings={settings}
+        hideDeadnames={hideDeadnames}
+        onToggleHideDeadnames={() => hideDeadnames = !hideDeadnames}
+      />
 
       <!-- Save Button -->
       <button type="submit" class="btn solid w-full" aria-label="Save settings">
@@ -517,104 +379,14 @@
 </main>
 
 {#if showUpgradeModal}
-  <div class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-    <div class="bg-white p-8 rounded-lg shadow-xl max-w-2xl overflow-y-auto max-h-[90vh]">
-      <h2 class="text-3xl font-medium mb-4 text-gray-800">Welcome to Deadname Remover v2.0! 🎉</h2>
-
-      <div class="space-y-4 text-gray-600 mb-6">
-        <p class="text-lg">
-          We've made significant improvements to make the extension faster, more reliable, and more user-friendly than ever before.
-        </p>
-
-        <div>
-          <h3 class="text-xl font-medium text-gray-700 mb-2">What's New:</h3>
-          <ul class="list-disc list-inside space-y-2 ml-2 text-base">
-            <li>Improved performance and reliability</li>
-            <li>Add unlimited preferred and deadnames, for yourself and others</li>
-            <li>New theme options including trans and non-binary pride gradients</li>
-            <li>Settings sync across devices now optional for privacy reasons</li>
-            <li>Content blocking to prevent deadname flashing</li>
-            <li>Enhanced accessibility features</li>
-          </ul>
-        </div>
-
-        <div class="bg-amber-50 p-4 rounded-lg text-base">
-          <p class="text-amber-800">
-            <strong>Important:</strong> Your settings have been migrated from the previous extension to a new format used in this extension. Please review your settings and confirm they match your expectations.
-          </p>
-        </div>
-
-        {#if settings.syncSettingsAcrossDevices}
-          <div class="bg-blue-50 p-4 rounded-lg text-base">
-            <p class="text-blue-800">
-              <strong>Note:</strong> Your settings sync is enabled, as this was the only option in the previous version. Changes saved here will sync across all your devices. Review this and delete synced data if you don't want this behavior.
-            </p>
-          </div>
-        {/if}
-      </div>
-
-      <button
-        class="btn btn-lg w-full"
-        onclick={() => showUpgradeModal = false}
-      >
-        Got it, let's get started!
-      </button>
-    </div>
-  </div>
+  <UpgradeModal
+    settings={settings}
+    onClose={() => showUpgradeModal = false}
+  />
 {/if}
 
-<!-- Add FAQ Modal -->
 {#if showFaqModal}
-  <div class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-    <div class="bg-white rounded-lg shadow-xl max-w-2xl flex flex-col max-h-[90vh]">
-      <div class="p-8 pb-4">
-        <div class="flex justify-between items-center">
-          <h2 class="text-2xl font-medium text-gray-800">Frequently Asked Questions</h2>
-          <button
-            type="button"
-            class="text-gray-500 hover:text-gray-700"
-            onclick={() => showFaqModal = false}
-            aria-label="Close FAQ"
-          >
-            <i class="i-material-symbols:close text-2xl"></i>
-          </button>
-        </div>
-      </div>
-
-      <div class="overflow-y-auto px-8">
-        <div class="space-y-6">
-          {#each faqs as faq (faq.question)}
-            <div class="border-b border-gray-200 pb-4 last:border-0">
-              <h3 class="text-lg font-medium text-gray-700 mb-2 last:mb-0">{faq.question}</h3>
-              <!-- eslint-disable-next-line svelte/no-at-html-tags -- safe as HTML is hardcoded -->
-              <p class="text-gray-600 text-base [&_a]:text-theme-500 [&_a]:hover:text-theme-600">{@html faq.answer}</p>
-            </div>
-          {/each}
-        </div>
-      </div>
-
-      <div class="p-8 pt-4">
-        <button
-          class="btn solid w-full"
-          onclick={() => showFaqModal = false}
-        >
-          Close
-        </button>
-      </div>
-    </div>
-  </div>
+  <FaqModal
+    onClose={() => showFaqModal = false}
+  />
 {/if}
-
-<style>
-  .obscured {
-    /* Leverages the text-security npm package */
-    font-family: text-security-disc;
-    /* Use -webkit-text-security if the browser supports it */
-    -webkit-text-security: disc;
-  }
-
-  .obscured::placeholder {
-    /* Use default Onu UI font for placeholder text */
-    font-family: "DM Sans", "DM Sans:400,700";
-  }
-</style>
