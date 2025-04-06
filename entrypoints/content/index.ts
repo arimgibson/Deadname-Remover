@@ -1,4 +1,4 @@
-import { defineContentScript } from 'wxt/sandbox'
+import { defineContentScript } from '#imports'
 import { getConfig, setConfig, setupConfigListener } from '@/services/configService'
 import { DOMObserver } from '@/services/domObserver'
 import { TextProcessor } from '@/services/textProcessor'
@@ -50,12 +50,12 @@ async function configureAndRunProcessor({ config }: { config: UserSettings }): P
   const highlightChanged = previousEnabled && previousHighlight !== config.highlightReplacedNames
 
   if (namesChanged) {
-    debugLog('names changed, reverting replacements to reapply with new names')
+    await debugLog('names changed, reverting replacements to reapply with new names')
     TextProcessor.revertAllReplacements()
   }
 
   if (themeChanged) {
-    debugLog('theme changed, removing style to apply new theme')
+    await debugLog('theme changed, removing style to apply new theme')
     document.querySelector('style[deadname]')?.remove()
   }
 
@@ -79,14 +79,14 @@ async function configureAndRunProcessor({ config }: { config: UserSettings }): P
 
     const replacements = createReplacementsMap(config.names)
 
-    debugLog('replacements', replacements)
+    await debugLog('replacements', replacements)
     if (config.blockContentBeforeDone) {
-      debugLog('blocking content')
+      await debugLog('blocking content')
       blockContent()
     }
 
     await waitUntilDOMReady()
-    debugLog('Initial document processing starting')
+    await debugLog('Initial document processing starting')
 
     // Await the full processing of the document body.
     await textProcessor.processDocument({
@@ -94,17 +94,17 @@ async function configureAndRunProcessor({ config }: { config: UserSettings }): P
       replacements,
       asyncProcessing: !config.blockContentBeforeDone,
     })
-    debugLog('Initial document processing complete')
+    await debugLog('Initial document processing complete')
 
     if (config.blockContentBeforeDone) {
-      debugLog('unblocking content')
+      await debugLog('unblocking content')
       unblockContent()
     }
 
     // Set up the observer for handling subsequent mutations (which do not block content).
-    debugLog('Setting up mutation observer')
+    await debugLog('Setting up mutation observer')
     currentObserver.setup(replacements)
-    debugLog('Observer setup complete')
+    await debugLog('Observer setup complete')
   }
 
   // Move these assignments to after all processing is complete
@@ -114,11 +114,11 @@ async function configureAndRunProcessor({ config }: { config: UserSettings }): P
   previousHighlight = config.highlightReplacedNames
 }
 
-function registerKeyboardShortcut({
+async function registerKeyboardShortcut({
   config,
 }: {
   config: UserSettings
-}): void {
+}): Promise<void> {
   // Remove previous listener if it exists
   if (toggleKeybindingListener) {
     document.removeEventListener('keydown', toggleKeybindingListener, true)
@@ -127,11 +127,11 @@ function registerKeyboardShortcut({
 
   const toggleKeybinding = config.toggleKeybinding
   if (!toggleKeybinding) {
-    debugLog('no toggle keybinding found, skipping keyboard shortcut registration')
+    await debugLog('no toggle keybinding found, skipping keyboard shortcut registration')
     return
   }
 
-  debugLog('registering keyboard shortcut', toggleKeybinding)
+  await debugLog('registering keyboard shortcut', toggleKeybinding)
 
   // Create a new listener function and store reference
   toggleKeybindingListener = (event: KeyboardEvent) => {
@@ -142,9 +142,11 @@ function registerKeyboardShortcut({
       && event.metaKey === toggleKeybinding.meta
     ) {
       event.preventDefault()
-      debugLog(`toggle keybinding pressed, ${config.enabled ? 'disabling' : 'enabling'}`)
-      config.enabled = !config.enabled
-      void setConfig(config)
+      void (async () => {
+        await debugLog(`toggle keybinding pressed, ${config.enabled ? 'disabling' : 'enabling'}`)
+        config.enabled = !config.enabled
+        void setConfig(config)
+      })()
     }
   }
 
@@ -156,16 +158,16 @@ export default defineContentScript({
   matches: ['<all_urls>'],
   runAt: 'document_start',
   main: async () => {
-    debugLog('loaded')
+    await debugLog('loaded')
 
     const config = await getConfig()
     await configureAndRunProcessor({ config })
-    registerKeyboardShortcut({ config })
+    await registerKeyboardShortcut({ config })
 
     // Handle configuration changes
     setupConfigListener((config) => {
       void configureAndRunProcessor({ config })
-      registerKeyboardShortcut({ config })
+      void registerKeyboardShortcut({ config })
     })
   },
 })

@@ -54,7 +54,7 @@
     if (initialSettings) {
       const changes = diff(initialSettings, settings)
       const filteredChanges = filterEmptyArraysFromDiff(changes)
-      debugLog('options page changes', filteredChanges)
+      void debugLog('options page changes', filteredChanges)
       return filteredChanges.length
     }
     return 0
@@ -347,13 +347,13 @@
           role="group"
           aria-labelledby="general-settings-heading"
         >
-          {#each generalSettingKeys as setting}
+          {#each generalSettingKeys as setting (setting.value)}
             <div>
               <label
                 for={setting.value}
                 class="flex justify-between items-center text-gray-700 text-base"
                 >{setting.label}
-                <div class="switch switch-theme-400">
+                <div class="accessible-switch switch-theme-400">
                   <input
                     type="checkbox"
                     id={setting.value}
@@ -416,7 +416,7 @@
                   bind:value={settings.theme}
                   aria-label="Select theme"
                 >
-                  {#each themes as theme}
+                  {#each themes as theme (theme.value)}
                     <option value={theme.value}>{theme.label}</option>
                   {/each}
                 </select>
@@ -512,14 +512,14 @@
           </button>
         </div>
         <div class="space-y-6">
-          {#each nameKeys as name}
+          {#each nameKeys as name (name.value)}
             <fieldset>
               <legend class="text-lg font-medium text-gray-600 mb-2"
                 >{name.label}</legend
               >
               <div class="relative">
                 <div class="space-y-2">
-                  {#each settings.names[name.value] as _names, index}
+                  {#each settings.names[name.value] as _names, index (name.value + '-' + String(index))}
                     <div
                       class="name-pair-row-grid gap-2 items-center"
                       role="group"
@@ -704,7 +704,7 @@
 
       <div class="overflow-y-auto px-8">
         <div class="space-y-6">
-          {#each faqs as faq}
+          {#each faqs as faq (faq.question)}
             <div class="border-b border-gray-200 pb-4 last:border-0">
               <h3 class="text-lg font-medium text-gray-700 mb-2 last:mb-0">{faq.question}</h3>
               <!-- eslint-disable-next-line svelte/no-at-html-tags -- safe as HTML is hardcoded -->

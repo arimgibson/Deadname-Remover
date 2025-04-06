@@ -172,7 +172,7 @@ export class TextProcessor {
 
     // @ts-expect-error -- values are defined by WXT
     if ((import.meta.env as { DEV: boolean }).DEV) {
-      debugLog('replacement metrics', {
+      await debugLog('replacement metrics', {
         nodesProcessed: this.metrics.nodesProcessed,
         replacementsMade: this.metrics.replacementsMade,
         accessibilityAttributesUpdated: this.metrics.accessibilityAttributesUpdated,
@@ -364,11 +364,12 @@ export class TextProcessor {
       || element.tagName.toLowerCase() === 'style'
       || element.tagName.toLowerCase() === 'noscript'
       || element.tagName.toLowerCase() === 'template'
+      || element.tagName.toLowerCase() === 'svg'
     )
   }
 
   static revertAllReplacements(): void {
-    debugLog('reverting all replacements')
+    void debugLog('reverting all replacements')
 
     // Revert document title
     if (TextProcessor.originalTitle !== null) {

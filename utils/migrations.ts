@@ -1,4 +1,4 @@
-import { storage } from 'wxt/storage'
+import { storage } from '#imports'
 import { browser } from 'wxt/browser'
 import { UserSettings } from '@/utils/types'
 import { defaultSettings, setConfig } from '@/services/configService'
@@ -155,20 +155,20 @@ export async function checkAndMigrateSettings(): Promise<void> {
   const legacySettings = await getLegacySettings()
 
   if (!legacySettings) {
-    debugLog('no legacy settings found')
+    await debugLog('no legacy settings found')
     return
   }
 
-  debugLog('legacy settings detected, starting migration')
+  await debugLog('legacy settings detected, starting migration')
 
   // Convert and save to new format
   const newSettings = convertLegacyToNewFormat(legacySettings)
 
-  debugLog('settings successfully migrated to v2.0.0 format', newSettings)
+  await debugLog('settings successfully migrated to v2.0.0 format', newSettings)
 
   try {
     await setConfig(newSettings)
-    debugLog('settings successfully saved to sync storage')
+    await debugLog('settings successfully saved to sync storage')
   }
   catch (error) {
     const typedError = error as Error
@@ -176,19 +176,19 @@ export async function checkAndMigrateSettings(): Promise<void> {
       // Deduplicate and try saving again
       const dedupedSettings = deduplicateNameMappings(newSettings)
       await setConfig(dedupedSettings)
-      debugLog('deduped settings successfully saved to sync storage')
+      await debugLog('deduped settings successfully saved to sync storage')
     }
     else if (typedError.message.includes('Self mappings found')) {
       // Remove self mappings and try saving again
       const removedSelfMappings = removeSelfMappings(newSettings)
       await setConfig(removedSelfMappings)
-      debugLog('removed self mappings successfully saved to sync storage')
+      await debugLog('removed self mappings successfully saved to sync storage')
     }
     else if (typedError.message.includes('Recursive mappings found')) {
       // Remove recursive mappings and try saving again
       const removedRecursiveMappings = removeRecursiveMappings(newSettings)
       await setConfig(removedRecursiveMappings)
-      debugLog('removed recursive mappings successfully saved to sync storage')
+      await debugLog('removed recursive mappings successfully saved to sync storage')
     }
     else {
       errorLog('error saving settings', error)

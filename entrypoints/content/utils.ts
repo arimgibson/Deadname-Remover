@@ -4,11 +4,11 @@ import type { Names, ReplacementsMap, NameEntry, UserSettings } from '@/utils/ty
 
 export async function waitUntilDOMReady() {
   if (document.readyState !== 'complete' && document.readyState !== 'interactive') {
-    debugLog('waiting for DOM to be ready')
+    await debugLog('waiting for DOM to be ready')
     await new Promise((resolve) => {
       document.addEventListener('DOMContentLoaded', resolve, { once: true })
     })
-    debugLog('DOM is ready')
+    await debugLog('DOM is ready')
   }
 }
 

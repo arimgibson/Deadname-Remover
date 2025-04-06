@@ -2,8 +2,8 @@ import { defineConfig } from 'wxt'
 
 // See https://wxt.dev/api/config.html
 export default defineConfig({
-  extensionApi: 'chrome',
-  imports: false,
+  imports: {
+  },
   modules: ['@wxt-dev/unocss', '@wxt-dev/module-svelte'],
   vite: () => ({
     resolve: {
