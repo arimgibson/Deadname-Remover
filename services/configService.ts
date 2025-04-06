@@ -8,6 +8,7 @@ export const defaultSettings: UserSettings = {
     first: [],
     middle: [],
     last: [],
+    email: [],
   },
   enabled: true,
   blockContentBeforeDone: true,
