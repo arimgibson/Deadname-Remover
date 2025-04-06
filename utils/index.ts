@@ -1,5 +1,5 @@
 import type { Difference } from 'microdiff'
-import { Names } from './types'
+import { Names, UserSettings } from './types'
 import { getConfig } from '@/services/configService'
 
 export async function debugLog(message: string, ...data: unknown[]) {
@@ -60,4 +60,31 @@ export function haveNamesChanged(previous: Names | undefined, current: Names): b
 
 export function kebabToCamel(str: string): string {
   return str.replace(/-([a-z])/g, (_, letter: string) => letter.toUpperCase())
+}
+
+/**
+ * Formats a keyboard shortcut object into a human-readable string.
+ *
+ * @param shortcut - The shortcut object to format.
+ * @returns A string representation of the shortcut, or null if the shortcut is undefined.
+ */
+export function formatKeyboardShortcut(shortcut: UserSettings['toggleKeybinding']): string | null {
+  if (!shortcut) return null
+
+  const parts: string[] = []
+
+  if (shortcut.ctrl) parts.push('Ctrl')
+  if (shortcut.alt) parts.push('Alt')
+  if (shortcut.shift) parts.push('Shift')
+  if (shortcut.meta) parts.push('Meta')
+
+  // Format key nicely
+  let key = shortcut.key
+  if (key === ' ') key = 'Space'
+  else if (key.length === 1) key = key.toUpperCase()
+  else if (key === 'Escape') key = 'Esc'
+
+  parts.push(key)
+
+  return parts.join(' + ')
 }
