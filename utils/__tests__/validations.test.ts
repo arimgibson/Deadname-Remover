@@ -8,6 +8,7 @@ describe('validateNoDuplicateDeadnames', () => {
       first: [],
       middle: [],
       last: [],
+      email: [],
     }
     const result = validateNoDuplicateDeadnames(nameMappings)
     expect(result).toBe(true)
@@ -18,6 +19,7 @@ describe('validateNoDuplicateDeadnames', () => {
       first: [{ mappings: ['John', 'Doe'] }],
       middle: [],
       last: [],
+      email: [],
     }
     const result = validateNoDuplicateDeadnames(nameMappings)
     expect(result).toBe(true)
@@ -28,6 +30,7 @@ describe('validateNoDuplicateDeadnames', () => {
       first: [{ mappings: ['John', 'Doe'] }, { mappings: ['Smith', 'Doe'] }],
       middle: [],
       last: [],
+      email: [],
     }
     const result = validateNoDuplicateDeadnames(nameMappings)
     expect(result).toBe(true)
@@ -38,6 +41,7 @@ describe('validateNoDuplicateDeadnames', () => {
       first: [{ mappings: ['John', 'Doe'] }],
       middle: [{ mappings: ['Smith', 'Doe'] }],
       last: [],
+      email: [],
     }
     const result = validateNoDuplicateDeadnames(nameMappings)
     expect(result).toBe(true)
@@ -48,6 +52,7 @@ describe('validateNoDuplicateDeadnames', () => {
       first: [{ mappings: ['John', 'Emma'] }, { mappings: ['Josh', 'Rachel'] }],
       middle: [{ mappings: ['Jessica', 'Rachel'] }, { mappings: ['Olivia', 'Emma'] }],
       last: [{ mappings: ['Smith', 'Rachel'] }, { mappings: ['Miller', 'Emma'] }],
+      email: [],
     }
     const result = validateNoDuplicateDeadnames(nameMappings)
     expect(result).toBe(true)
@@ -58,6 +63,7 @@ describe('validateNoDuplicateDeadnames', () => {
       first: [{ mappings: ['John', 'Doe'] }, { mappings: ['John', 'Smith'] }],
       middle: [],
       last: [],
+      email: [],
     }
     const result = validateNoDuplicateDeadnames(nameMappings)
     expect(result).toBe(false)
@@ -68,6 +74,7 @@ describe('validateNoDuplicateDeadnames', () => {
       first: [{ mappings: ['John', 'Doe'] }],
       middle: [{ mappings: ['John', 'Smith'] }],
       last: [],
+      email: [],
     }
     const result = validateNoDuplicateDeadnames(nameMappings)
     expect(result).toBe(false)
@@ -78,6 +85,7 @@ describe('validateNoDuplicateDeadnames', () => {
       first: [{ mappings: ['John', 'Doe'] }, { mappings: ['John', 'Smith'] }],
       middle: [],
       last: [{ mappings: ['Smith', 'Doe'] }, { mappings: ['Smith', 'Smith'] }],
+      email: [],
     }
     const result = validateNoDuplicateDeadnames(nameMappings)
     expect(result).toBe(false)
@@ -90,6 +98,7 @@ describe('validateNoSelfMappings', () => {
       first: [],
       middle: [],
       last: [],
+      email: [],
     }
     const result = validateNoSelfMappings(nameMappings)
     expect(result).toBe(true)
@@ -100,6 +109,7 @@ describe('validateNoSelfMappings', () => {
       first: [{ mappings: ['John', 'Doe'] }],
       middle: [],
       last: [],
+      email: [],
     }
     const result = validateNoSelfMappings(nameMappings)
     expect(result).toBe(true)
@@ -110,6 +120,7 @@ describe('validateNoSelfMappings', () => {
       first: [{ mappings: ['John', 'John'] }],
       middle: [],
       last: [],
+      email: [],
     }
     const result = validateNoSelfMappings(nameMappings)
     expect(result).toBe(false)
@@ -120,6 +131,7 @@ describe('validateNoSelfMappings', () => {
       first: [{ mappings: ['John', 'Doe'] }, { mappings: ['Doe', 'Doe'] }],
       middle: [],
       last: [{ mappings: ['Smith', 'Smith'] }],
+      email: [],
     }
     const result = validateNoSelfMappings(nameMappings)
     expect(result).toBe(false)
@@ -132,6 +144,7 @@ describe('validateNoRecursiveMappings', () => {
       first: [],
       middle: [],
       last: [],
+      email: [],
     }
     const result = validateNoRecursiveMappings(nameMappings)
     expect(result).toBe(true)
@@ -142,6 +155,7 @@ describe('validateNoRecursiveMappings', () => {
       first: [{ mappings: ['John', 'Doe'] }],
       middle: [],
       last: [{ mappings: ['Smith', 'Doe'] }],
+      email: [],
     }
     const result = validateNoRecursiveMappings(nameMappings)
     expect(result).toBe(true)
@@ -152,6 +166,7 @@ describe('validateNoRecursiveMappings', () => {
       first: [{ mappings: ['John', 'Doe'] }, { mappings: ['Doe', 'Smith'] }],
       middle: [],
       last: [],
+      email: [],
     }
     const result = validateNoRecursiveMappings(nameMappings)
     expect(result).toBe(false)
@@ -162,6 +177,7 @@ describe('validateNoRecursiveMappings', () => {
       first: [{ mappings: ['John', 'Doe'] }],
       middle: [{ mappings: ['Doe', 'Smith'] }],
       last: [],
+      email: [],
     }
     const result = validateNoRecursiveMappings(nameMappings)
     expect(result).toBe(false)
@@ -172,6 +188,7 @@ describe('validateNoRecursiveMappings', () => {
       first: [{ mappings: ['John', 'Doe'] }],
       middle: [{ mappings: ['Doe', 'Smith'] }],
       last: [{ mappings: ['Smith', 'John'] }],
+      email: [],
     }
     const result = validateNoRecursiveMappings(nameMappings)
     expect(result).toBe(false)

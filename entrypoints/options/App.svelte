@@ -27,10 +27,11 @@
     errorLog,
   } from '@/utils'
   import {
-    validateNoDuplicateDeadnames,
-    validateNoRecursiveMappings,
-    validateNoSelfMappings,
-  } from '@/utils/validations'
+    faqs,
+  } from './constants'
+  import {
+    validateNameField,
+  } from './utils'
   import type { UserSettings } from '@/utils/types'
   import { themes } from '@/utils/types'
   import { generalSettingKeys, nameKeys } from '@/utils/constants'
@@ -65,37 +66,6 @@
   let showFaqTooltip = $state(false)
 
   let captureShortcut = $state(false)
-
-  const faqs = [
-    {
-      question: 'How do I add multiple names?',
-      answer: 'Click the "Add Name" button under each name type in the "Name Replacement" section to add as many names as you want. Each name should have a deadname and the proper name to replace it with.',
-    },
-    {
-      question: 'Why aren\'t names being replaced in text inputs, forms, or other editable content?',
-      answer: 'To prevent accidentally outing users, the extension doesn\'t replace text in input fields, forms, or editable content. This prevents accidental submission of replaced names in emails, messages, or documents. If there\'s a place your name isn\'t replaced but you think it should be, please submit a bug (see below).',
-    },
-    {
-      question: 'What should I do if content shifts around when using the "Block Page Until Replacements Finished" feature?',
-      answer: 'If you notice content jumping or shifting around the page when using the content blocking feature, please submit a bug (see below). Include the website URL and a description of what\'s happening to help someone fix it.',
-    },
-    {
-      question: 'Why am I still seeing my deadname flash on the page, even with the "Content Blocking" feature enabled?',
-      answer: 'Due to how some websites render content, it\'s possible to see a deadname flash on the screen briefly, especially after the initial page load. The extension is built to replace these as soon as possible, so if it flashes for more than a few seconds or never updates, please submit a bug (see below).',
-    },
-    {
-      question: 'How do I report bugs or request features?',
-      answer: 'You can submit bugs or feature requests through GitHub Issues or email. Visit <a class="link" href="https://github.com/arimgibson/deadname-remover/issues/new" target="_blank" rel="noreferrer">github.com/arimgibson/deadname-remover/issues</a> to create a new issue, or email <a class="link" href="mailto:hi@arigibson.com">hi@arigibson.com</a> if you prefer not to use GitHub. I\'ll add it in the GitHub Issues board for tracking and email you back the link to follow along.',
-    },
-  ]
-
-  const errorMessages = {
-    emptyDeadname: 'Deadname must not be empty',
-    emptyProperName: 'Proper name must not be empty',
-    duplicate: 'Deadname already exists',
-    self: 'Cannot set deadname to proper name',
-    recursive: 'Cannot set deadname to a name that has already been replaced',
-  } as const
 
   onMount(async () => {
     const config = await getConfig()
@@ -165,99 +135,6 @@
     // Update the previous state for the next effect run
     previousStealthMode = settings.stealthMode
   })
-
-  function validateNameField({
-    target,
-    type,
-    name,
-    index,
-  }: {
-    target: HTMLInputElement
-    type: 'deadname' | 'properName'
-    name: string
-    index: number
-  }) {
-    if (target.value.trim().length === 0) {
-      setNameFieldError({
-        target,
-        type,
-        name,
-        index,
-        errorType: type === 'deadname' ? 'emptyDeadname' : 'emptyProperName',
-      })
-      return
-    }
-
-    if (type === 'deadname') {
-      const noDuplicates = validateNoDuplicateDeadnames(settings.names)
-      if (!noDuplicates) {
-        setNameFieldError({
-          target,
-          type,
-          name,
-          index,
-          errorType: 'duplicate',
-        })
-        return
-      }
-    }
-
-    const noSelfMappings = validateNoSelfMappings(settings.names)
-    if (!noSelfMappings) {
-      setNameFieldError({
-        target,
-        type,
-        name,
-        index,
-        errorType: 'self',
-      })
-      return
-    }
-
-    const noRecursiveMappings = validateNoRecursiveMappings(settings.names)
-    if (!noRecursiveMappings) {
-      setNameFieldError({
-        target,
-        type,
-        name,
-        index,
-        errorType: 'recursive',
-      })
-      return
-    }
-
-    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-    const errorField: HTMLParagraphElement = document.querySelector(`#nameField-error-${name}-${String(index)}`)!
-    if (errorField.dataset.errorType === 'self' || errorField.dataset.nameType === type) {
-      target.ariaInvalid = 'false'
-      errorField.dataset.nameType = ''
-      errorField.dataset.errorType = ''
-      errorField.textContent = ''
-      target.removeAttribute('aria-describedby')
-    }
-  }
-
-  function setNameFieldError({
-    target,
-    type,
-    name,
-    index,
-    errorType,
-  }: {
-    target: HTMLInputElement
-    type: 'deadname' | 'properName'
-    name: string
-    index: number
-    errorType: keyof typeof errorMessages
-  }) {
-    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-    const errorField: HTMLParagraphElement = document.querySelector(`#nameField-error-${name}-${String(index)}`)!
-    target.ariaInvalid = 'true'
-    errorField.dataset.nameType = type
-    errorField.dataset.errorType = errorType
-    errorField.textContent = errorMessages[errorType]
-    target.setAttribute('aria-describedby', `nameField-error-${name}-${String(index)}`)
-  }
 
   // Reset page state if config changes (to keep in sync with popup changes)
   setupConfigListener((config) => {
@@ -530,7 +407,7 @@
                         id={`deadname-${name.value}-${String(index)}`}
                         class="input border rounded peer"
                         class:obscured={hideDeadnames}
-                        placeholder="Deadname"
+                        placeholder={name.value === 'email' ? 'Old Email' : 'Deadname'}
                         aria-required="true"
                         aria-label="Deadname"
                         autocomplete="off"
@@ -553,15 +430,16 @@
                           validateNameField({
                             target: (e as Event).target as HTMLInputElement,
                             type: 'deadname',
-                            name: name.value,
+                            nameCategory: name.value,
                             index,
+                            names: settings.names,
                           })
                         }}
                       />
                       <input
                         type="text"
                         class="input border rounded peer"
-                        placeholder="Proper name"
+                        placeholder={name.value === 'email' ? 'New Email' : 'Old Email'}
                         aria-required="true"
                         aria-label="Proper name"
                         bind:value={settings.names[name.value][index]
@@ -583,8 +461,9 @@
                           validateNameField({
                             target: (e as Event).target as HTMLInputElement,
                             type: 'properName',
-                            name: name.value,
+                            nameCategory: name.value,
                             index,
+                            names: settings.names,
                           })
                         }}
                       />
