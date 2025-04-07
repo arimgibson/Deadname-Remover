@@ -431,7 +431,7 @@
             <p class="text-sm text-gray-500 mt-2">
               <strong class="mb-4 inline-block">Note: it is recommended to ensure the key combination used is not already in use by another browser feature or extension.</strong>
               <br />
-              Keyboard shortcut to quickly enable or disable the extension. Does not show any indication of being toggled for privacy purposes.
+              Keyboard shortcut to quickly enable or disable the extension. Does not show any indication of being toggled for privacy purposes. Shortcut does not work on this page, please test on a different page after setting.
             </p>
           </div>
         </div>
