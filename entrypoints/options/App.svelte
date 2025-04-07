@@ -52,7 +52,6 @@
   let unsavedChanges = $derived.by(() => {
     if (initialSettings) {
       const changes = diff(initialSettings, settings)
-      console.log('changes', changes)
 
       // Find index of first keybinding change (if any)
       const keybindingIndex = changes.findIndex(c => c.path[0] === 'toggleKeybinding')

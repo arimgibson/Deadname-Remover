@@ -139,6 +139,13 @@ export async function registerKeyboardShortcut({
 
   // Create a new listener function and store reference
   listener = (event: KeyboardEvent) => {
+    // Skip the event if originates from editable element
+    const tagName = (event.target as HTMLElement).tagName.toLowerCase()
+    if (['input', 'textarea', 'select'].includes(tagName)
+      || (event.target as HTMLElement).isContentEditable) {
+      return
+    }
+
     if (event.key === toggleKeybinding.key
       && event.altKey === toggleKeybinding.alt
       && event.ctrlKey === toggleKeybinding.ctrl

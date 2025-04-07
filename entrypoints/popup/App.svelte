@@ -183,7 +183,10 @@
 
           <div class="flex justify-between items-center h-8 mt-3">
             <span class="text-gray-700 text-base">Enable/Disable Shortcut</span>
-            <span class="text-sm text-gray-600 bg-gray-100 px-2 py-1 rounded">
+            <span
+              class="text-sm text-gray-600 bg-gray-100 px-2 py-1 rounded"
+              aria-label="Current keyboard shortcut status"
+            >
               {settings.toggleKeybinding ? formatKeyboardShortcut(settings.toggleKeybinding) : 'Disabled'}
             </span>
           </div>
