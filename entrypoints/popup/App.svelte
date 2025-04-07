@@ -7,7 +7,7 @@
     setupConfigListener,
   } from '@/services/configService'
   import { checkForStealthUpgradeNotification, clearStealthUpgradeNotification } from '@/utils/migrations'
-  import { errorLog, formatKeyboardShortcut } from '@/utils'
+  import { errorLog, formatKeyboardShortcut, registerKeyboardShortcut } from '@/utils'
   import type { UserSettings } from '@/utils/types'
   import { themes } from '@/utils/types'
   import { generalSettingKeys } from '@/utils/constants'
@@ -21,23 +21,40 @@
   let firstSettingsLoaded = $state(false)
   let previousStealthMode = false
   let upgradeVersion = $state<string | null>(null)
+  let keyboardListener: ((event: KeyboardEvent) => void) | null = null
 
-  onMount(async () => {
-    const config = await getConfig()
-    settings = config
-    isLoading = false
-    firstSettingsLoaded = true
-    previousStealthMode = settings.stealthMode
+  onMount(() => {
+    // Use a non-async function for onMount that returns the cleanup directly
+    void (async () => {
+      const config = await getConfig()
+      settings = config
+      isLoading = false
+      firstSettingsLoaded = true
+      previousStealthMode = settings.stealthMode
 
-    upgradeVersion = await checkForStealthUpgradeNotification()
-    if (upgradeVersion) {
-      toast(`Extension upgraded to v${upgradeVersion}! Visit options page for more information.`, {
-        icon: InfoIcon,
-        position: 'bottom-right',
-        className: 'h-10 text-sm',
-        duration: 5000,
+      // Set up keyboard shortcut
+      keyboardListener = await registerKeyboardShortcut({
+        config: settings,
+        listener: keyboardListener,
       })
-      await clearStealthUpgradeNotification()
+
+      upgradeVersion = await checkForStealthUpgradeNotification()
+      if (upgradeVersion) {
+        toast(`Extension upgraded to v${upgradeVersion}! Visit options page for more information.`, {
+          icon: InfoIcon,
+          position: 'bottom-right',
+          className: 'h-10 text-sm',
+          duration: 5000,
+        })
+        await clearStealthUpgradeNotification()
+      }
+    })()
+
+    // Return the cleanup function directly, not in an async context
+    return () => {
+      if (keyboardListener) {
+        document.removeEventListener('keydown', keyboardListener, true)
+      }
     }
   })
 
@@ -78,6 +95,14 @@
   // Reset page state if config changes (to keep in sync with popup changes)
   setupConfigListener((config) => {
     settings = config
+
+    // Update keyboard shortcut whenever config changes
+    void (async () => {
+      keyboardListener = await registerKeyboardShortcut({
+        config,
+        listener: keyboardListener,
+      })
+    })()
   })
 
   async function handleSubmit() {

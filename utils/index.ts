@@ -1,6 +1,6 @@
 import type { Difference } from 'microdiff'
 import { Names, UserSettings } from './types'
-import { getConfig } from '@/services/configService'
+import { getConfig, setConfig } from '@/services/configService'
 
 export async function debugLog(message: string, ...data: unknown[]) {
   const { hideDebugInfo } = await getConfig()
@@ -110,4 +110,52 @@ export function filterEmptyNamePairs(nameMappings: Names): Names {
   }
 
   return result
+}
+
+/**
+ * Registers a keyboard shortcut for the enabling and disabling the extension
+ * @param config - The user's current config
+ * @param listener - The existing listener to remove, if it exists
+ * @returns A new listener function, or null if no listener was provided
+ */
+export async function registerKeyboardShortcut({
+  config,
+  listener,
+}: {
+  config: UserSettings
+  listener: ((event: KeyboardEvent) => void) | null
+}): Promise<((event: KeyboardEvent) => void) | null> {
+  if (listener) {
+    document.removeEventListener('keydown', listener, true)
+  }
+
+  const toggleKeybinding = config.toggleKeybinding
+  if (!toggleKeybinding) {
+    await debugLog('no toggle keybinding found, skipping keyboard shortcut registration')
+    return null
+  }
+
+  await debugLog('registering keyboard shortcut', toggleKeybinding)
+
+  // Create a new listener function and store reference
+  listener = (event: KeyboardEvent) => {
+    if (event.key === toggleKeybinding.key
+      && event.altKey === toggleKeybinding.alt
+      && event.ctrlKey === toggleKeybinding.ctrl
+      && event.shiftKey === toggleKeybinding.shift
+      && event.metaKey === toggleKeybinding.meta
+    ) {
+      event.preventDefault()
+      void (async () => {
+        await debugLog(`toggle keybinding pressed, ${config.enabled ? 'disabling' : 'enabling'}`)
+        config.enabled = !config.enabled
+        void setConfig(config)
+      })()
+    }
+  }
+
+  // Add the new listener with capturing (true as third parameter)
+  document.addEventListener('keydown', listener, true)
+
+  return listener
 }
