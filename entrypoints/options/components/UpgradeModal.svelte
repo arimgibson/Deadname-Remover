@@ -17,11 +17,14 @@
 
   // Set focus to modal container when opened
   let modalContainer: HTMLElement
+
+  $effect(() => {
+    modalContainer.focus()
+  })
 </script>
 
 <div
   class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
-  onkeydown={handleKeydown}
   role="dialog"
   tabindex="-1"
   aria-modal="true"
