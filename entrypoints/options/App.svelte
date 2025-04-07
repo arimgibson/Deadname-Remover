@@ -41,6 +41,7 @@
 
   let settings = $state<UserSettings>(defaultSettings)
   let initialSettings = $state<UserSettings | null>(null)
+  let platform = $state<'mac' | 'windows' | 'linux' | 'other'>('other')
 
   let isLoading = $state(true)
   let firstSettingsLoaded = $state(false)
@@ -51,7 +52,22 @@
   let unsavedChanges = $derived.by(() => {
     if (initialSettings) {
       const changes = diff(initialSettings, settings)
-      const filteredChanges = filterEmptyArraysFromDiff(changes)
+      console.log('changes', changes)
+
+      // Find index of first keybinding change (if any)
+      const keybindingIndex = changes.findIndex(c => c.path[0] === 'toggleKeybinding')
+
+      // Create a filtered list with at most one keybinding change
+      const normalizedChanges = keybindingIndex >= 0
+        ? [
+            // Add the representative keybinding change (just use the first one)
+            changes[keybindingIndex],
+            // Add all non-keybinding changes
+            ...changes.filter(c => c.path[0] !== 'toggleKeybinding'),
+          ]
+        : changes
+
+      const filteredChanges = filterEmptyArraysFromDiff(normalizedChanges)
       void debugLog('options page changes', filteredChanges)
       return filteredChanges.length
     }
@@ -65,6 +81,12 @@
   let captureShortcut = $state(false)
 
   onMount(async () => {
+    // Detect platform
+    const userAgent = navigator.userAgent.toLowerCase()
+    if (userAgent.includes('mac')) platform = 'mac'
+    else if (userAgent.includes('win')) platform = 'windows'
+    else if (userAgent.includes('linux')) platform = 'linux'
+
     const config = await getConfig()
     settings = config
     // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
@@ -157,6 +179,14 @@
         className: 'h-12 text-lg',
       })
     }
+  }
+
+  function applyShortcut(shortcut: typeof settings.toggleKeybinding) {
+    // Create a deep copy of the current settings to avoid reference issues
+    const updatedSettings = $state.snapshot(settings)
+    updatedSettings.toggleKeybinding = shortcut
+    // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
+    settings = updatedSettings as UserSettings
   }
 </script>
 
@@ -352,6 +382,50 @@
                 >
                   <i class="i-material-symbols:refresh text-lg" aria-hidden="true"></i>
                 </button>
+              </div>
+
+              <!-- Suggested shortcuts section -->
+              <div class="mt-4">
+                <p class="text-sm text-gray-700 mb-2">
+                  Suggested shortcuts {platform === 'mac' ? '(for Mac)' : '(for Windows/Linux)'}:
+                </p>
+                <div class="flex flex-wrap gap-2">
+                  {#if platform === 'mac'}
+                    {#each [
+                      { label: '⌥ Option+Q', shortcut: { key: 'q', alt: true, ctrl: false, shift: false, meta: false } },
+                      { label: '⌥⇧ Option+Shift+Q', shortcut: { key: 'q', alt: true, ctrl: false, shift: true, meta: false } },
+                      { label: '⌥ Option+W', shortcut: { key: 'w', alt: true, ctrl: false, shift: false, meta: false } },
+                      { label: '⌘⌥ Command+Option+Z', shortcut: { key: 'z', alt: true, ctrl: false, shift: false, meta: true } },
+                    ] as suggestion (suggestion.label)}
+                      <button
+                        type="button"
+                        class="btn btn-sm border border-gray-300 hover:bg-gray-100"
+                        onclick={() => {
+                          applyShortcut(suggestion.shortcut)
+                        }}
+                      >
+                        {suggestion.label}
+                      </button>
+                    {/each}
+                  {:else}
+                    {#each [
+                      { label: 'Alt+Q', shortcut: { key: 'q', alt: true, ctrl: false, shift: false, meta: false } },
+                      { label: 'Alt+Shift+Q', shortcut: { key: 'q', alt: true, ctrl: false, shift: true, meta: false } },
+                      { label: 'Alt+W', shortcut: { key: 'w', alt: true, ctrl: false, shift: false, meta: false } },
+                      { label: 'Ctrl+Alt+Z', shortcut: { key: 'z', alt: true, ctrl: true, shift: false, meta: false } },
+                    ] as suggestion (suggestion.label)}
+                      <button
+                        type="button"
+                        class="btn btn-sm border border-gray-300 hover:bg-gray-100"
+                        onclick={() => {
+                          applyShortcut(suggestion.shortcut)
+                        }}
+                      >
+                        {suggestion.label}
+                      </button>
+                    {/each}
+                  {/if}
+                </div>
               </div>
             </div>
             <p class="text-sm text-gray-500 mt-2">
