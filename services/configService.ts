@@ -39,6 +39,20 @@ export async function getConfig(): Promise<UserSettings> {
 }
 
 export async function setConfig(settings: UserSettings): Promise<void> {
+  // temp migrations to prevent breaking changes
+  // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+  if (settings.toggleKeybinding === undefined) {
+    settings.toggleKeybinding = null
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+  if (settings.names.email === undefined || settings.names.email.length === 0) {
+    settings.names.email = []
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+  settings.hideDebugInfo ??= false
+
   const cleanedSettings = {
     ...settings,
     names: filterEmptyNamePairs(settings.names),

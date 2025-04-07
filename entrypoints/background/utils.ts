@@ -22,6 +22,32 @@ export async function handleUpdate(details: Browser.runtime.InstalledDetails) {
 
   let config = await getConfig()
 
+  // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+  const needsEmailUpdate = !config.names.email || config.names.email.length === 0
+  // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+  const needsDebugInfoUpdate = config.hideDebugInfo === undefined
+  // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+  const needsToggleKeybindingUpdate = config.toggleKeybinding === undefined
+
+  if (needsEmailUpdate || needsDebugInfoUpdate || needsToggleKeybindingUpdate) {
+    if (needsEmailUpdate) {
+      // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+      config.names.email = config.names.email ?? []
+    }
+    if (needsDebugInfoUpdate) {
+      config.hideDebugInfo = false
+    }
+    if (needsToggleKeybindingUpdate) {
+      config.toggleKeybinding = null
+    }
+    try {
+      await setConfig(config)
+    }
+    catch (error) {
+      errorLog('error updating config settings', error)
+    }
+  }
+
   // Migrate empty name pairs
   try {
     const cleanedNames = filterEmptyNamePairs(config.names)
@@ -33,18 +59,6 @@ export async function handleUpdate(details: Browser.runtime.InstalledDetails) {
   }
   catch (error) {
     errorLog('error removing empty name pairs', error)
-  }
-
-  // Ensure hideDebugInfo is initialized
-  // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- clean up later
-  if (config.hideDebugInfo === undefined) {
-    config.hideDebugInfo = false
-    try {
-      await setConfig(config)
-    }
-    catch (error) {
-      errorLog('error setting hideDebugInfo config', error)
-    }
   }
 
   // If last version is less than 2.0.0, open the options page with the upgrade flag

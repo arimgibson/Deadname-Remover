@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unnecessary-condition */
 import type { Difference } from 'microdiff'
 import { Names, UserSettings } from './types'
 import { getConfig, setConfig } from '@/services/configService'
@@ -104,9 +105,9 @@ export function filterEmptyNamePairs(nameMappings: Names): Names {
   }
 
   for (const category of ['first', 'middle', 'last', 'email'] as const) {
-    result[category] = nameMappings[category].filter(
+    result[category] = nameMappings?.[category]?.filter(
       pair => !(pair.mappings[0] === '' && pair.mappings[1] === ''),
-    )
+    ) ?? []
   }
 
   return result
