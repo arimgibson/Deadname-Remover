@@ -10,13 +10,14 @@ import {
   createReplacementsMap,
   setStyle,
 } from './utils'
-import { debugLog, haveNamesChanged } from '@/utils'
+import { debugLog, haveNamesChanged, registerKeyboardShortcut } from '@/utils'
 
 let currentObserver: DOMObserver | null = null
 let previousEnabled: boolean | undefined = undefined
 let previousNames: Names | undefined = undefined
 let previousTheme: UserSettings['theme'] | undefined = undefined
 let previousHighlight: boolean | undefined = undefined
+let toggleKeybindingListener: ((event: KeyboardEvent) => void) | null = null
 
 async function configureAndRunProcessor({ config }: { config: UserSettings }): Promise<void> {
   // Only run disable logic if we're transitioning from enabled to disabled
@@ -121,8 +122,14 @@ export default defineContentScript({
 
     const config = await getConfig()
     await configureAndRunProcessor({ config })
+    toggleKeybindingListener = await registerKeyboardShortcut({ config, listener: toggleKeybindingListener })
 
     // Handle configuration changes
-    setupConfigListener(config => void configureAndRunProcessor({ config }))
+    setupConfigListener((config) => {
+      void (async () => {
+        await configureAndRunProcessor({ config })
+        toggleKeybindingListener = await registerKeyboardShortcut({ config, listener: toggleKeybindingListener })
+      })()
+    })
   },
 })

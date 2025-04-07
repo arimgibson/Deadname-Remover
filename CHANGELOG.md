@@ -1,8 +1,33 @@
 # Changelog
 
+## v2.1.0
+
+- Added keyboard shortcut functionality for quickly enabling/disabling the extension
+- Added setting to replace plain text email addresses (Note: Email hyperlinks remain unchanged and will use the original address when clicked)
+- Added setting to hide debug logs that contain name mapping information (including deadnames) (thanks [@Lenochxd](https://github.com/Lenochxd)!)
+- Resolved UI issue causing switches to not show an indicator when focused
+- Excluded SVGs from processing to improve performance
+
+## v2.0.4
+
+- Fix issue with duplicate names being allowed in settings due to case sensitive matching instead of case insensitive.
+
+## v2.0.3
+
+- Resolves bug with names not replacing while maintaining performance.
+
+## v2.0.2
+
+- Resolved issue with excessive processing on added DOM nodes, causing slow performance on larger pages.
+
+## v2.0.1
+
+- Resolves bug with recursive name replacement causing browser lag and crashes.
+
 ## v2.0.0 🎉
 
 ### Added or Changed
+
 - Complete rewrite of the extension using modern technologies/patterns:
   - Improved performance via new name replacement mechanism
   - Simplified replacement logic via cleaner browser-built in functions (such as document.createNodeIterator)
@@ -38,6 +63,7 @@
   - Recreated README to be accurate considering all the changes in this version
 
 ### Removed
+
 - Entire previous codebase to modernize and improve the extension
 - Support for TamperMonkey scripts
   - May be added back in the future if there is a need for it, though likely not used frequently and adds additional maintenance burden

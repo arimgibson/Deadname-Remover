@@ -64,9 +64,8 @@ If you'd like to submit a bug or request a feature but don't want to sign up for
 
 See an updated project roadmap on this project's [GitHub Projects](https://github.com/arimgibson/Deadname-Remover/projects). At a high level, these are features that are planned for the extension:
 1. Global and per-site blocklists
-2. Customizable keybinding to toggle the extension`
-3. Publishing to the Edge Add-ons store
-4. Custom regex patterns for advanced name replacement (including titles, suffixes, salutations, etc.)
+2. Publishing to the Edge Add-ons store
+3. Custom regex patterns for advanced name replacement (including titles, suffixes, salutations, etc.)
 
 
 ## Contact

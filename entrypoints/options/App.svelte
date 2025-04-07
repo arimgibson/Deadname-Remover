@@ -22,26 +22,26 @@
   } from '@/services/configService'
   import {
     filterEmptyArraysFromDiff,
+    formatKeyboardShortcut,
     debugLog,
     errorLog,
   } from '@/utils'
-  import {
-    validateNoDuplicateDeadnames,
-    validateNoRecursiveMappings,
-    validateNoSelfMappings,
-  } from '@/utils/validations'
   import type { UserSettings } from '@/utils/types'
   import { themes } from '@/utils/types'
-  import { generalSettingKeys, nameKeys } from '@/utils/constants'
+  import { generalSettingKeys } from '@/utils/constants'
   import toast, { Toaster } from 'svelte-french-toast'
   import 'text-security/text-security-disc.css'
   import diff from 'microdiff'
   import ToastWithButton from '@/components/UnsavedChangesToast.svelte'
   import WarningIcon from '@/components/WarningIcon.svelte'
   import { fade } from 'svelte/transition'
+  import UpgradeModal from './components/UpgradeModal.svelte'
+  import FaqModal from './components/FaqModal.svelte'
+  import NameMappings from './components/NameMappings.svelte'
 
   let settings = $state<UserSettings>(defaultSettings)
   let initialSettings = $state<UserSettings | null>(null)
+  let platform = $state<'mac' | 'windows' | 'linux' | 'other'>('other')
 
   let isLoading = $state(true)
   let firstSettingsLoaded = $state(false)
@@ -52,7 +52,21 @@
   let unsavedChanges = $derived.by(() => {
     if (initialSettings) {
       const changes = diff(initialSettings, settings)
-      const filteredChanges = filterEmptyArraysFromDiff(changes)
+
+      // Find index of first keybinding change (if any)
+      const keybindingIndex = changes.findIndex(c => c.path[0] === 'toggleKeybinding')
+
+      // Create a filtered list with at most one keybinding change
+      const normalizedChanges = keybindingIndex >= 0
+        ? [
+            // Add the representative keybinding change (just use the first one)
+            changes[keybindingIndex],
+            // Add all non-keybinding changes
+            ...changes.filter(c => c.path[0] !== 'toggleKeybinding'),
+          ]
+        : changes
+
+      const filteredChanges = filterEmptyArraysFromDiff(normalizedChanges)
       void debugLog('options page changes', filteredChanges)
       return filteredChanges.length
     }
@@ -63,38 +77,15 @@
   let showFaqModal = $state(false)
   let showFaqTooltip = $state(false)
 
-  const faqs = [
-    {
-      question: 'How do I add multiple names?',
-      answer: 'Click the "Add Name" button under each name type in the "Name Replacement" section to add as many names as you want. Each name should have a deadname and the proper name to replace it with.',
-    },
-    {
-      question: 'Why aren\'t names being replaced in text inputs, forms, or other editable content?',
-      answer: 'To prevent accidentally outing users, the extension doesn\'t replace text in input fields, forms, or editable content. This prevents accidental submission of replaced names in emails, messages, or documents. If there\'s a place your name isn\'t replaced but you think it should be, please submit a bug (see below).',
-    },
-    {
-      question: 'What should I do if content shifts around when using the "Block Page Until Replacements Finished" feature?',
-      answer: 'If you notice content jumping or shifting around the page when using the content blocking feature, please submit a bug (see below). Include the website URL and a description of what\'s happening to help someone fix it.',
-    },
-    {
-      question: 'Why am I still seeing my deadname flash on the page, even with the "Content Blocking" feature enabled?',
-      answer: 'Due to how some websites render content, it\'s possible to see a deadname flash on the screen briefly, especially after the initial page load. The extension is built to replace these as soon as possible, so if it flashes for more than a few seconds or never updates, please submit a bug (see below).',
-    },
-    {
-      question: 'How do I report bugs or request features?',
-      answer: 'You can submit bugs or feature requests through GitHub Issues or email. Visit <a class="link" href="https://github.com/arimgibson/deadname-remover/issues/new" target="_blank" rel="noreferrer">github.com/arimgibson/deadname-remover/issues</a> to create a new issue, or email <a class="link" href="mailto:hi@arigibson.com">hi@arigibson.com</a> if you prefer not to use GitHub. I\'ll add it in the GitHub Issues board for tracking and email you back the link to follow along.',
-    },
-  ]
-
-  const errorMessages = {
-    emptyDeadname: 'Deadname must not be empty',
-    emptyProperName: 'Proper name must not be empty',
-    duplicate: 'Deadname already exists',
-    self: 'Cannot set deadname to proper name',
-    recursive: 'Cannot set deadname to a name that has already been replaced',
-  } as const
+  let captureShortcut = $state(false)
 
   onMount(async () => {
+    // Detect platform
+    const userAgent = navigator.userAgent.toLowerCase()
+    if (userAgent.includes('mac')) platform = 'mac'
+    else if (userAgent.includes('win')) platform = 'windows'
+    else if (userAgent.includes('linux')) platform = 'linux'
+
     const config = await getConfig()
     settings = config
     // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
@@ -163,99 +154,6 @@
     previousStealthMode = settings.stealthMode
   })
 
-  function validateNameField({
-    target,
-    type,
-    name,
-    index,
-  }: {
-    target: HTMLInputElement
-    type: 'deadname' | 'properName'
-    name: string
-    index: number
-  }) {
-    if (target.value.trim().length === 0) {
-      setNameFieldError({
-        target,
-        type,
-        name,
-        index,
-        errorType: type === 'deadname' ? 'emptyDeadname' : 'emptyProperName',
-      })
-      return
-    }
-
-    if (type === 'deadname') {
-      const noDuplicates = validateNoDuplicateDeadnames(settings.names)
-      if (!noDuplicates) {
-        setNameFieldError({
-          target,
-          type,
-          name,
-          index,
-          errorType: 'duplicate',
-        })
-        return
-      }
-    }
-
-    const noSelfMappings = validateNoSelfMappings(settings.names)
-    if (!noSelfMappings) {
-      setNameFieldError({
-        target,
-        type,
-        name,
-        index,
-        errorType: 'self',
-      })
-      return
-    }
-
-    const noRecursiveMappings = validateNoRecursiveMappings(settings.names)
-    if (!noRecursiveMappings) {
-      setNameFieldError({
-        target,
-        type,
-        name,
-        index,
-        errorType: 'recursive',
-      })
-      return
-    }
-
-    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-    const errorField: HTMLParagraphElement = document.querySelector(`#nameField-error-${name}-${String(index)}`)!
-    if (errorField.dataset.errorType === 'self' || errorField.dataset.nameType === type) {
-      target.ariaInvalid = 'false'
-      errorField.dataset.nameType = ''
-      errorField.dataset.errorType = ''
-      errorField.textContent = ''
-      target.removeAttribute('aria-describedby')
-    }
-  }
-
-  function setNameFieldError({
-    target,
-    type,
-    name,
-    index,
-    errorType,
-  }: {
-    target: HTMLInputElement
-    type: 'deadname' | 'properName'
-    name: string
-    index: number
-    errorType: keyof typeof errorMessages
-  }) {
-    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-    const errorField: HTMLParagraphElement = document.querySelector(`#nameField-error-${name}-${String(index)}`)!
-    target.ariaInvalid = 'true'
-    errorField.dataset.nameType = type
-    errorField.dataset.errorType = errorType
-    errorField.textContent = errorMessages[errorType]
-    target.setAttribute('aria-describedby', `nameField-error-${name}-${String(index)}`)
-  }
-
   // Reset page state if config changes (to keep in sync with popup changes)
   setupConfigListener((config) => {
     settings = config
@@ -280,6 +178,14 @@
         className: 'h-12 text-lg',
       })
     }
+  }
+
+  function applyShortcut(shortcut: typeof settings.toggleKeybinding) {
+    // Create a deep copy of the current settings to avoid reference issues
+    const updatedSettings = $state.snapshot(settings)
+    updatedSettings.toggleKeybinding = shortcut
+    // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
+    settings = updatedSettings as UserSettings
   }
 </script>
 
@@ -426,148 +332,116 @@
               Changes the color of the highlight on replaced names.
             </p>
           </div>
+
+          <div>
+            <label for="keyboard-shortcut" class="text-gray-700 text-base">Enable/Disable Extension Keyboard Shortcut</label>
+            <div class="mt-2">
+              <div
+                id="keyboard-shortcut"
+                class="input border rounded flex items-center justify-between p-2 cursor-pointer"
+                tabindex="0"
+                role="button"
+                aria-label="Press keys to set shortcut"
+                onclick={() => captureShortcut = true}
+                onkeydown={(e) => {
+                  if (captureShortcut) {
+                    e.preventDefault()
+
+                    // Skip if only modifier keys are pressed
+                    const isModifierKey = ['Control', 'Alt', 'Shift', 'Meta'].includes(e.key)
+                    if (!isModifierKey) {
+                      settings.toggleKeybinding = {
+                        key: e.key,
+                        alt: e.altKey,
+                        ctrl: e.ctrlKey,
+                        shift: e.shiftKey,
+                        meta: e.metaKey,
+                      }
+                      captureShortcut = false
+                    }
+                  }
+                }}
+                onblur={() => captureShortcut = false}
+              >
+                <span class={captureShortcut ? 'text-theme-500' : 'text-gray-700'}>
+                  {captureShortcut
+                    ? 'Press keys...'
+                    : settings.toggleKeybinding
+                      ? formatKeyboardShortcut(settings.toggleKeybinding)
+                      : 'Disabled -- Click Here to Set'}
+                </span>
+                <button
+                  type="button"
+                  class="text-gray-500 hover:text-gray-700"
+                  onclick={(e) => {
+                    e.stopPropagation()
+                    settings.toggleKeybinding = defaultSettings.toggleKeybinding
+                  }}
+                  aria-label="Reset to default shortcut"
+                >
+                  <i class="i-material-symbols:refresh text-lg" aria-hidden="true"></i>
+                </button>
+              </div>
+
+              <!-- Suggested shortcuts section -->
+              <div class="mt-4">
+                <p class="text-sm text-gray-700 mb-2">
+                  Suggested shortcuts {platform === 'mac' ? '(for Mac)' : '(for Windows/Linux)'}:
+                </p>
+                <div class="flex flex-wrap gap-2">
+                  {#if platform === 'mac'}
+                    {#each [
+                      { label: '⌥ Option+Q', shortcut: { key: 'q', alt: true, ctrl: false, shift: false, meta: false } },
+                      { label: '⌥⇧ Option+Shift+Q', shortcut: { key: 'q', alt: true, ctrl: false, shift: true, meta: false } },
+                      { label: '⌥ Option+W', shortcut: { key: 'w', alt: true, ctrl: false, shift: false, meta: false } },
+                      { label: '⌘⌥ Command+Option+Z', shortcut: { key: 'z', alt: true, ctrl: false, shift: false, meta: true } },
+                    ] as suggestion (suggestion.label)}
+                      <button
+                        type="button"
+                        class="btn btn-sm border border-gray-300 hover:bg-gray-100"
+                        onclick={() => {
+                          applyShortcut(suggestion.shortcut)
+                        }}
+                      >
+                        {suggestion.label}
+                      </button>
+                    {/each}
+                  {:else}
+                    {#each [
+                      { label: 'Alt+Q', shortcut: { key: 'q', alt: true, ctrl: false, shift: false, meta: false } },
+                      { label: 'Alt+Shift+Q', shortcut: { key: 'q', alt: true, ctrl: false, shift: true, meta: false } },
+                      { label: 'Alt+W', shortcut: { key: 'w', alt: true, ctrl: false, shift: false, meta: false } },
+                      { label: 'Ctrl+Alt+Z', shortcut: { key: 'z', alt: true, ctrl: true, shift: false, meta: false } },
+                    ] as suggestion (suggestion.label)}
+                      <button
+                        type="button"
+                        class="btn btn-sm border border-gray-300 hover:bg-gray-100"
+                        onclick={() => {
+                          applyShortcut(suggestion.shortcut)
+                        }}
+                      >
+                        {suggestion.label}
+                      </button>
+                    {/each}
+                  {/if}
+                </div>
+              </div>
+            </div>
+            <p class="text-sm text-gray-500 mt-2">
+              <strong class="mb-4 inline-block">Note: it is recommended to ensure the key combination used is not already in use by another browser feature or extension.</strong>
+              <br />
+              Keyboard shortcut to quickly enable or disable the extension. Does not show any indication of being toggled for privacy purposes. Shortcut does not work on this page, please test on a different page after setting.
+            </p>
+          </div>
         </div>
       </section>
 
       <!-- Name Mappings -->
-      <section class="mb-8" aria-labelledby="name-replacement-heading">
-        <div class="flex justify-between items-center mb-4">
-          <h2
-            id="name-replacement-heading"
-            class="text-xl font-medium text-gray-700"
-          >
-            Name Replacement
-          </h2>
-          <button
-            type="button"
-            class="btn theme-400 text-sm flex items-center gap-2"
-            onclick={() => (hideDeadnames = !hideDeadnames)}
-            aria-label={hideDeadnames ? 'Show deadnames' : 'Hide deadnames'}
-          >
-            <i
-              class={`text-lg ${hideDeadnames ? 'i-material-symbols:visibility-off' : 'i-material-symbols:visibility'}`}
-              aria-hidden="true"
-            ></i>
-            {hideDeadnames ? 'Show' : 'Hide'} Deadnames
-          </button>
-        </div>
-        <div class="space-y-6">
-          {#each nameKeys as name (name.value)}
-            <fieldset>
-              <legend class="text-lg font-medium text-gray-600 mb-2"
-                >{name.label}</legend
-              >
-              <div class="relative">
-                <div class="space-y-2">
-                  {#each settings.names[name.value] as _names, index (name.value + '-' + String(index))}
-                    <div
-                      class="name-pair-row-grid gap-2 items-center"
-                      role="group"
-                      aria-label={`${name.label} pair ${String(index + 1)}`}
-                    >
-                      <input
-                        type="text"
-                        id={`deadname-${name.value}-${String(index)}`}
-                        class="input border rounded peer"
-                        class:obscured={hideDeadnames}
-                        placeholder="Deadname"
-                        aria-required="true"
-                        aria-label="Deadname"
-                        autocomplete="off"
-                        bind:value={settings.names[name.value][index]
-                          .mappings[0]}
-                        onkeydown={(e: KeyboardEvent) => {
-                          if (e.key === 'Enter') {
-                            e.preventDefault()
-                            settings.names[name.value].push({
-                              mappings: ['', ''],
-                            })
-                            // Wait for DOM update then focus new input
-                            setTimeout(() => {
-                              // eslint-disable-next-line @typescript-eslint/no-non-null-assertion, @typescript-eslint/no-unnecessary-type-assertion
-                              ((document.querySelector(`#deadname-${name.value}-${String(settings.names[name.value].length - 1)}`)!) as HTMLInputElement).focus()
-                            }, 0)
-                          }
-                        }}
-                        oninput={(e) => {
-                          validateNameField({
-                            target: (e as Event).target as HTMLInputElement,
-                            type: 'deadname',
-                            name: name.value,
-                            index,
-                          })
-                        }}
-                      />
-                      <input
-                        type="text"
-                        class="input border rounded peer"
-                        placeholder="Proper name"
-                        aria-required="true"
-                        aria-label="Proper name"
-                        bind:value={settings.names[name.value][index]
-                          .mappings[1]}
-                        onkeydown={(e: KeyboardEvent) => {
-                          if (e.key === 'Enter') {
-                            e.preventDefault()
-                            settings.names[name.value].push({
-                              mappings: ['', ''],
-                            })
-                            // Wait for DOM update then focus new input
-                            setTimeout(() => {
-                              // eslint-disable-next-line @typescript-eslint/no-non-null-assertion, @typescript-eslint/no-unnecessary-type-assertion
-                              ((document.querySelector(`#properName-${name.value}-${String(settings.names[name.value].length - 1)}`)!) as HTMLInputElement).focus()
-                            }, 0)
-                          }
-                        }}
-                        oninput={(e) => {
-                          validateNameField({
-                            target: (e as Event).target as HTMLInputElement,
-                            type: 'properName',
-                            name: name.value,
-                            index,
-                          })
-                        }}
-                      />
-                      <button
-                        type="button"
-                        onclick={() =>
-                          settings.names[name.value].splice(index, 1)}
-                        class="text-red-500 hover:text-red-700"
-                        aria-label={`Remove ${name.label} pair ${String(index + 1)}`}
-                      >
-                        <i
-                          class="i-material-symbols:delete-outline text-xl"
-                          aria-hidden="true"
-                        ></i>
-                      </button>
-                      <p
-                        id={`nameField-error-${name.value}-${String(index)}`}
-                        class="text-red-500 text-sm input-error col-span-full"
-                      ></p>
-                    </div>
-                  {/each}
-                </div>
-                <button
-                  type="button"
-                  onclick={() => {
-                    settings.names[name.value].push({ mappings: ['', ''] })
-                    setTimeout(() => {
-                      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion, @typescript-eslint/no-unnecessary-type-assertion
-                      ((document.querySelector(`#deadname-${name.value}-${String(settings.names[name.value].length - 1)}`)!) as HTMLInputElement).focus()
-                    }, 0)
-                  }}
-                  class="btn btn-dashed border-2 w-full mt-2 hover:bg-theme-50"
-                  aria-label={`Add new ${name.label} pair`}
-                >
-                  <i class="i-material-symbols:add-2 text-lg" aria-hidden="true"
-                  ></i>
-                  Add {name.label}
-                </button>
-              </div>
-            </fieldset>
-          {/each}
-        </div>
-      </section>
+      <NameMappings
+        settings={settings}
+        hideDeadnames={hideDeadnames}
+        onToggleHideDeadnames={() => hideDeadnames = !hideDeadnames}
+      />
 
       <!-- Save Button -->
       <button type="submit" class="btn solid w-full" aria-label="Save settings">
@@ -578,104 +452,14 @@
 </main>
 
 {#if showUpgradeModal}
-  <div class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-    <div class="bg-white p-8 rounded-lg shadow-xl max-w-2xl overflow-y-auto max-h-[90vh]">
-      <h2 class="text-3xl font-medium mb-4 text-gray-800">Welcome to Deadname Remover v2.0! 🎉</h2>
-
-      <div class="space-y-4 text-gray-600 mb-6">
-        <p class="text-lg">
-          We've made significant improvements to make the extension faster, more reliable, and more user-friendly than ever before.
-        </p>
-
-        <div>
-          <h3 class="text-xl font-medium text-gray-700 mb-2">What's New:</h3>
-          <ul class="list-disc list-inside space-y-2 ml-2 text-base">
-            <li>Improved performance and reliability</li>
-            <li>Add unlimited preferred and deadnames, for yourself and others</li>
-            <li>New theme options including trans and non-binary pride gradients</li>
-            <li>Settings sync across devices now optional for privacy reasons</li>
-            <li>Content blocking to prevent deadname flashing</li>
-            <li>Enhanced accessibility features</li>
-          </ul>
-        </div>
-
-        <div class="bg-amber-50 p-4 rounded-lg text-base">
-          <p class="text-amber-800">
-            <strong>Important:</strong> Your settings have been migrated from the previous extension to a new format used in this extension. Please review your settings and confirm they match your expectations.
-          </p>
-        </div>
-
-        {#if settings.syncSettingsAcrossDevices}
-          <div class="bg-blue-50 p-4 rounded-lg text-base">
-            <p class="text-blue-800">
-              <strong>Note:</strong> Your settings sync is enabled, as this was the only option in the previous version. Changes saved here will sync across all your devices. Review this and delete synced data if you don't want this behavior.
-            </p>
-          </div>
-        {/if}
-      </div>
-
-      <button
-        class="btn btn-lg w-full"
-        onclick={() => showUpgradeModal = false}
-      >
-        Got it, let's get started!
-      </button>
-    </div>
-  </div>
+  <UpgradeModal
+    settings={settings}
+    onClose={() => showUpgradeModal = false}
+  />
 {/if}
 
-<!-- Add FAQ Modal -->
 {#if showFaqModal}
-  <div class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-    <div class="bg-white rounded-lg shadow-xl max-w-2xl flex flex-col max-h-[90vh]">
-      <div class="p-8 pb-4">
-        <div class="flex justify-between items-center">
-          <h2 class="text-2xl font-medium text-gray-800">Frequently Asked Questions</h2>
-          <button
-            type="button"
-            class="text-gray-500 hover:text-gray-700"
-            onclick={() => showFaqModal = false}
-            aria-label="Close FAQ"
-          >
-            <i class="i-material-symbols:close text-2xl"></i>
-          </button>
-        </div>
-      </div>
-
-      <div class="overflow-y-auto px-8">
-        <div class="space-y-6">
-          {#each faqs as faq (faq.question)}
-            <div class="border-b border-gray-200 pb-4 last:border-0">
-              <h3 class="text-lg font-medium text-gray-700 mb-2 last:mb-0">{faq.question}</h3>
-              <!-- eslint-disable-next-line svelte/no-at-html-tags -- safe as HTML is hardcoded -->
-              <p class="text-gray-600 text-base [&_a]:text-theme-500 [&_a]:hover:text-theme-600">{@html faq.answer}</p>
-            </div>
-          {/each}
-        </div>
-      </div>
-
-      <div class="p-8 pt-4">
-        <button
-          class="btn solid w-full"
-          onclick={() => showFaqModal = false}
-        >
-          Close
-        </button>
-      </div>
-    </div>
-  </div>
+  <FaqModal
+    onClose={() => showFaqModal = false}
+  />
 {/if}
-
-<style>
-  .obscured {
-    /* Leverages the text-security npm package */
-    font-family: text-security-disc;
-    /* Use -webkit-text-security if the browser supports it */
-    -webkit-text-security: disc;
-  }
-
-  .obscured::placeholder {
-    /* Use default Onu UI font for placeholder text */
-    font-family: "DM Sans", "DM Sans:400,700";
-  }
-</style>
