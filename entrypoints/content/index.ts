@@ -19,25 +19,33 @@ let previousTheme: UserSettings['theme'] | undefined = undefined
 let previousHighlight: boolean | undefined = undefined
 let toggleKeybindingListener: ((event: KeyboardEvent) => void) | null = null
 
-async function configureAndRunProcessor({ config }: { config: UserSettings }): Promise<void> {
-  // Only run disable logic if we're transitioning from enabled to disabled
-  if (!config.enabled && previousEnabled) {
-    if (currentObserver) {
-      currentObserver.disconnect()
-      currentObserver = null
-    }
+function cleanupAndReset() {
+  if (currentObserver) {
+    currentObserver.disconnect()
+    currentObserver = null
+  }
 
-    // Revert all text replacements and remove theme
-    TextProcessor.revertAllReplacements()
-    document.querySelector('style[deadname]')?.remove()
-    previousEnabled = false
-    previousNames = undefined
-    previousTheme = undefined
+  // Revert all text replacements and remove theme
+  TextProcessor.revertAllReplacements()
+  document.querySelector('style[deadname]')?.remove()
+  previousEnabled = false
+  previousNames = undefined
+  previousTheme = undefined
+}
+
+async function configureAndRunProcessor({ config }: { config: UserSettings }): Promise<void> {
+  // Check if site should be parsed
+  const shouldParse = shouldParseSite({ config })
+
+  // Handle any transition to disabled state (either by extension disable or blocklist/whitelist)
+  if ((!config.enabled || !shouldParse) && previousEnabled) {
+    cleanupAndReset()
+    if (!shouldParse) await debugLog('not parsing site, blocklist or allowlist is set')
     return
   }
 
-  // Skip if already disabled
-  if (!config.enabled) {
+  // Skip if disabled or site is blocked/not whitelisted
+  if (!config.enabled || !shouldParse) {
     previousEnabled = false
     previousNames = undefined
     previousTheme = undefined
@@ -112,6 +120,43 @@ async function configureAndRunProcessor({ config }: { config: UserSettings }): P
   previousNames = config.names
   previousTheme = config.theme
   previousHighlight = config.highlightReplacedNames
+}
+
+function getMostSpecificMatch(list: string[], site: string): string | null {
+  // Return the longest matching prefix
+  const matches = list.filter(entry => site.startsWith(entry))
+  if (matches.length === 0) return null
+  return matches.reduce((a, b) => (b.length > a.length ? b : a))
+}
+
+// check config global block list and white list if the parsing should continue
+function shouldParseSite({ config }: { config: UserSettings }) {
+  const { hostname, pathname } = window.location
+  const fullUrl = `${hostname.replace(/^www\./, '')}${pathname}`
+
+  const allowMatch = getMostSpecificMatch(config.allowlist, fullUrl)
+  const blockMatch = getMostSpecificMatch(config.blocklist, fullUrl)
+
+  if (config.defaultAllowMode) {
+    // If there is no block match, return true
+    if (!blockMatch) return true
+
+    // If there is a block match, but no allow match, return false
+    if (!allowMatch) return false
+
+    // If there is a allow match, return true if it is more specific than the block match
+    return allowMatch.length >= blockMatch.length
+  }
+  else {
+    // If there is no allow match, return false
+    if (!allowMatch) return false
+
+    // If there is a allow match, but no block match, return true
+    if (!blockMatch) return true
+
+    // If there is a allow match, return true if it is more specific than the block match
+    return allowMatch.length >= blockMatch.length
+  }
 }
 
 export default defineContentScript({

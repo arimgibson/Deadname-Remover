@@ -5,6 +5,7 @@ const trimmedString = v.pipe(v.string(), v.trim(), v.nonEmpty())
 export const trimmedEmail = v.pipe(trimmedString, v.email())
 const NameTuple = v.tuple([trimmedString, trimmedString])
 const EmailTuple = v.tuple([trimmedEmail, trimmedEmail])
+const validURL = v.pipe(trimmedString, v.url())
 
 /**
  * Represents a mapping of proper names to deadnames.
@@ -70,6 +71,9 @@ export const UserSettings = v.object({
   syncSettingsAcrossDevices: v.boolean(),
   theme: v.union(themes.map(x => v.literal(x.value))),
   toggleKeybinding: v.union([v.null(), ToggleKeybinding]),
+  defaultAllowMode: v.boolean(),
+  allowlist: v.array(validURL),
+  blocklist: v.array(validURL),
 })
 
 export type UserSettings = v.InferOutput<typeof UserSettings>
