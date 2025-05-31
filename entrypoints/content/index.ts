@@ -138,23 +138,15 @@ function shouldParseSite({ config }: { config: UserSettings }) {
   const blockMatch = getMostSpecificMatch(config.blocklist, fullUrl)
 
   if (config.defaultAllowMode) {
-    // If there is no block match, return true
     if (!blockMatch) return true
-
-    // If there is a block match, but no allow match, return false
     if (!allowMatch) return false
 
-    // If there is a allow match, return true if it is more specific than the block match
     return allowMatch.length >= blockMatch.length
   }
   else {
-    // If there is no allow match, return false
     if (!allowMatch) return false
-
-    // If there is a allow match, but no block match, return true
     if (!blockMatch) return true
 
-    // If there is a allow match, return true if it is more specific than the block match
     return allowMatch.length >= blockMatch.length
   }
 }

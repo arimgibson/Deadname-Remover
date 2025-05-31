@@ -1,11 +1,12 @@
 import * as v from 'valibot'
 import { validateNoDuplicateDeadnames, validateNoRecursiveMappings, validateNoSelfMappings } from './validations'
+import { validURLRegex } from '.'
 
 const trimmedString = v.pipe(v.string(), v.trim(), v.nonEmpty())
 export const trimmedEmail = v.pipe(trimmedString, v.email())
 const NameTuple = v.tuple([trimmedString, trimmedString])
 const EmailTuple = v.tuple([trimmedEmail, trimmedEmail])
-const validURL = v.pipe(trimmedString, v.url())
+const validURL = v.pipe(trimmedString, v.check(url => validURLRegex.test(url), 'Invalid URL'))
 
 /**
  * Represents a mapping of proper names to deadnames.

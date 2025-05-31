@@ -4,11 +4,13 @@
   "[svelte]": {
     "editor.defaultFormatter": "dbaeumer.vscode-eslint"
   },
+  "[typescript]": {
+    "editor.defaultFormatter": "dbaeumer.vscode-eslint"
+  },
+
   "cSpell.words": ["deadname", "deadnames", "tseslint", "valibot"],
-  "eslint.validate": [
-    "javascript",
-    "typescript",
-    "svelte"
-  ],
-  "typescript.tsdk": "node_modules/typescript/lib"
+  "eslint.validate": ["javascript", "typescript", "svelte"],
+  "typescript.tsdk": "node_modules/typescript/lib",
+  "typescript.format.enable": true,
+  "editor.defaultFormatter": "dbaeumer.vscode-eslint"
 }

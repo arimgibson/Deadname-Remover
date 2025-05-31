@@ -167,3 +167,11 @@ export async function registerKeyboardShortcut({
 
   return listener
 }
+
+// Validate domain format
+// Allows:
+// - Domains with subdomains (e.g. app.example.com)
+// - Paths after domain (e.g. example.com/path)
+// - Wildcards (e.g. *.example.com)
+// - Wildcards with paths (e.g. *.example.com/path)
+export const validURLRegex = /^(?:\*\.)?([a-zA-Z0-9]([a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?\.)+[a-zA-Z]{2,}(?:\/[a-zA-Z0-9-._~:/?#[\]@!$&'()*+,;=]*)?$/

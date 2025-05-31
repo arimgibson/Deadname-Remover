@@ -1,4 +1,7 @@
 <script lang="ts">
+  import toast from 'svelte-french-toast'
+  import { validURLRegex } from '../../../utils'
+
   interface Props {
     tags: string[]
     placeholder?: string
@@ -20,10 +23,12 @@
 
   function addTag(tag: string) {
     tag = tag.replace(/^www\./, '')
-    try {
-      new URL(`https://${tag}`)
-    }
-    catch {
+
+    if (!validURLRegex.test(tag)) {
+      toast.error('Please enter a valid domain (e.g. example.com or *.example.com)', {
+        position: 'bottom-right',
+        className: 'h-12 text-lg px-6 py-3',
+      })
       return
     }
 

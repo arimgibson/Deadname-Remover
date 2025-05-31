@@ -38,7 +38,7 @@
   import UpgradeModal from './components/UpgradeModal.svelte'
   import FaqModal from './components/FaqModal.svelte'
   import NameMappings from './components/NameMappings.svelte'
-  // import TagInput from './components/TagInput.svelte'
+  import TagInput from './components/TagInput.svelte'
 
   let settings = $state<UserSettings>(defaultSettings)
   let initialSettings = $state<UserSettings | null>(null)
@@ -448,7 +448,7 @@
         onToggleHideDeadnames={() => hideDeadnames = !hideDeadnames}
       />
 
-      <!-- Site Filtering
+      <!-- Site Filtering -->
       <section class="mb-8" aria-labelledby="site-filtering-heading">
         <h2
           id="site-filtering-heading"
@@ -494,7 +494,7 @@
             onUpdate={(newTags: string[]) => settings.blocklist = newTags}
           />
         </div>
-      </section> -->
+      </section>
 
       <!-- Save Button -->
       <button type="submit" class="btn solid w-full" aria-label="Save settings">
