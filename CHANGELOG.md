@@ -3,9 +3,9 @@
 ## v2.2.0
 
 - Added domain allowlist/blocklist feature to control where the extension operates
-  - Users can specify domains where the extension should or should not run
+  - Users can specify domains where the extension should or should not run based on allow or block mode
   - Supports wildcard domains (e.g. *.example.com)
-  - Supports paths after domains (e.g. example.com/path)
+  - Supports specific overrides (e.g. if google.com is blocked, google.com/maps can be allowed)
 
 
 ## v2.1.0
