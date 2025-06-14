@@ -6,6 +6,7 @@
   - Users can specify domains where the extension should or should not run based on allow or block mode
   - Supports wildcard domains (e.g. *.example.com)
   - Supports specific overrides (e.g. if google.com is blocked, google.com/maps can be allowed)
+  - Adds color-coded status indicator showing if name replacement is active/disabled on current site
 
 
 ## v2.1.0

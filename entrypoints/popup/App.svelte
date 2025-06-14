@@ -15,6 +15,9 @@
   import StealthMode from '@/components/StealthMode.svelte'
   import WarningIcon from '@/components/WarningIcon.svelte'
   import InfoIcon from '@/components/InfoIcon.svelte'
+  import { storage } from '#imports'
+  import type { ParsingStatus } from '@/utils/types'
+
   let settings: UserSettings = $state(defaultSettings)
 
   let isLoading = $state(true)
@@ -22,6 +25,9 @@
   let previousStealthMode = false
   let upgradeVersion = $state<string | null>(null)
   let keyboardListener: ((event: KeyboardEvent) => void) | null = null
+
+  // Parsing status state
+  let parsingStatus = $state<ParsingStatus | null>(null)
 
   onMount(() => {
     // Use a non-async function for onMount that returns the cleanup directly
@@ -48,6 +54,14 @@
         })
         await clearStealthUpgradeNotification()
       }
+
+      // Get initial parsing status
+      parsingStatus = await storage.getItem('local:parsingStatus')
+
+      // Set up parsing status listener
+      storage.watch('local:parsingStatus', (status: typeof parsingStatus) => {
+        parsingStatus = status
+      })
     })()
 
     // Return the cleanup function directly, not in an async context
@@ -121,6 +135,38 @@
       })
     }
   }
+
+  function getParsingStatusInfo() {
+    if (!parsingStatus) {
+      return { text: 'Unknown', color: 'text-gray-500', bgColor: 'bg-gray-100' }
+    }
+
+    switch (parsingStatus.reason) {
+      case 'enabled':
+        return {
+          text: 'Active',
+          color: 'text-green-700',
+          bgColor: 'bg-green-100',
+          description: 'Names are being replaced on this site',
+        }
+      case 'disabled':
+        return {
+          text: 'Disabled',
+          color: 'text-gray-600',
+          bgColor: 'bg-gray-100',
+          description: 'Extension is disabled',
+        }
+      case 'blocked':
+        return {
+          text: 'Blocked',
+          color: 'text-orange-700',
+          bgColor: 'bg-orange-100',
+          description: 'Site is in blocklist or not in allowlist',
+        }
+      default:
+        return { text: 'Unknown', color: 'text-gray-500', bgColor: 'bg-gray-100' }
+    }
+  }
 </script>
 
 <Toaster />
@@ -135,6 +181,12 @@
       <h1 class="text-xl font-medium text-gray-800 mb-4">
         Deadname Remover Settings
       </h1>
+
+      {#if parsingStatus}
+        <div class="mb-4 px-3 py-2 rounded-md text-sm" class:bg-green-100={parsingStatus.reason === 'enabled'} class:text-green-800={parsingStatus.reason === 'enabled'} class:bg-orange-100={parsingStatus.reason === 'blocked'} class:text-orange-800={parsingStatus.reason === 'blocked'} class:bg-gray-100={parsingStatus.reason === 'disabled'} class:text-gray-700={parsingStatus.reason === 'disabled'}>
+          Status: {getParsingStatusInfo().text} on {parsingStatus.site ?? 'this site'}
+        </div>
+      {/if}
 
       <!-- General Settings -->
       <section class="mb-4" aria-labelledby="general-settings-heading">

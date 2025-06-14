@@ -80,3 +80,10 @@ export const UserSettings = v.object({
 export type UserSettings = v.InferOutput<typeof UserSettings>
 
 export type ReplacementsMap = Map<RegExp, string>
+
+export interface ParsingStatus {
+  isParsing: boolean
+  reason?: 'disabled' | 'blocked' | 'not-whitelisted' | 'enabled'
+  site?: string
+  timestamp?: number
+}

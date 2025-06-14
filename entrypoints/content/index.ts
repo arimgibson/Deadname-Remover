@@ -2,7 +2,7 @@ import { defineContentScript } from '#imports'
 import { getConfig, setupConfigListener } from '@/services/configService'
 import { DOMObserver } from '@/services/domObserver'
 import { TextProcessor } from '@/services/textProcessor'
-import type { Names, UserSettings } from '@/utils/types'
+import type { Names, UserSettings, ParsingStatus } from '@/utils/types'
 import {
   blockContent,
   unblockContent,
@@ -11,6 +11,7 @@ import {
   setStyle,
 } from './utils'
 import { debugLog, haveNamesChanged, registerKeyboardShortcut } from '@/utils'
+import { storage } from '#imports'
 
 let currentObserver: DOMObserver | null = null
 let previousEnabled: boolean | undefined = undefined
@@ -33,6 +34,14 @@ function cleanupAndReset() {
   previousTheme = undefined
 }
 
+async function updateParsingStatus(status: Omit<ParsingStatus, 'site' | 'timestamp'>) {
+  await storage.setItem('local:parsingStatus', {
+    ...status,
+    site: window.location.hostname,
+    timestamp: Date.now(),
+  } as ParsingStatus)
+}
+
 async function configureAndRunProcessor({ config }: { config: UserSettings }): Promise<void> {
   // Check if site should be parsed
   const shouldParse = shouldParseSite({ config })
@@ -40,17 +49,33 @@ async function configureAndRunProcessor({ config }: { config: UserSettings }): P
   // Handle any transition to disabled state (either by extension disable or blocklist/whitelist)
   if ((!config.enabled || !shouldParse) && previousEnabled) {
     cleanupAndReset()
-    if (!shouldParse) await debugLog('not parsing site, blocklist or allowlist is set')
+    if (!config.enabled) {
+      await updateParsingStatus({ isParsing: false, reason: 'disabled' })
+      await debugLog('extension disabled')
+    }
+    else if (!shouldParse) {
+      await updateParsingStatus({ isParsing: false, reason: 'blocked' })
+      await debugLog('not parsing site, blocklist or allowlist is set')
+    }
     return
   }
 
   // Skip if disabled or site is blocked/not whitelisted
   if (!config.enabled || !shouldParse) {
+    if (!config.enabled) {
+      await updateParsingStatus({ isParsing: false, reason: 'disabled' })
+    }
+    else {
+      await updateParsingStatus({ isParsing: false, reason: 'blocked' })
+    }
     previousEnabled = false
     previousNames = undefined
     previousTheme = undefined
     return
   }
+
+  // If we reach here, parsing is enabled
+  await updateParsingStatus({ isParsing: true, reason: 'enabled' })
 
   // Check if names, theme, or highlightReplacedNames have changed
   const namesChanged = previousEnabled && haveNamesChanged(previousNames, config.names)
@@ -133,7 +158,6 @@ function getMostSpecificMatch(list: string[], site: string): string | null {
 function shouldParseSite({ config }: { config: UserSettings }) {
   const { hostname, pathname } = window.location
   const fullUrl = `${hostname.replace(/^www\./, '')}${pathname}`
-
   const allowMatch = getMostSpecificMatch(config.allowlist, fullUrl)
   const blockMatch = getMostSpecificMatch(config.blocklist, fullUrl)
 
