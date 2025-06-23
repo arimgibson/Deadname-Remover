@@ -25,14 +25,13 @@
   let previousStealthMode = false
   let upgradeVersion = $state<string | null>(null)
   let keyboardListener: ((event: KeyboardEvent) => void) | null = null
-
-  // Parsing status state
   let parsingStatus = $state<ParsingStatus | null>(null)
 
   onMount(() => {
     // Use a non-async function for onMount that returns the cleanup directly
     void (async () => {
       const config = await getConfig()
+      parsingStatus = await getParsingStatus()
       settings = config
       isLoading = false
       firstSettingsLoaded = true
@@ -54,14 +53,6 @@
         })
         await clearStealthUpgradeNotification()
       }
-
-      // Get initial parsing status
-      parsingStatus = await getParsingStatus()
-
-      // Set up parsing status listener
-      setupParsingStatusListener((status) => {
-        parsingStatus = status
-      })
     })()
 
     // Return the cleanup function directly, not in an async context
@@ -117,6 +108,11 @@
         listener: keyboardListener,
       })
     })()
+  })
+
+  // Set up parsing status listener
+  setupParsingStatusListener((status) => {
+    parsingStatus = status
   })
 
   async function handleSubmit() {

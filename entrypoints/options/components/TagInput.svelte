@@ -1,6 +1,6 @@
 <script lang="ts">
   import toast from 'svelte-french-toast'
-  import { validURLRegex } from '../../../utils'
+  import { validURLRegex } from '@/utils'
 
   interface Props {
     tags: string[]
