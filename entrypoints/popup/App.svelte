@@ -15,8 +15,8 @@
   import StealthMode from '@/components/StealthMode.svelte'
   import WarningIcon from '@/components/WarningIcon.svelte'
   import InfoIcon from '@/components/InfoIcon.svelte'
-  import { storage } from '#imports'
   import type { ParsingStatus } from '@/utils/types'
+  import { getParsingStatus, setupParsingStatusListener } from '@/services/parsingStatusService'
 
   let settings: UserSettings = $state(defaultSettings)
 
@@ -56,10 +56,10 @@
       }
 
       // Get initial parsing status
-      parsingStatus = await storage.getItem('local:parsingStatus')
+      parsingStatus = await getParsingStatus()
 
       // Set up parsing status listener
-      storage.watch('local:parsingStatus', (status: typeof parsingStatus) => {
+      setupParsingStatusListener((status) => {
         parsingStatus = status
       })
     })()
