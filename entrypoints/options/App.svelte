@@ -309,10 +309,6 @@
           {/each}
 
           <div>
-
-          </div>
-
-          <div>
             <div class="flex justify-between items-center h-8">
               <label for="theme-select" class="text-gray-700 text-base"
                 >Theme</label
