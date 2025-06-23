@@ -83,7 +83,7 @@ export type ReplacementsMap = Map<RegExp, string>
 
 export interface ParsingStatus {
   isParsing: boolean
-  reason?: 'disabled' | 'blocked' | 'not-whitelisted' | 'enabled'
+  reason?: 'disabled' | 'blocked' | 'not-allowlisted' | 'enabled'
   site?: string
   timestamp?: number
 }
