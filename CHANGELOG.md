@@ -41,7 +41,7 @@
   - Simplified replacement logic via cleaner browser-built in functions (such as document.createNodeIterator)
   - Migration to WXT extension framework for easier development and maintenance
   - Removed need for complicated build and task systems
-  - Rewritten UI to be more modern, user friendly, and accessible
+  - Rewrote UI to be more modern, user friendly, and accessible
   - Integrated mutation observer to detect changes to the DOM and update the UI accordingly
   - Re-analyzed which fields are processed to better follow user expectations
   - Ensured full feature parity with the previous version (except for TamperMonkey scripts)
