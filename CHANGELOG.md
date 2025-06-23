@@ -8,7 +8,6 @@
   - Supports specific overrides (e.g. if google.com is blocked, google.com/maps can be allowed)
   - Adds color-coded status indicator showing if name replacement is active/disabled on current site
 
-
 ## v2.1.0
 
 - Added keyboard shortcut functionality for quickly enabling/disabling the extension
