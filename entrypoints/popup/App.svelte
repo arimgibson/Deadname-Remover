@@ -16,7 +16,7 @@
   import WarningIcon from '@/components/WarningIcon.svelte'
   import InfoIcon from '@/components/InfoIcon.svelte'
   import type { ParsingStatus } from '@/utils/types'
-  import { getParsingStatus, setupParsingStatusListener } from '@/services/parsingStatusService'
+  import { SiteFiltering } from '@/services/siteFiltering'
 
   let settings: UserSettings = $state(defaultSettings)
 
@@ -26,12 +26,14 @@
   let upgradeVersion = $state<string | null>(null)
   let keyboardListener: ((event: KeyboardEvent) => void) | null = null
   let parsingStatus = $state<ParsingStatus | null>(null)
+  let siteFiltering = new SiteFiltering()
+  let showMatchDetails = $state(false)
 
   onMount(() => {
     // Use a non-async function for onMount that returns the cleanup directly
     void (async () => {
       const config = await getConfig()
-      parsingStatus = await getParsingStatus()
+      parsingStatus = await siteFiltering.getParsingStatus()
       settings = config
       isLoading = false
       firstSettingsLoaded = true
@@ -110,11 +112,6 @@
     })()
   })
 
-  // Set up parsing status listener
-  setupParsingStatusListener((status) => {
-    parsingStatus = status
-  })
-
   async function handleSubmit() {
     try {
       await setConfig(settings)
@@ -145,19 +142,33 @@
           bgColor: 'bg-green-100',
           description: 'Names are being replaced on this site',
         }
-      case 'disabled':
+      case 'extension_disabled':
         return {
           text: 'Disabled',
           color: 'text-gray-600',
           bgColor: 'bg-gray-100',
           description: 'Extension is disabled',
         }
-      case 'blocked':
+      case 'blocked_by_blocklist':
         return {
           text: 'Blocked',
           color: 'text-orange-700',
           bgColor: 'bg-orange-100',
-          description: 'Site is in blocklist or not in allowlist',
+          description: `Site is blocked by: ${(parsingStatus.blockMatch ?? 'unknown')}`,
+        }
+      case 'blocked_by_default':
+        return {
+          text: 'Blocked',
+          color: 'text-orange-700',
+          bgColor: 'bg-orange-100',
+          description: 'Site is not in allowlist and default allow is disabled',
+        }
+      case 'allowed_by_allowlist':
+        return {
+          text: 'Active',
+          color: 'text-green-700',
+          bgColor: 'bg-green-100',
+          description: `Site is allowed by: ${(parsingStatus.allowMatch ?? 'unknown')}`,
         }
       default:
         return { text: 'Unknown', color: 'text-gray-500', bgColor: 'bg-gray-100' }
@@ -179,8 +190,35 @@
       </h1>
 
       {#if parsingStatus}
-        <div class="mb-4 px-3 py-2 rounded-md text-sm" class:bg-green-100={parsingStatus.reason === 'enabled'} class:text-green-800={parsingStatus.reason === 'enabled'} class:bg-orange-100={parsingStatus.reason === 'blocked'} class:text-orange-800={parsingStatus.reason === 'blocked'} class:bg-gray-100={parsingStatus.reason === 'disabled'} class:text-gray-700={parsingStatus.reason === 'disabled'}>
-          Status: {getParsingStatusInfo().text} on {parsingStatus.site ?? 'this site'}
+        <div class="mb-4 px-3 py-2 rounded-md text-sm" class:bg-green-100={parsingStatus.reason === 'enabled' || parsingStatus.reason === 'allowed_by_allowlist'} class:text-green-800={parsingStatus.reason === 'enabled' || parsingStatus.reason === 'allowed_by_allowlist'} class:bg-orange-100={parsingStatus.reason === 'blocked_by_blocklist' || parsingStatus.reason === 'blocked_by_default'} class:text-orange-800={parsingStatus.reason === 'blocked_by_blocklist' || parsingStatus.reason === 'blocked_by_default'} class:bg-gray-100={parsingStatus.reason === 'extension_disabled'} class:text-gray-700={parsingStatus.reason === 'extension_disabled'}>
+          <div class="flex items-center justify-between">
+            <span>Status: {getParsingStatusInfo().text.toLowerCase()} on {parsingStatus.site ?? 'this site'}</span>
+            {#if parsingStatus.allowMatch ?? parsingStatus.blockMatch ?? parsingStatus.reason === 'blocked_by_default'}
+              <button
+                type="button"
+                class="text-xs opacity-70 hover:opacity-100 transition-opacity"
+                onclick={() => showMatchDetails = !showMatchDetails}
+                aria-label="Toggle match details"
+              >
+                <i
+                  class="i-material-symbols:expand-more text-sm transition-transform duration-200"
+                  class:rotate-180={showMatchDetails}
+                  aria-label={showMatchDetails ? 'Hide details' : 'Show details'}
+                ></i>
+              </button>
+            {/if}
+          </div>
+          {#if showMatchDetails}
+            {#if parsingStatus.reason === 'allowed_by_allowlist' && parsingStatus.allowMatch}
+              <div class="mt-1 text-xs opacity-80">allowed by {parsingStatus.allowMatch} in allowlist</div>
+            {/if}
+            {#if parsingStatus.reason === 'blocked_by_blocklist' && parsingStatus.blockMatch}
+              <div class="mt-1 text-xs opacity-80">blocked by {parsingStatus.blockMatch} in blocklist</div>
+            {/if}
+            {#if parsingStatus.reason === 'blocked_by_default'}
+              <div class="mt-1 text-xs opacity-80">not in allowlist (default allow disabled)</div>
+            {/if}
+          {/if}
         </div>
       {/if}
 

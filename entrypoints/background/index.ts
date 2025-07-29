@@ -2,6 +2,7 @@ import { browser } from 'wxt/browser'
 import { defineBackground } from '#imports'
 import { handleInstall, handleUpdate } from './utils'
 import { getConfig, updateExtensionAppearance } from '@/services/configService'
+import { SiteFiltering } from '@/services/siteFiltering'
 
 export default defineBackground({
   main: () => {

@@ -9,10 +9,9 @@ import {
   waitUntilDOMReady,
   createReplacementsMap,
   setStyle,
-  shouldParseSite,
 } from './utils'
 import { debugLog, haveNamesChanged, registerKeyboardShortcut } from '@/utils'
-import { updateParsingStatus } from '@/services/parsingStatusService'
+import { SiteFiltering } from '@/services/siteFiltering'
 
 let currentObserver: DOMObserver | null = null
 let previousEnabled: boolean | undefined = undefined
@@ -20,6 +19,7 @@ let previousNames: Names | undefined = undefined
 let previousTheme: UserSettings['theme'] | undefined = undefined
 let previousHighlight: boolean | undefined = undefined
 let toggleKeybindingListener: ((event: KeyboardEvent) => void) | null = null
+const siteFiltering = new SiteFiltering()
 
 function cleanupAndReset() {
   if (currentObserver) {
@@ -37,33 +37,51 @@ function cleanupAndReset() {
 
 async function configureAndRunProcessor({ config }: { config: UserSettings }): Promise<void> {
   // Check if site should be parsed
-  const shouldParse = shouldParseSite({ config })
+  const siteFilterResult = siteFiltering.shouldParseSite({ config })
 
   // Handle any transition to disabled state (either by extension disable or blocklist/allowlist)
   if (!config.enabled && previousEnabled) {
     cleanupAndReset()
-    await updateParsingStatus({
-      status: { isParsing: false, reason: 'disabled' },
+    await siteFiltering.updateParsingStatus({
+      status: {
+        isParsing: false,
+        reason: 'extension_disabled',
+        allowMatch: null,
+        blockMatch: null,
+      },
       hostname: window.location.hostname,
+      theme: config.theme,
     })
     await debugLog('extension disabled')
     return
   }
 
-  if (!shouldParse && previousEnabled) {
+  if (!siteFilterResult.shouldParse) {
     cleanupAndReset()
-    await updateParsingStatus({
-      status: { isParsing: false, reason: 'blocked' },
+    await siteFiltering.updateParsingStatus({
+      status: {
+        isParsing: false,
+        reason: siteFilterResult.reason,
+        allowMatch: siteFilterResult.allowMatch,
+        blockMatch: siteFilterResult.blockMatch,
+      },
       hostname: window.location.hostname,
+      theme: config.theme,
     })
-    await debugLog('not parsing site, blocklist or allowlist is set')
+    await debugLog(`not parsing site, reason: ${siteFilterResult.reason}, allowMatch: ${siteFilterResult.allowMatch ?? 'none'}, blockMatch: ${siteFilterResult.blockMatch ?? 'none'}`)
     return
   }
 
   // If we reach here, parsing is enabled
-  await updateParsingStatus({
-    status: { isParsing: true, reason: 'enabled' },
+  await siteFiltering.updateParsingStatus({
+    status: {
+      isParsing: true,
+      reason: siteFilterResult.reason,
+      allowMatch: siteFilterResult.allowMatch,
+      blockMatch: siteFilterResult.blockMatch,
+    },
     hostname: window.location.hostname,
+    theme: config.theme,
   })
 
   // Check if names, theme, or highlightReplacedNames have changed

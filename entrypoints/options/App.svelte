@@ -80,6 +80,13 @@
 
   let captureShortcut = $state(false)
 
+  // References to TagInput components
+  interface TagInputComponent {
+    addPendingText: () => void
+  }
+  let allowlistTagInput: TagInputComponent | null = null
+  let blocklistTagInput: TagInputComponent | null = null
+
   onMount(async () => {
     // Detect platform
     const userAgent = navigator.userAgent.toLowerCase()
@@ -164,6 +171,10 @@
 
   async function handleSubmit() {
     try {
+      // Add any pending text in TagInput components before saving
+      allowlistTagInput?.addPendingText()
+      blocklistTagInput?.addPendingText()
+
       await setConfig(settings)
       // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
       initialSettings = $state.snapshot(settings) as UserSettings
@@ -478,12 +489,14 @@
             </p>
           </div>
           <TagInput
+            bind:this={allowlistTagInput}
             tags={settings.allowlist}
             label="Allowlist"
             description="When Default Allow is disabled, only replace names on these sites."
             onUpdate={(newTags: string[]) => settings.allowlist = newTags}
           />
           <TagInput
+            bind:this={blocklistTagInput}
             tags={settings.blocklist}
             label="Blocklist"
             description="Never replace names on these sites, regardless of Default Allow setting."

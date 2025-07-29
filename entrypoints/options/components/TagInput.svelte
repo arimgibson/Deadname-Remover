@@ -1,6 +1,6 @@
 <script lang="ts">
   import toast from 'svelte-french-toast'
-  import { validURLRegex } from '@/utils'
+  import { validURLMatcher } from '@/utils/validations'
 
   interface Props {
     tags: string[]
@@ -14,6 +14,12 @@
 
   let inputValue = $state('')
 
+  function addPendingText() {
+    if (inputValue.trim()) {
+      addTag(inputValue.trim())
+    }
+  }
+
   function handleKeydown(event: KeyboardEvent) {
     if (event.key === 'Enter' && inputValue.trim()) {
       event.preventDefault()
@@ -24,7 +30,8 @@
   function addTag(tag: string) {
     tag = tag.replace(/^www\./, '')
 
-    if (!validURLRegex.test(tag)) {
+    const isMatch = validURLMatcher.match(tag)
+    if (!isMatch) {
       toast.error('Please enter a valid domain (e.g. example.com or *.example.com)', {
         position: 'bottom-right',
         className: 'h-12 text-lg px-6 py-3',
@@ -43,6 +50,8 @@
     const newTags = tags.filter((_, i) => i !== index)
     onUpdate(newTags)
   }
+
+  export { addPendingText }
 </script>
 
 <div class="space-y-2">
@@ -53,11 +62,11 @@
 
   <div class="flex flex-wrap gap-2 p-2 border rounded bg-white">
     {#each tags as tag, index (tag)}
-      <div class="flex items-center gap-1 bg-gray-100 px-2 py-1 rounded text-sm">
+      <div class="flex items-center gap-1 bg-primary-50 border border-primary-200 px-2 py-1 rounded text-sm text-primary-700 transition-all duration-200 hover:bg-primary-100 hover:border-primary-300">
         <span>{tag}</span>
         <button
           type="button"
-          class="text-gray-500 hover:text-gray-700"
+          class="text-primary-500 hover:text-primary-700 hover:bg-primary-200 rounded p-0.5 transition-colors duration-200"
           onclick={() => { removeTag(index) }}
           aria-label="Remove tag"
         >
@@ -68,7 +77,7 @@
     <input
       type="text"
       id="tag-input"
-      class="flex-1 min-w-[200px] outline-none bg-transparent"
+      class="flex-1 min-w-200px border rounded peer input"
       placeholder={placeholder}
       bind:value={inputValue}
       onkeydown={handleKeydown}

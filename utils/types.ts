@@ -1,12 +1,11 @@
 import * as v from 'valibot'
-import { validateNoDuplicateDeadnames, validateNoRecursiveMappings, validateNoSelfMappings } from './validations'
-import { validURLRegex } from '.'
+import { validateNoDuplicateDeadnames, validateNoRecursiveMappings, validateNoSelfMappings, validURLMatcher } from './validations'
 
 const trimmedString = v.pipe(v.string(), v.trim(), v.nonEmpty())
 export const trimmedEmail = v.pipe(trimmedString, v.email())
 const NameTuple = v.tuple([trimmedString, trimmedString])
 const EmailTuple = v.tuple([trimmedEmail, trimmedEmail])
-const validURL = v.pipe(trimmedString, v.check(url => validURLRegex.test(url), 'Invalid URL'))
+const validURL = v.pipe(trimmedString, v.check(url => validURLMatcher.match(url), 'Invalid URL'))
 
 /**
  * Represents a mapping of proper names to deadnames.
@@ -83,7 +82,9 @@ export type ReplacementsMap = Map<RegExp, string>
 
 export interface ParsingStatus {
   isParsing: boolean
-  reason?: 'disabled' | 'blocked' | 'not-allowlisted' | 'enabled'
+  reason?: 'extension_disabled' | 'blocked_by_blocklist' | 'allowed_by_allowlist' | 'blocked_by_default' | 'enabled'
   site?: string
   timestamp?: number
+  allowMatch?: string | null
+  blockMatch?: string | null
 }
