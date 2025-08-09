@@ -13,12 +13,15 @@ export const defaultSettings: UserSettings = {
   },
   enabled: true,
   blockContentBeforeDone: true,
+  defaultAllowMode: true,
   stealthMode: false,
   hideDebugInfo: false,
   highlightReplacedNames: true,
   syncSettingsAcrossDevices: false,
   theme: 'trans',
   toggleKeybinding: null,
+  allowlist: [],
+  blocklist: [],
 }
 
 export async function getConfig(): Promise<UserSettings> {

@@ -11,6 +11,8 @@ import {
   setStyle,
 } from './utils'
 import { debugLog, haveNamesChanged, registerKeyboardShortcut } from '@/utils'
+import { SiteFiltering } from '@/services/siteFiltering'
+import type { Message } from '@/utils/types'
 
 let currentObserver: DOMObserver | null = null
 let previousEnabled: boolean | undefined = undefined
@@ -18,31 +20,70 @@ let previousNames: Names | undefined = undefined
 let previousTheme: UserSettings['theme'] | undefined = undefined
 let previousHighlight: boolean | undefined = undefined
 let toggleKeybindingListener: ((event: KeyboardEvent) => void) | null = null
+const siteFiltering = new SiteFiltering()
+
+function cleanupAndReset() {
+  if (currentObserver) {
+    currentObserver.disconnect()
+    currentObserver = null
+  }
+
+  // Revert all text replacements and remove theme
+  TextProcessor.revertAllReplacements()
+  document.querySelector('style[deadname]')?.remove()
+  previousEnabled = false
+  previousNames = undefined
+  previousTheme = undefined
+}
 
 async function configureAndRunProcessor({ config }: { config: UserSettings }): Promise<void> {
-  // Only run disable logic if we're transitioning from enabled to disabled
+  // Check if site should be parsed
+  const siteFilterResult = siteFiltering.shouldParseSite({ config })
+
+  // Handle any transition to disabled state (either by extension disable or blocklist/allowlist)
   if (!config.enabled && previousEnabled) {
-    if (currentObserver) {
-      currentObserver.disconnect()
-      currentObserver = null
-    }
-
-    // Revert all text replacements and remove theme
-    TextProcessor.revertAllReplacements()
-    document.querySelector('style[deadname]')?.remove()
-    previousEnabled = false
-    previousNames = undefined
-    previousTheme = undefined
+    cleanupAndReset()
+    await siteFiltering.updateParsingStatus({
+      status: {
+        isParsing: false,
+        reason: 'extension_disabled',
+        allowMatch: null,
+        blockMatch: null,
+      },
+      hostname: window.location.hostname,
+      theme: config.theme,
+    })
+    await debugLog('extension disabled')
     return
   }
 
-  // Skip if already disabled
-  if (!config.enabled) {
-    previousEnabled = false
-    previousNames = undefined
-    previousTheme = undefined
+  if (!siteFilterResult.shouldParse) {
+    cleanupAndReset()
+    await siteFiltering.updateParsingStatus({
+      status: {
+        isParsing: false,
+        reason: siteFilterResult.reason,
+        allowMatch: siteFilterResult.allowMatch,
+        blockMatch: siteFilterResult.blockMatch,
+      },
+      hostname: window.location.hostname,
+      theme: config.theme,
+    })
+    await debugLog(`not parsing site, reason: ${siteFilterResult.reason}, allowMatch: ${siteFilterResult.allowMatch ?? 'none'}, blockMatch: ${siteFilterResult.blockMatch ?? 'none'}`)
     return
   }
+
+  // If we reach here, parsing is enabled
+  await siteFiltering.updateParsingStatus({
+    status: {
+      isParsing: true,
+      reason: siteFilterResult.reason,
+      allowMatch: siteFilterResult.allowMatch,
+      blockMatch: siteFilterResult.blockMatch,
+    },
+    hostname: window.location.hostname,
+    theme: config.theme,
+  })
 
   // Check if names, theme, or highlightReplacedNames have changed
   const namesChanged = previousEnabled && haveNamesChanged(previousNames, config.names)
@@ -130,6 +171,15 @@ export default defineContentScript({
         await configureAndRunProcessor({ config })
         toggleKeybindingListener = await registerKeyboardShortcut({ config, listener: toggleKeybindingListener })
       })()
+    })
+    // recheck parsing status on tab activation
+    browser.runtime.onMessage.addListener((message: Message, _sender) => {
+      if (message.type === 'RECHECK_PARSING_STATUS') {
+        void (async () => {
+          const config = await getConfig()
+          await configureAndRunProcessor({ config })
+        })()
+      }
     })
   },
 })

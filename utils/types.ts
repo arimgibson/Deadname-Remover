@@ -1,10 +1,11 @@
 import * as v from 'valibot'
-import { validateNoDuplicateDeadnames, validateNoRecursiveMappings, validateNoSelfMappings } from './validations'
+import { validateNoDuplicateDeadnames, validateNoRecursiveMappings, validateNoSelfMappings, validURLMatcher } from './validations'
 
 const trimmedString = v.pipe(v.string(), v.trim(), v.nonEmpty())
 export const trimmedEmail = v.pipe(trimmedString, v.email())
 const NameTuple = v.tuple([trimmedString, trimmedString])
 const EmailTuple = v.tuple([trimmedEmail, trimmedEmail])
+const validURL = v.pipe(trimmedString, v.check(url => validURLMatcher.match(url), 'Invalid URL'))
 
 /**
  * Represents a mapping of proper names to deadnames.
@@ -70,8 +71,25 @@ export const UserSettings = v.object({
   syncSettingsAcrossDevices: v.boolean(),
   theme: v.union(themes.map(x => v.literal(x.value))),
   toggleKeybinding: v.union([v.null(), ToggleKeybinding]),
+  defaultAllowMode: v.boolean(),
+  allowlist: v.array(validURL),
+  blocklist: v.array(validURL),
 })
 
 export type UserSettings = v.InferOutput<typeof UserSettings>
 
 export type ReplacementsMap = Map<RegExp, string>
+
+export interface ParsingStatus {
+  isParsing: boolean
+  reason?: 'extension_disabled' | 'blocked_by_blocklist' | 'allowed_by_allowlist' | 'blocked_by_default' | 'enabled'
+  site?: string
+  timestamp?: number
+  allowMatch?: string | null
+  blockMatch?: string | null
+}
+
+export interface Message {
+  type: string
+  data: unknown
+}

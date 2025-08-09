@@ -38,6 +38,7 @@
   import UpgradeModal from './components/UpgradeModal.svelte'
   import FaqModal from './components/FaqModal.svelte'
   import NameMappings from './components/NameMappings.svelte'
+  import TagInput from './components/TagInput.svelte'
 
   let settings = $state<UserSettings>(defaultSettings)
   let initialSettings = $state<UserSettings | null>(null)
@@ -78,6 +79,13 @@
   let showFaqTooltip = $state(false)
 
   let captureShortcut = $state(false)
+
+  // References to TagInput components
+  interface TagInputComponent {
+    addPendingText: () => void
+  }
+  let allowlistTagInput: TagInputComponent | null = null
+  let blocklistTagInput: TagInputComponent | null = null
 
   onMount(async () => {
     // Detect platform
@@ -163,6 +171,10 @@
 
   async function handleSubmit() {
     try {
+      // Add any pending text in TagInput components before saving
+      allowlistTagInput?.addPendingText()
+      blocklistTagInput?.addPendingText()
+
       await setConfig(settings)
       // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
       initialSettings = $state.snapshot(settings) as UserSettings
@@ -442,6 +454,56 @@
         hideDeadnames={hideDeadnames}
         onToggleHideDeadnames={() => hideDeadnames = !hideDeadnames}
       />
+
+      <!-- Site Filtering -->
+      <section class="mb-8" aria-labelledby="site-filtering-heading">
+        <h2
+          id="site-filtering-heading"
+          class="text-xl font-medium text-gray-700 mb-4"
+        >
+          Site Filtering
+        </h2>
+        <div class="space-y-6">
+          <div>
+            <label
+              for="default-allow-toggle"
+              class="flex justify-between items-center text-gray-700 text-base"
+            >
+              Default Allow
+              <div class="accessible-switch switch-theme-400">
+                <input
+                  type="checkbox"
+                  id="default-allow-toggle"
+                  class="peer"
+                  bind:checked={settings.defaultAllowMode}
+                  aria-describedby="default-allow-description"
+                />
+                <span class="switch-dot" role="presentation"></span>
+              </div>
+            </label>
+            <p
+              id="default-allow-description"
+              class="text-sm text-gray-500 mt-2"
+            >
+              When enabled, the extension will replace names on all sites by default, except those in the blocklist. When disabled, it will only replace names on sites in the allowlist.
+            </p>
+          </div>
+          <TagInput
+            bind:this={allowlistTagInput}
+            tags={settings.allowlist}
+            label="Allowlist"
+            description="When Default Allow is disabled, only replace names on these sites."
+            onUpdate={(newTags: string[]) => settings.allowlist = newTags}
+          />
+          <TagInput
+            bind:this={blocklistTagInput}
+            tags={settings.blocklist}
+            label="Blocklist"
+            description="Never replace names on these sites, regardless of Default Allow setting."
+            onUpdate={(newTags: string[]) => settings.blocklist = newTags}
+          />
+        </div>
+      </section>
 
       <!-- Save Button -->
       <button type="submit" class="btn solid w-full" aria-label="Save settings">
