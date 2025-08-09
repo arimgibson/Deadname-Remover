@@ -88,3 +88,8 @@ export interface ParsingStatus {
   allowMatch?: string | null
   blockMatch?: string | null
 }
+
+export interface Message {
+  type: string
+  data: unknown
+}

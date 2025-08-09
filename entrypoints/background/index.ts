@@ -1,8 +1,9 @@
 import { browser } from 'wxt/browser'
 import { defineBackground } from '#imports'
-import { handleInstall, handleUpdate } from './utils'
+import { handleInstall, handleParsingStatusChange, handleUpdate } from './utils'
 import { getConfig, updateExtensionAppearance } from '@/services/configService'
-import { SiteFiltering } from '@/services/siteFiltering'
+import type { ParsingStatus } from '@/utils/types'
+import type { Message } from '@/utils/types'
 
 export default defineBackground({
   main: () => {
@@ -25,6 +26,21 @@ export default defineBackground({
         default:
           break
       }
+    })
+
+    // Handle messages from content scripts, popup, or options pages
+    browser.runtime.onMessage.addListener((message: Message, _sender) => {
+      switch (message.type) {
+        case 'PARSING_STATUS_CHANGE':
+          void handleParsingStatusChange(message.data as { status: ParsingStatus })
+      }
+    })
+
+    // Handle tab activation to recheck parsing status
+    browser.tabs.onActivated.addListener((tab) => {
+      void browser.tabs.sendMessage(tab.tabId, {
+        type: 'RECHECK_PARSING_STATUS',
+      })
     })
   },
 })

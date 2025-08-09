@@ -8,6 +8,7 @@ import {
 import { compare } from 'compare-versions'
 import { getConfig, setConfig } from '@/services/configService'
 import { debugLog, errorLog, filterEmptyNamePairs } from '@/utils'
+import type { ParsingStatus } from '@/utils/types'
 
 export async function handleInstall(_details: Browser.runtime.InstalledDetails) {
   await browser.tabs.create({ url: '/options.html?firstTime=true' })
@@ -90,6 +91,34 @@ export async function handleUpdate(details: Browser.runtime.InstalledDetails) {
     }
     catch (error) {
       errorLog('error migrating settings from v2.0.0 to v2.0.1', error)
+    }
+  }
+}
+
+export async function handleParsingStatusChange({ status }: { status: ParsingStatus }) {
+  const config = await getConfig()
+  if (config.stealthMode) {
+    return
+  }
+
+  if (!status.isParsing) {
+    // Not parsing - show stealth icon for now
+    try {
+      await browser.action.setIcon({ path: 'icon/disabled48.png' })
+    }
+    catch (error) {
+      errorLog('Error setting stealth icon:', error)
+    }
+  }
+  else {
+    // Parsing - show theme-based icon
+    const iconPath = config.theme === 'non-binary' ? 'icon/nb16.png' : 'icon/trans16.png'
+
+    try {
+      await browser.action.setIcon({ path: iconPath })
+    }
+    catch (error) {
+      errorLog('Error setting theme icon:', error)
     }
   }
 }

@@ -42,8 +42,17 @@ export class SiteFiltering {
       site: hostname,
       timestamp: Date.now(),
     })
-    console.log('updating extension icon')
-    await this.updateExtensionIcon(status.isParsing, theme)
+    await browser.runtime.sendMessage({
+      type: 'PARSING_STATUS_CHANGE',
+      data: {
+        status: {
+          ...status,
+          site: hostname,
+          timestamp: Date.now(),
+        },
+        theme,
+      },
+    })
   }
 
   /**
@@ -211,36 +220,6 @@ export class SiteFiltering {
         allowMatch,
         blockMatch,
         reason: shouldParse ? 'allowed_by_allowlist' : 'blocked_by_blocklist',
-      }
-    }
-  }
-
-  async updateExtensionIcon(isParsing: boolean, theme: UserSettings['theme']) {
-    console.log('updateExtensionIcon called:', { isParsing, theme })
-
-    if (!isParsing) {
-      // Not parsing - show stealth icon for now
-      console.log('updating stealth icon')
-
-      try {
-        await browser.action.setIcon({ path: 'icon/stealth.png' })
-        console.log('Stealth icon set successfully')
-      }
-      catch (error) {
-        console.error('Error setting stealth icon:', error)
-      }
-    }
-    else {
-      // Parsing - show theme-based icon
-      const iconPath = theme === 'non-binary' ? 'icon/nb16.png' : 'icon/trans16.png'
-      console.log('updating theme icon to:', iconPath)
-
-      try {
-        await browser.action.setIcon({ path: iconPath })
-        console.log('Theme icon set successfully')
-      }
-      catch (error) {
-        console.error('Error setting theme icon:', error)
       }
     }
   }

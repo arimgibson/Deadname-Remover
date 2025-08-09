@@ -12,6 +12,7 @@ import {
 } from './utils'
 import { debugLog, haveNamesChanged, registerKeyboardShortcut } from '@/utils'
 import { SiteFiltering } from '@/services/siteFiltering'
+import type { Message } from '@/utils/types'
 
 let currentObserver: DOMObserver | null = null
 let previousEnabled: boolean | undefined = undefined
@@ -170,6 +171,15 @@ export default defineContentScript({
         await configureAndRunProcessor({ config })
         toggleKeybindingListener = await registerKeyboardShortcut({ config, listener: toggleKeybindingListener })
       })()
+    })
+    // recheck parsing status on tab activation
+    browser.runtime.onMessage.addListener((message: Message, _sender) => {
+      if (message.type === 'RECHECK_PARSING_STATUS') {
+        void (async () => {
+          const config = await getConfig()
+          await configureAndRunProcessor({ config })
+        })()
+      }
     })
   },
 })
