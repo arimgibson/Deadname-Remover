@@ -104,7 +104,7 @@ export async function handleParsingStatusChange({ status }: { status: ParsingSta
   if (!status.isParsing) {
     // Not parsing - show stealth icon for now
     try {
-      await browser.action.setIcon({ path: 'icon/disabled48.png' })
+      await browser.action.setIcon({ path: 'icon/blocked48.png' })
     }
     catch (error) {
       errorLog('Error setting stealth icon:', error)
