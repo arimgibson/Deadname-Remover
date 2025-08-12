@@ -44,7 +44,7 @@
     "@iconify-json/material-symbols": "^1.2.20",
     "@iconify-json/twemoji": "^1.2.2",
     "@onu-ui/preset": "^1.1.5",
-    "@stylistic/eslint-plugin": "^4.2.0",
+    "@stylistic/eslint-plugin": "^5.2.3",
     "@types/chrome": "^0.0.319",
     "@typescript-eslint/parser": "^8.31.1",
     "@wxt-dev/module-svelte": "^2.0.3",
