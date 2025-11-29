@@ -172,8 +172,12 @@
   async function handleSubmit() {
     try {
       // Add any pending text in TagInput components before saving
-      allowlistTagInput?.addPendingText()
-      blocklistTagInput?.addPendingText()
+      const allowlistResult = allowlistTagInput?.addPendingText()
+      const blocklistResult = blocklistTagInput?.addPendingText()
+
+      if (!allowlistResult || !blocklistResult) {
+        return
+      }
 
       await setConfig(settings)
       // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion

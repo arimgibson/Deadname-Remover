@@ -27,16 +27,22 @@
     }
   }
 
+  /**
+   * Adds a tag to list of tags if it doesn't already exist and is a valid domain.
+   * @param tag - The tag to add
+   * @returns void if the tag was added or already existed, false if the tag was not valid
+   */
   function addTag(tag: string) {
     tag = tag.replace(/^www\./, '')
 
     const isMatch = validURLMatcher.match(tag)
     if (!isMatch) {
-      toast.error('Please enter a valid domain (e.g. example.com or *.example.com)', {
+      const toastMessage = `Please enter a valid domain ${label ? `for the ${label.toLowerCase()}` : ''} (e.g. example.com or *.example.com)`
+      toast.error(toastMessage, {
         position: 'bottom-right',
-        className: 'h-12 text-lg px-6 py-3',
+        className: 'text-lg',
       })
-      return
+      return false
     }
 
     if (!tag || tags.includes(tag)) return
