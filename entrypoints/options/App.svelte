@@ -80,12 +80,10 @@
 
   let captureShortcut = $state(false)
 
-  // References to TagInput components
-  interface TagInputComponent {
-    addPendingText: () => void
-  }
-  let allowlistTagInput: TagInputComponent | null = null
-  let blocklistTagInput: TagInputComponent | null = null
+  // svelte-ignore non_reactive_update
+  let allowlistTagInput: TagInput | null = null
+  // svelte-ignore non_reactive_update
+  let blocklistTagInput: TagInput | null = null
 
   onMount(async () => {
     // Detect platform

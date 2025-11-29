@@ -14,10 +14,15 @@
 
   let inputValue = $state('')
 
-  function addPendingText() {
+  function addPendingText(): boolean {
     if (inputValue.trim()) {
-      addTag(inputValue.trim())
+      const addResult = addTag(inputValue.trim())
+      if (!addResult) {
+        return false
+      }
     }
+
+    return true
   }
 
   function handleKeydown(event: KeyboardEvent) {
@@ -30,9 +35,9 @@
   /**
    * Adds a tag to list of tags if it doesn't already exist and is a valid domain.
    * @param tag - The tag to add
-   * @returns void if the tag was added or already existed, false if the tag was not valid
+   * @returns true if the tag was added or already existed, false if the tag was not valid
    */
-  function addTag(tag: string) {
+  function addTag(tag: string): boolean {
     tag = tag.replace(/^www\./, '')
 
     const isMatch = validURLMatcher.match(tag)
@@ -45,11 +50,12 @@
       return false
     }
 
-    if (!tag || tags.includes(tag)) return
+    if (!tag || tags.includes(tag)) return true
 
     const newTags = [...tags, tag]
     onUpdate(newTags)
     inputValue = ''
+    return true
   }
 
   function removeTag(index: number) {
