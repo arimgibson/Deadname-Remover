@@ -138,35 +138,35 @@
       case 'enabled':
         return {
           text: 'Active',
-          color: 'text-green-700',
+          color: 'text-green-800',
           bgColor: 'bg-green-100',
           description: 'Names are being replaced on this site',
         }
       case 'extension_disabled':
         return {
           text: 'Disabled',
-          color: 'text-gray-600',
+          color: 'text-gray-700',
           bgColor: 'bg-gray-100',
           description: 'Extension is disabled',
         }
       case 'blocked_by_blocklist':
         return {
           text: 'Blocked',
-          color: 'text-orange-700',
+          color: 'text-orange-800',
           bgColor: 'bg-orange-100',
           description: `Site is blocked by: ${(parsingStatus.blockMatch ?? 'unknown')}`,
         }
       case 'blocked_by_default':
         return {
           text: 'Blocked',
-          color: 'text-orange-700',
+          color: 'text-orange-800',
           bgColor: 'bg-orange-100',
           description: 'Site is not in allowlist and default allow is disabled',
         }
       case 'allowed_by_allowlist':
         return {
           text: 'Active',
-          color: 'text-green-700',
+          color: 'text-green-800',
           bgColor: 'bg-green-100',
           description: `Site is allowed by: ${(parsingStatus.allowMatch ?? 'unknown')}`,
         }
@@ -174,6 +174,8 @@
         return { text: 'Unknown', color: 'text-gray-500', bgColor: 'bg-gray-100' }
     }
   }
+
+  let statusInfo = $derived(getParsingStatusInfo())
 </script>
 
 <Toaster />
@@ -190,9 +192,9 @@
       </h1>
 
       {#if parsingStatus}
-        <div class="mb-4 px-3 py-2 rounded-md text-sm" class:bg-green-100={parsingStatus.reason === 'enabled' || parsingStatus.reason === 'allowed_by_allowlist'} class:text-green-800={parsingStatus.reason === 'enabled' || parsingStatus.reason === 'allowed_by_allowlist'} class:bg-orange-100={parsingStatus.reason === 'blocked_by_blocklist' || parsingStatus.reason === 'blocked_by_default'} class:text-orange-800={parsingStatus.reason === 'blocked_by_blocklist' || parsingStatus.reason === 'blocked_by_default'} class:bg-gray-100={parsingStatus.reason === 'extension_disabled'} class:text-gray-700={parsingStatus.reason === 'extension_disabled'}>
+        <div class="mb-4 px-3 py-2 rounded-md text-sm {statusInfo.bgColor} {statusInfo.color}">
           <div class="flex items-center justify-between">
-            <span>Status: {getParsingStatusInfo().text.toLowerCase()} on {parsingStatus.site ?? 'this site'}</span>
+            <span>Status: {statusInfo.text.toLowerCase()} on {parsingStatus.site ?? 'this site'}</span>
             {#if parsingStatus.allowMatch ?? parsingStatus.blockMatch ?? parsingStatus.reason === 'blocked_by_default'}
               <button
                 type="button"
