@@ -149,7 +149,7 @@ describe('SiteFiltering', () => {
         expect(result).toBe('*.google.com/*')
       })
 
-      it('should NOT match wildcard across path boundaries', () => {
+      it('should match wildcard across path boundaries', () => {
         const result = getMostSpecificMatch(['google.com/ma*'], 'google.com/maps/directions')
         expect(result).toBe('google.com/ma*')
       })
