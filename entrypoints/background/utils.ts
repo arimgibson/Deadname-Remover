@@ -29,10 +29,10 @@ export async function handleUpdate(details: Browser.runtime.InstalledDetails) {
   const needsDebugInfoUpdate = config.hideDebugInfo === undefined
   // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
   const needsToggleKeybindingUpdate = config.toggleKeybinding === undefined
-  // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-  const needsAllowBlockListUpdate = config.allowlist?.length === 0 && config.blocklist?.length === 0
+  const needsAllowListUpdate = !Array.isArray(config.allowlist)
+  const needsBlockListUpdate = !Array.isArray(config.blocklist)
 
-  if (needsEmailUpdate || needsDebugInfoUpdate || needsToggleKeybindingUpdate || needsAllowBlockListUpdate) {
+  if (needsEmailUpdate || needsDebugInfoUpdate || needsToggleKeybindingUpdate || needsAllowListUpdate || needsBlockListUpdate) {
     if (needsEmailUpdate) {
       // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
       config.names.email = config.names.email ?? []
@@ -43,8 +43,10 @@ export async function handleUpdate(details: Browser.runtime.InstalledDetails) {
     if (needsToggleKeybindingUpdate) {
       config.toggleKeybinding = null
     }
-    if (needsAllowBlockListUpdate) {
+    if (needsAllowListUpdate) {
       config.allowlist = []
+    }
+    if (needsBlockListUpdate) {
       config.blocklist = []
     }
     try {
