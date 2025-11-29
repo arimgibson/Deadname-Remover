@@ -64,25 +64,25 @@ export class SiteFiltering {
   }
 
   /**
-* Finds the most specific (longest) matching prefix from a list of strings against a target site.
-*
-* This function is used to determine the best matching entry from allowlist/blocklist configurations
-* by comparing URL patterns. It returns the entry with the longest matching prefix, which represents
-* the most specific match. Unlike simple startsWith matching, this respects domain and path boundaries
-* and supports wildcard patterns with *.
-*
-* @param list - Array of string patterns to match against (e.g., allowlist/blocklist entries)
-* @param site - The target site string to match (typically a URL or path)
-* @returns The longest matching prefix from the list, or null if no matches are found
-*
-* @example
-* ```typescript
-* const allowlist = ['example.com', 'example.com/admin*', 'example.com/user']
-* const site = 'example.com/admin/dashboard'
-* const match = getMostSpecificMatch(allowlist, site)
-* // Returns: 'example.com/admin*' (longest matching prefix with wildcard support)
-* ```
-*/
+  * Finds the most specific (longest) matching prefix from a list of strings against a target site.
+  *
+  * This function is used to determine the best matching entry from allowlist/blocklist configurations
+  * by comparing URL patterns. It returns the entry with the longest matching prefix, which represents
+  * the most specific match. Unlike simple startsWith matching, this respects domain and path boundaries
+  * and supports wildcard patterns with *.
+  *
+  * @param list - Array of string patterns to match against (e.g., allowlist/blocklist entries)
+  * @param site - The target site string to match (typically a URL or path)
+  * @returns The longest matching prefix from the list, or null if no matches are found
+  *
+  * @example
+  * ```typescript
+  * const allowlist = ['example.com', 'example.com/admin*', 'example.com/user']
+  * const site = 'example.com/admin/dashboard'
+  * const match = getMostSpecificMatch(allowlist, site)
+  * // Returns: 'example.com/admin*' (longest matching prefix with wildcard support)
+  * ```
+  */
   private getMostSpecificMatch(list: string[], site: string): string | null {
     const matches = list.filter(entry => this.matchesPattern(entry, site))
 
@@ -139,26 +139,26 @@ export class SiteFiltering {
   }
 
   /**
- * Determines whether name replacement should be performed on the current site based on allowlist/blocklist configuration.
- *
- * This function evaluates the current URL against the user's allowlist and blocklist settings to decide
- * if the deadname remover should process the page. It uses a priority system where more specific matches
- * (longer prefixes) take precedence over less specific ones.
- *
- * @param obj.config - Configuration object containing user settings, including allowlist, blocklist, and defaultAllowMode
- * @returns Object containing the decision and details about which items influenced it
- *
- * @example
- * ```typescript
- * const config = {
- *   allowlist: ['example.com/admin'],
- *   blocklist: ['example.com'],
- *   defaultAllowMode: true
- * }
- * const result = shouldParseSite({ config })
- * // Returns: { shouldParse: true, allowMatch: 'example.com/admin', blockMatch: 'example.com', reason: 'allowlist_more_specific' }
- * ```
- */
+  * Determines whether name replacement should be performed on the current site based on allowlist/blocklist configuration.
+  *
+  * This function evaluates the current URL against the user's allowlist and blocklist settings to decide
+  * if the deadname remover should process the page. It uses a priority system where more specific matches
+  * (longer prefixes) take precedence over less specific ones.
+  *
+  * @param obj.config - Configuration object containing user settings, including allowlist, blocklist, and defaultAllowMode
+  * @returns Object containing the decision and details about which items influenced it
+  *
+  * @example
+  * ```typescript
+  * const config = {
+  *   allowlist: ['example.com/admin'],
+  *   blocklist: ['example.com'],
+  *   defaultAllowMode: true
+  * }
+  * const result = shouldParseSite({ config })
+  * // Returns: { shouldParse: true, allowMatch: 'example.com/admin', blockMatch: 'example.com', reason: 'allowlist_more_specific' }
+  * ```
+  */
   shouldParseSite({ config }: { config: UserSettings }): {
     shouldParse: boolean
     allowMatch: string | null
