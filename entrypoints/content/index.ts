@@ -23,25 +23,24 @@ let toggleKeybindingListener: ((event: KeyboardEvent) => void) | null = null
 const siteFiltering = new SiteFiltering()
 
 function cleanupAndReset() {
-  if (currentObserver) {
-    currentObserver.disconnect()
-    currentObserver = null
-  }
+  if (previousEnabled) {
+    if (currentObserver) {
+      currentObserver.disconnect()
+      currentObserver = null
+    }
 
-  // Revert all text replacements and remove theme
-  TextProcessor.revertAllReplacements()
-  document.querySelector('style[deadname]')?.remove()
+    // Revert all text replacements and remove theme
+    TextProcessor.revertAllReplacements()
+    document.querySelector('style[deadname]')?.remove()
+  }
   previousEnabled = false
   previousNames = undefined
   previousTheme = undefined
 }
 
 async function configureAndRunProcessor({ config }: { config: UserSettings }): Promise<void> {
-  // Check if site should be parsed
-  const siteFilterResult = siteFiltering.shouldParseSite({ config })
-
   // Handle any transition to disabled state (either by extension disable or blocklist/allowlist)
-  if (!config.enabled && previousEnabled) {
+  if (!config.enabled) {
     cleanupAndReset()
     await siteFiltering.updateParsingStatus({
       status: {
@@ -53,9 +52,14 @@ async function configureAndRunProcessor({ config }: { config: UserSettings }): P
       hostname: window.location.hostname,
       theme: config.theme,
     })
-    await debugLog('extension disabled')
+    if (previousEnabled) {
+      await debugLog('extension disabled')
+    }
     return
   }
+
+  // Check if site should be parsed
+  const siteFilterResult = siteFiltering.shouldParseSite({ config })
 
   if (!siteFilterResult.shouldParse) {
     cleanupAndReset()
@@ -172,7 +176,8 @@ export default defineContentScript({
         toggleKeybindingListener = await registerKeyboardShortcut({ config, listener: toggleKeybindingListener })
       })()
     })
-    // recheck parsing status on tab activation
+
+    // Recheck parsing status when the tab becomes visible
     browser.runtime.onMessage.addListener((message: Message, _sender) => {
       if (message.type === 'RECHECK_PARSING_STATUS') {
         void (async () => {

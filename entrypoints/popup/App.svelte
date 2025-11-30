@@ -145,14 +145,12 @@
           text: 'Active',
           color: 'text-green-800',
           bgColor: 'bg-green-100',
-          description: 'Names are being replaced on this site',
         }
       case 'extension_disabled':
         return {
           text: 'Disabled',
           color: 'text-gray-700',
           bgColor: 'bg-gray-100',
-          description: 'Extension is disabled',
         }
       case 'blocked_by_blocklist':
         return {
