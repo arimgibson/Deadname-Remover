@@ -81,9 +81,9 @@
   let captureShortcut = $state(false)
 
   // svelte-ignore non_reactive_update
-  let allowlistTagInput: TagInput | null = null
+  let allowlistTagInput: TagInput
   // svelte-ignore non_reactive_update
-  let blocklistTagInput: TagInput | null = null
+  let blocklistTagInput: TagInput
 
   onMount(async () => {
     // Detect platform
@@ -170,8 +170,10 @@
   async function handleSubmit() {
     try {
       // Add any pending text in TagInput components before saving
-      const allowlistResult = allowlistTagInput?.addPendingText()
-      const blocklistResult = blocklistTagInput?.addPendingText()
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call -- known bug https://github.com/sveltejs/svelte/issues/16264
+      const allowlistResult = allowlistTagInput.addPendingText()
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call -- known bug https://github.com/sveltejs/svelte/issues/16264
+      const blocklistResult = blocklistTagInput.addPendingText()
 
       if (!allowlistResult || !blocklistResult) {
         return
