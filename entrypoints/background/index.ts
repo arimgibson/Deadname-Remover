@@ -10,7 +10,11 @@ export default defineBackground({
     // Check theming on extension load
     void (async () => {
       const config = await getConfig()
-      await updateExtensionAppearance(config.stealthMode, config.theme)
+      await updateExtensionAppearance({
+        enabled: config.enabled,
+        stealthMode: config.stealthMode,
+        theme: config.theme,
+      })
     })()
 
     // Handle installation events

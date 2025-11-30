@@ -227,3 +227,5 @@ export class SiteFiltering {
     }
   }
 }
+
+export const siteFiltering = new SiteFiltering()
