@@ -16,7 +16,7 @@
   import WarningIcon from '@/components/WarningIcon.svelte'
   import InfoIcon from '@/components/MediumInfoIcon.svelte'
   import type { ParsingStatus } from '@/utils/types'
-  import { SiteFiltering } from '@/services/siteFiltering'
+  import { siteFiltering } from '@/services/siteFiltering'
 
   let settings: UserSettings = $state(defaultSettings)
 
@@ -26,7 +26,6 @@
   let upgradeVersion = $state<string | null>(null)
   let keyboardListener: ((event: KeyboardEvent) => void) | null = null
   let parsingStatus = $state<ParsingStatus | null>(null)
-  let siteFiltering = new SiteFiltering()
   let showMatchDetails = $state(false)
 
   onMount(() => {

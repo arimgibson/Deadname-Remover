@@ -1,3 +1,4 @@
+import { siteFiltering } from '@/services/siteFiltering'
 import { UserSettings } from '@/utils/types'
 import { storage } from '#imports'
 import { browser } from 'wxt/browser'
@@ -177,15 +178,18 @@ async function handleEnabledChange({ enabled, stealthMode }: { enabled: boolean,
   if (stealthMode) {
     return
   }
-  await updateExtensionAppearance({ enabled, stealthMode: false })
+  const parsingStatus = await siteFiltering.getParsingStatus()
+  await updateExtensionAppearance({ enabled, stealthMode: false, isParsing: parsingStatus?.isParsing })
 }
 
 async function handleStealthModeChange({ enabled, stealthMode }: { enabled: boolean, stealthMode: boolean }): Promise<void> {
-  await updateExtensionAppearance({ enabled, stealthMode })
+  const parsingStatus = await siteFiltering.getParsingStatus()
+  await updateExtensionAppearance({ enabled, stealthMode, isParsing: parsingStatus?.isParsing })
 }
 
 async function handleThemeChange({ enabled, stealthMode, theme }: { enabled: boolean, stealthMode: boolean, theme: UserSettings['theme'] }): Promise<void> {
-  await updateExtensionAppearance({ enabled, stealthMode, theme })
+  const parsingStatus = await siteFiltering.getParsingStatus()
+  await updateExtensionAppearance({ enabled, stealthMode, theme, isParsing: parsingStatus?.isParsing })
 }
 
 export async function deleteSyncedData(isSynced: boolean): Promise<void> {

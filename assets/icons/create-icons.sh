@@ -26,7 +26,7 @@ magick -background none assets/icons/trans.svg -resize 128x128 "$OUTPUT_DIR/tran
 magick -background none assets/icons/trans-blocked.svg -resize 16x16 "$OUTPUT_DIR/trans16-blocked.png"
 magick -background none assets/icons/trans-disabled.svg -resize 16x16 "$OUTPUT_DIR/trans16-disabled.png"
 
-# 4. Create nb16, nb16-blocked, nb16-disabled
+# 3. Create nb16, nb16-blocked, nb16-disabled
 magick -background none assets/icons/nb.svg -resize 16x16 "$OUTPUT_DIR/nb16.png"
 magick -background none assets/icons/nb-blocked.svg -resize 16x16 "$OUTPUT_DIR/nb16-blocked.png"
 magick -background none assets/icons/nb-disabled.svg -resize 16x16 "$OUTPUT_DIR/nb16-disabled.png"
