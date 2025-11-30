@@ -145,33 +145,35 @@
           text: 'Active',
           color: 'text-green-800',
           bgColor: 'bg-green-100',
+          description: 'Extension is enabled and site is not blocked by the blocklist',
         }
       case 'extension_disabled':
         return {
           text: 'Disabled',
           color: 'text-gray-700',
           bgColor: 'bg-gray-100',
+          description: 'Extension is disabled; name replacement is disabled for all sites',
         }
       case 'blocked_by_blocklist':
         return {
           text: 'Blocked',
           color: 'text-orange-800',
           bgColor: 'bg-orange-100',
-          description: `Site is blocked by: ${(parsingStatus.blockMatch ?? 'unknown')}`,
+          description: `Site is blocked by blocklist pattern: ${(parsingStatus.blockMatch ?? 'unknown')}`,
         }
       case 'blocked_by_default':
         return {
           text: 'Blocked',
           color: 'text-orange-800',
           bgColor: 'bg-orange-100',
-          description: 'Site is not in allowlist and default allow is disabled',
+          description: 'Site is not in allowlist and default allow is disabled (all sites besides allowlist are blocked)',
         }
       case 'allowed_by_allowlist':
         return {
           text: 'Active',
           color: 'text-green-800',
           bgColor: 'bg-green-100',
-          description: `Site is allowed by: ${(parsingStatus.allowMatch ?? 'unknown')}`,
+          description: `Site is allowed by allowlist pattern: ${(parsingStatus.allowMatch ?? 'unknown')}`,
         }
       default:
         return { text: 'Unknown', color: 'text-gray-500', bgColor: 'bg-gray-100' }
@@ -198,7 +200,7 @@
         <div class="mb-4 px-3 py-2 rounded-md text-sm {statusInfo.bgColor} {statusInfo.color}">
           <div class="flex items-center justify-between">
             <span>Status: {statusInfo.text.toLowerCase()} on {parsingStatus.site ?? 'this site'}</span>
-            {#if parsingStatus.allowMatch ?? parsingStatus.blockMatch ?? parsingStatus.reason === 'blocked_by_default'}
+            {#if statusInfo.description}
               <button
                 type="button"
                 class="text-xs opacity-70 hover:opacity-100 transition-opacity"
