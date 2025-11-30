@@ -112,6 +112,11 @@
     })()
   })
 
+  // Update the parsing status in the popup when it changes
+  siteFiltering.setupParsingStatusListener((status) => {
+    parsingStatus = status
+  })
+
   async function handleSubmit() {
     try {
       await setConfig(settings)
@@ -211,15 +216,7 @@
             {/if}
           </div>
           {#if showMatchDetails}
-            {#if parsingStatus.reason === 'allowed_by_allowlist' && parsingStatus.allowMatch}
-              <div class="mt-1 text-xs opacity-80">allowed by {parsingStatus.allowMatch} in allowlist</div>
-            {/if}
-            {#if parsingStatus.reason === 'blocked_by_blocklist' && parsingStatus.blockMatch}
-              <div class="mt-1 text-xs opacity-80">blocked by {parsingStatus.blockMatch} in blocklist</div>
-            {/if}
-            {#if parsingStatus.reason === 'blocked_by_default'}
-              <div class="mt-1 text-xs opacity-80">not in allowlist (default allow disabled)</div>
-            {/if}
+            <div class="mt-1 text-xs opacity-80">{statusInfo.description}</div>
           {/if}
         </div>
       {/if}
