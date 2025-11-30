@@ -1,16 +1,19 @@
 <script lang="ts">
   import toast from 'svelte-french-toast'
   import { validURLMatcher } from '@/utils/validations'
+  import InfoIcon from '@/components/SmallInfoIcon.svelte'
 
   interface Props {
+    type?: 'domain'
     tags: string[]
     placeholder?: string
+    id: string
     label: string
     description?: string
     onUpdate: (tags: string[]) => void
   }
 
-  let { tags, placeholder = 'Add a domain (e.g. example.com)', label, description, onUpdate }: Props = $props()
+  let { tags, placeholder = 'Add a domain (e.g. example.com)', id, label, description, type, onUpdate }: Props = $props()
 
   let inputValue = $state('')
 
@@ -38,7 +41,19 @@
    * @returns true if the tag was added or already existed, false if the tag was not valid
    */
   function addTag(tag: string): boolean {
-    tag = tag.replace(/^www\./, '')
+    if (type === 'domain') {
+      // remove http://, https://, www. and trailing slashes
+      tag = tag.replace(/^https?:\/\//, '').replace(/^www\./, '').replace(/\/+$/, '')
+
+      if (tag.length > 253) {
+        const toastMessage = `Domain name is too long. Please enter a shorter domain name.`
+        toast.error(toastMessage, {
+          position: 'bottom-right',
+          className: 'text-lg',
+        })
+        return false
+      }
+    }
 
     const isMatch = validURLMatcher.match(tag)
     if (!isMatch) {
@@ -50,7 +65,16 @@
       return false
     }
 
-    if (!tag || tags.includes(tag)) return true
+    if (!tag || tags.includes(tag)) {
+      inputValue = ''
+      toast(`${tag} already exists`, {
+        icon: InfoIcon,
+        position: 'bottom-right',
+        className: 'text-lg',
+        duration: 1500,
+      })
+      return true
+    }
 
     const newTags = [...tags, tag]
     onUpdate(newTags)
@@ -67,7 +91,7 @@
 </script>
 
 <div class="space-y-2">
-  <label for="tag-input" class="text-lg font-medium text-gray-600">{label}</label>
+  <label for={id} class="text-lg font-medium text-gray-600">{label}</label>
   {#if description}
     <p class="text-sm text-gray-500">{description}</p>
   {/if}
@@ -80,7 +104,7 @@
           type="button"
           class="flex items-center justify-center text-primary-500 hover:text-primary-700 hover:bg-primary-200 rounded transition-colors duration-200 aspect-square w-5 h-5"
           onclick={() => { removeTag(index) }}
-          aria-label="Remove tag"
+          aria-label={`Remove ${tag}`}
         >
           <i class="i-material-symbols:close text-lg" aria-hidden="true"></i>
         </button>
@@ -88,7 +112,7 @@
     {/each}
     <input
       type="text"
-      id="tag-input"
+      id={id}
       class="flex-1 min-w-200px border rounded peer input"
       placeholder={placeholder}
       bind:value={inputValue}

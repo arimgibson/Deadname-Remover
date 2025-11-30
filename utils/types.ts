@@ -6,6 +6,7 @@ export const trimmedEmail = v.pipe(trimmedString, v.email())
 const NameTuple = v.tuple([trimmedString, trimmedString])
 const EmailTuple = v.tuple([trimmedEmail, trimmedEmail])
 const validURL = v.pipe(trimmedString, v.check(url => validURLMatcher.match(url), 'Invalid URL'))
+const validAllowBlockListUrl = v.pipe(validURL, v.maxLength(253, 'Domain name is too long'))
 
 /**
  * Represents a mapping of proper names to deadnames.
@@ -72,8 +73,8 @@ export const UserSettings = v.object({
   theme: v.union(themes.map(x => v.literal(x.value))),
   toggleKeybinding: v.union([v.null(), ToggleKeybinding]),
   defaultAllowMode: v.boolean(),
-  allowlist: v.array(validURL),
-  blocklist: v.array(validURL),
+  allowlist: v.array(validAllowBlockListUrl),
+  blocklist: v.array(validAllowBlockListUrl),
 })
 
 export type UserSettings = v.InferOutput<typeof UserSettings>

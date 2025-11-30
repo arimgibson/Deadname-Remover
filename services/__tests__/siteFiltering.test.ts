@@ -276,10 +276,6 @@ describe('SiteFiltering', () => {
           blockMatch: 'google.com/maps',
           reason: 'blocked_by_blocklist',
         })
-
-        // Reset location for other tests
-        mockLocation.hostname = 'example.com'
-        mockLocation.pathname = '/page'
       })
     })
 
@@ -374,10 +370,6 @@ describe('SiteFiltering', () => {
           blockMatch: null,
           reason: 'allowed_by_allowlist',
         })
-
-        // Reset location for other tests
-        mockLocation.hostname = 'example.com'
-        mockLocation.pathname = '/page'
       })
 
       it('should parse when google.com/maps is explicitly allowed and defaultAllowMode is false', () => {
@@ -398,10 +390,6 @@ describe('SiteFiltering', () => {
           blockMatch: null,
           reason: 'allowed_by_allowlist',
         })
-
-        // Reset location for other tests
-        mockLocation.hostname = 'example.com'
-        mockLocation.pathname = '/page'
       })
     })
 

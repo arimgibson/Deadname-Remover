@@ -40,6 +40,13 @@ export default defineBackground({
     browser.tabs.onActivated.addListener((tab) => {
       void browser.tabs.sendMessage(tab.tabId, {
         type: 'RECHECK_PARSING_STATUS',
+      }).catch((error: unknown) => {
+        // Ignore "Receiving end does not exist" errors (e.g., chrome:// pages)
+        // but allow other errors to be logged
+        if (error instanceof Error && error.message.includes('Receiving end does not exist.')) {
+          return
+        }
+        throw error
       })
     })
   },

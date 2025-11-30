@@ -14,7 +14,7 @@
   import toast, { Toaster } from 'svelte-french-toast'
   import StealthMode from '@/components/StealthMode.svelte'
   import WarningIcon from '@/components/WarningIcon.svelte'
-  import InfoIcon from '@/components/InfoIcon.svelte'
+  import InfoIcon from '@/components/MediumInfoIcon.svelte'
   import type { ParsingStatus } from '@/utils/types'
   import { SiteFiltering } from '@/services/siteFiltering'
 
@@ -215,7 +215,7 @@
               </button>
             {/if}
           </div>
-          {#if showMatchDetails}
+          {#if showMatchDetails && statusInfo.description}
             <div class="mt-1 text-xs opacity-80">{statusInfo.description}</div>
           {/if}
         </div>

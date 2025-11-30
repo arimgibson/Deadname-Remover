@@ -494,16 +494,20 @@
           </div>
           <TagInput
             bind:this={allowlistTagInput}
+            type="domain"
             tags={settings.allowlist}
+            id="allowlist-tag-input"
             label="Allowlist"
             description="When Default Allow is disabled, only replace names on these sites."
             onUpdate={(newTags: string[]) => settings.allowlist = newTags}
           />
           <TagInput
             bind:this={blocklistTagInput}
+            type="domain"
             tags={settings.blocklist}
+            id="blocklist-tag-input"
             label="Blocklist"
-            description="Never replace names on these sites, regardless of Default Allow setting."
+            description="Sites where names won't be replaced, unless overriden by a more specific allowlist entry."
             onUpdate={(newTags: string[]) => settings.blocklist = newTags}
           />
         </div>

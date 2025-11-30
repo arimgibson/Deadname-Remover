@@ -37,10 +37,11 @@ export class SiteFiltering {
     hostname: string
     theme: UserSettings['theme']
   }) {
+    const timestamp = Date.now()
     await storage.setItem<ParsingStatus>(this.PARSING_STATUS_KEY, {
       ...status,
       site: hostname,
-      timestamp: Date.now(),
+      timestamp,
     })
     await browser.runtime.sendMessage({
       type: 'PARSING_STATUS_CHANGE',
@@ -48,7 +49,7 @@ export class SiteFiltering {
         status: {
           ...status,
           site: hostname,
-          timestamp: Date.now(),
+          timestamp,
         },
         theme,
       },
@@ -166,7 +167,9 @@ export class SiteFiltering {
     reason: 'extension_disabled' | 'blocked_by_blocklist' | 'allowed_by_allowlist' | 'blocked_by_default' | 'enabled'
   } {
     const { hostname, pathname } = window.location
-    const fullUrl = `${hostname.replace(/^www\./, '')}${pathname}`
+    const normalizedHostname = hostname.replace(/^www\./, '')
+    const normalizedPathname = pathname.replace(/\/+$/, '') || '/'
+    const fullUrl = `${normalizedHostname}${normalizedPathname}`
     const allowMatch = this.getMostSpecificMatch(config.allowlist, fullUrl)
     const blockMatch = this.getMostSpecificMatch(config.blocklist, fullUrl)
 
