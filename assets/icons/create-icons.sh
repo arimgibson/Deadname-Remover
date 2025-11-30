@@ -1,7 +1,14 @@
 #!/bin/bash
+set -euo pipefail
 
 # Set output directory
 OUTPUT_DIR="public/icon"
+
+# Check if ImageMagick is available
+if ! command -v magick &> /dev/null; then
+  echo "Error: ImageMagick (magick) is not installed or not in PATH"
+  exit 1
+fi
 
 # Create output directory if it doesn't exist
 mkdir -p "$OUTPUT_DIR"
