@@ -2,8 +2,7 @@ import { browser } from 'wxt/browser'
 import { defineBackground } from '#imports'
 import { handleInstall, handleParsingStatusChange, handleUpdate } from './utils'
 import { getConfig, updateExtensionAppearance } from '@/services/configService'
-import type { ParsingStatus } from '@/utils/types'
-import type { Message } from '@/utils/types'
+import type { Message, ParsingStatus } from '@/utils/types'
 
 export default defineBackground({
   main: () => {
