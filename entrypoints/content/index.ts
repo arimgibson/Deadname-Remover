@@ -42,6 +42,7 @@ function cleanupAndReset() {
 async function configureAndRunProcessor({ config }: { config: UserSettings }): Promise<void> {
   // Handle any transition to disabled state (either by extension disable or blocklist/allowlist)
   if (!config.enabled) {
+    const wasEnabledBeforeCleanup = previousEnabled
     cleanupAndReset()
     await siteFiltering.updateParsingStatus({
       status: {
@@ -53,7 +54,7 @@ async function configureAndRunProcessor({ config }: { config: UserSettings }): P
       hostname: window.location.hostname,
       theme: config.theme,
     })
-    if (previousEnabled) {
+    if (wasEnabledBeforeCleanup) {
       await debugLog('extension disabled')
     }
     return
