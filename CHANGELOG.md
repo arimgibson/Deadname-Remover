@@ -9,7 +9,7 @@
   - Adds color-coded status indicator showing whether name replacement is enabled or disabled on the current site
 - Changed extension icon to be more descriptive given the extension's state
   - Has separate icons for the extension being enabled, disabled, and the current site being blocked
-- Changed the "Hide Debug Info" setting under an "Advanced Settings" dropdown section to keep settings more organized
+- Moved the "Hide Debug Info" setting under an "Advanced Settings" dropdown section to keep settings more organized
 
 ## v2.1.0
 
