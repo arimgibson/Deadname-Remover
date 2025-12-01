@@ -259,6 +259,25 @@ describe('SiteFiltering', () => {
         })
       })
 
+      it('should parse when allowlist and blocklist have equal specificity (tie favors allowlist)', () => {
+        mockLocation.hostname = 'example.com'
+        mockLocation.pathname = '/admin'
+
+        const config: UserSettings = {
+          ...baseConfig,
+          allowlist: ['example.com/admin'],
+          blocklist: ['example.com/admin'],
+        }
+        const result = siteFiltering.shouldParseSite({ config })
+
+        expect(result).toEqual({
+          shouldParse: true,
+          allowMatch: 'example.com/admin',
+          blockMatch: 'example.com/admin',
+          reason: 'allowed_by_allowlist',
+        })
+      })
+
       it('should not parse when specific site is in blocklist (google.com/maps example)', () => {
         // Set up location to simulate being on google.com/maps
         mockLocation.hostname = 'google.com'
