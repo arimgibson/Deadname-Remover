@@ -15,6 +15,20 @@ Object.defineProperty(global, 'window', {
   writable: true,
 })
 
+const baseConfigWithoutDefaultAllow: Omit<UserSettings, 'defaultAllowMode'> = {
+  names: { first: [], middle: [], last: [], email: [] },
+  enabled: true,
+  stealthMode: false,
+  hideDebugInfo: false,
+  blockContentBeforeDone: false,
+  highlightReplacedNames: false,
+  syncSettingsAcrossDevices: false,
+  theme: 'trans',
+  toggleKeybinding: null,
+  allowlist: [],
+  blocklist: [],
+} as const
+
 describe('SiteFiltering', () => {
   let siteFiltering: SiteFiltering
 
@@ -187,23 +201,10 @@ describe('SiteFiltering', () => {
     })
 
     describe('defaultAllowMode = true', () => {
-      const baseConfig: UserSettings = {
-        names: { first: [], middle: [], last: [], email: [] },
-        enabled: true,
-        stealthMode: false,
-        hideDebugInfo: false,
-        blockContentBeforeDone: false,
-        highlightReplacedNames: false,
-        syncSettingsAcrossDevices: false,
-        theme: 'trans',
-        toggleKeybinding: null,
-        defaultAllowMode: true,
-        allowlist: [],
-        blocklist: [],
-      }
+      const baseConfig = { ...baseConfigWithoutDefaultAllow, defaultAllowMode: true }
 
       it('should parse when no matches exist', () => {
-        const config = { ...baseConfig, allowlist: [], blocklist: [] }
+        const config: UserSettings = { ...baseConfig, allowlist: [], blocklist: [] }
         const result = siteFiltering.shouldParseSite({ config })
 
         expect(result).toEqual({
@@ -215,7 +216,7 @@ describe('SiteFiltering', () => {
       })
 
       it('should not parse when blocked and no allowlist override', () => {
-        const config = { ...baseConfig, blocklist: ['example.com'] }
+        const config: UserSettings = { ...baseConfig, blocklist: ['example.com'] }
         const result = siteFiltering.shouldParseSite({ config })
 
         expect(result).toEqual({
@@ -227,7 +228,7 @@ describe('SiteFiltering', () => {
       })
 
       it('should parse when allowlist overrides blocklist (allowlist more specific)', () => {
-        const config = {
+        const config: UserSettings = {
           ...baseConfig,
           allowlist: ['example.com/page'],
           blocklist: ['example.com'],
@@ -243,7 +244,7 @@ describe('SiteFiltering', () => {
       })
 
       it('should not parse when blocklist more specific than allowlist', () => {
-        const config = {
+        const config: UserSettings = {
           ...baseConfig,
           allowlist: ['example.com'],
           blocklist: ['example.com/page'],
@@ -263,7 +264,7 @@ describe('SiteFiltering', () => {
         mockLocation.hostname = 'google.com'
         mockLocation.pathname = '/maps'
 
-        const config = {
+        const config: UserSettings = {
           ...baseConfig,
           allowlist: [],
           blocklist: ['google.com/maps'],
@@ -280,23 +281,10 @@ describe('SiteFiltering', () => {
     })
 
     describe('defaultAllowMode = false', () => {
-      const baseConfig: UserSettings = {
-        names: { first: [], middle: [], last: [], email: [] },
-        enabled: true,
-        stealthMode: false,
-        hideDebugInfo: false,
-        blockContentBeforeDone: false,
-        highlightReplacedNames: false,
-        syncSettingsAcrossDevices: false,
-        theme: 'trans',
-        toggleKeybinding: null,
-        defaultAllowMode: false,
-        allowlist: [],
-        blocklist: [],
-      }
+      const baseConfig: UserSettings = { ...baseConfigWithoutDefaultAllow, defaultAllowMode: false }
 
       it('should not parse when not in allowlist', () => {
-        const config = { ...baseConfig, allowlist: [], blocklist: [] }
+        const config: UserSettings = { ...baseConfig, allowlist: [], blocklist: [] }
         const result = siteFiltering.shouldParseSite({ config })
 
         expect(result).toEqual({
@@ -308,7 +296,7 @@ describe('SiteFiltering', () => {
       })
 
       it('should parse when in allowlist and no blocklist match', () => {
-        const config = { ...baseConfig, allowlist: ['example.com'] }
+        const config: UserSettings = { ...baseConfig, allowlist: ['example.com'] }
         const result = siteFiltering.shouldParseSite({ config })
 
         expect(result).toEqual({
@@ -320,7 +308,7 @@ describe('SiteFiltering', () => {
       })
 
       it('should parse when allowlist more specific than blocklist', () => {
-        const config = {
+        const config: UserSettings = {
           ...baseConfig,
           allowlist: ['example.com/page'],
           blocklist: ['example.com'],
@@ -336,7 +324,7 @@ describe('SiteFiltering', () => {
       })
 
       it('should not parse when blocklist more specific than allowlist', () => {
-        const config = {
+        const config: UserSettings = {
           ...baseConfig,
           allowlist: ['example.com'],
           blocklist: ['example.com/page'],
@@ -356,7 +344,7 @@ describe('SiteFiltering', () => {
         mockLocation.hostname = 'google.com'
         mockLocation.pathname = '/maps'
 
-        const config = {
+        const config: UserSettings = {
           ...baseConfig,
           allowlist: ['google.com/ma*'], // This should now match /maps with wildcard support
           blocklist: [],
@@ -377,7 +365,7 @@ describe('SiteFiltering', () => {
         mockLocation.hostname = 'google.com'
         mockLocation.pathname = '/maps'
 
-        const config = {
+        const config: UserSettings = {
           ...baseConfig,
           allowlist: ['google.com/maps'], // Exact match should work
           blocklist: [],
@@ -398,20 +386,7 @@ describe('SiteFiltering', () => {
         mockLocation.hostname = 'www.example.com'
         mockLocation.pathname = '/page'
 
-        const config: UserSettings = {
-          names: { first: [], middle: [], last: [], email: [] },
-          enabled: true,
-          stealthMode: false,
-          hideDebugInfo: false,
-          blockContentBeforeDone: false,
-          highlightReplacedNames: false,
-          syncSettingsAcrossDevices: false,
-          theme: 'trans',
-          toggleKeybinding: null,
-          defaultAllowMode: false,
-          allowlist: ['example.com/page'],
-          blocklist: [],
-        }
+        const config: UserSettings = { ...baseConfigWithoutDefaultAllow, defaultAllowMode: false, allowlist: ['example.com/page'] }
 
         const result = siteFiltering.shouldParseSite({ config })
 
@@ -427,20 +402,7 @@ describe('SiteFiltering', () => {
         mockLocation.hostname = 'example.com'
         mockLocation.pathname = '/'
 
-        const config: UserSettings = {
-          names: { first: [], middle: [], last: [], email: [] },
-          enabled: true,
-          stealthMode: false,
-          hideDebugInfo: false,
-          blockContentBeforeDone: false,
-          highlightReplacedNames: false,
-          syncSettingsAcrossDevices: false,
-          theme: 'trans',
-          toggleKeybinding: null,
-          defaultAllowMode: false,
-          allowlist: ['example.com'],
-          blocklist: [],
-        }
+        const config: UserSettings = { ...baseConfigWithoutDefaultAllow, defaultAllowMode: false, allowlist: ['example.com'] }
 
         const result = siteFiltering.shouldParseSite({ config })
 
