@@ -28,7 +28,7 @@
   } from '@/utils'
   import type { UserSettings } from '@/utils/types'
   import { themes } from '@/utils/types'
-  import { generalSettingKeys } from '@/utils/constants'
+  import { generalSettingKeys, siteFilteringSettingKeys } from '@/utils/constants'
   import toast, { Toaster } from 'svelte-french-toast'
   import 'text-security/text-security-disc.css'
   import diff from 'microdiff'
@@ -471,30 +471,32 @@
           Site Filtering
         </h2>
         <div class="space-y-6">
-          <div>
-            <label
-              for="default-allow-toggle"
-              class="flex justify-between items-center text-gray-700 text-base"
-            >
-              Default Allow
-              <div class="accessible-switch switch-theme-400">
-                <input
-                  type="checkbox"
-                  id="default-allow-toggle"
-                  class="peer"
-                  bind:checked={settings.defaultAllowMode}
-                  aria-describedby="default-allow-description"
-                />
-                <span class="switch-dot" role="presentation"></span>
-              </div>
-            </label>
-            <p
-              id="default-allow-description"
-              class="text-sm text-gray-500 mt-2"
-            >
-              When enabled, the extension will replace names on all sites by default, except those in the blocklist. When disabled, it will only replace names on sites in the allowlist.
-            </p>
-          </div>
+          {#each siteFilteringSettingKeys as setting (setting.value)}
+            <div>
+              <label
+                for={setting.value}
+                class="flex justify-between items-center text-gray-700 text-base"
+              >
+                {setting.label}
+                <div class="accessible-switch switch-theme-400">
+                  <input
+                    type="checkbox"
+                    id={setting.value}
+                    class="peer"
+                    bind:checked={settings[setting.value]}
+                    aria-describedby={`${setting.value}-description`}
+                  />
+                  <span class="switch-dot" role="presentation"></span>
+                </div>
+              </label>
+              <p
+                id={`${setting.value}-description`}
+                class="text-sm text-gray-500 mt-2"
+              >
+                {setting.description}
+              </p>
+            </div>
+          {/each}
           <TagInput
             bind:this={allowlistTagInput}
             type="domain"

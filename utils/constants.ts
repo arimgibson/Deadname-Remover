@@ -1,3 +1,5 @@
+import type { SettingsKey } from '@/utils/types'
+
 export const nameKeys = [
   {
     label: 'First Names',
@@ -57,7 +59,16 @@ export const generalSettingKeys = [
     advanced: false,
     description: 'Sync settings across devices signed into the same browser profile (e.g. Google account).',
   },
-] as const
+] as const satisfies SettingsKey[]
+
+export const siteFilteringSettingKeys = [
+  {
+    label: 'Default Allow All Sites',
+    value: 'defaultAllowMode',
+    advanced: false,
+    description: 'When enabled, the extension will replace names on all sites by default, except those in the blocklist. When disabled, it will only replace names on sites in the allowlist.',
+  },
+] as const satisfies SettingsKey[]
 
 export const themeKeys = [
   {

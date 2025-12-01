@@ -10,7 +10,7 @@
   import { errorLog, formatKeyboardShortcut, registerKeyboardShortcut } from '@/utils'
   import type { UserSettings } from '@/utils/types'
   import { themes } from '@/utils/types'
-  import { generalSettingKeys } from '@/utils/constants'
+  import { generalSettingKeys, siteFilteringSettingKeys } from '@/utils/constants'
   import toast, { Toaster } from 'svelte-french-toast'
   import StealthMode from '@/components/StealthMode.svelte'
   import WarningIcon from '@/components/WarningIcon.svelte'
@@ -27,6 +27,12 @@
   let keyboardListener: ((event: KeyboardEvent) => void) | null = null
   let parsingStatus = $state<ParsingStatus | null>(null)
   let showMatchDetails = $state(false)
+
+  const regularSettings = generalSettingKeys.filter(setting => !setting.advanced)
+  const settingsToShow = [
+    ...regularSettings,
+    ...siteFilteringSettingKeys,
+  ]
 
   onMount(() => {
     // Use a non-async function for onMount that returns the cleanup directly
@@ -223,7 +229,7 @@
       <!-- General Settings -->
       <section class="mb-4" aria-labelledby="general-settings-heading">
         <div class="space-y-3" role="group">
-          {#each generalSettingKeys as setting (setting.value)}
+          {#each settingsToShow as setting (setting.value)}
             <label
               for={setting.value}
               class="flex justify-between items-center text-gray-700 text-sm"
