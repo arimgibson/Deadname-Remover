@@ -48,6 +48,9 @@
   let firstSettingsLoaded = $state(false)
   let previousStealthMode = false
 
+  const regularSettings = generalSettingKeys.filter(setting => !setting.advanced)
+  const advancedSettings = generalSettingKeys.filter(setting => setting.advanced)
+
   let hideDeadnames = $state(true)
 
   let unsavedChanges = $derived.by(() => {
@@ -266,7 +269,7 @@
           role="group"
           aria-labelledby="general-settings-heading"
         >
-          {#each generalSettingKeys as setting (setting.value)}
+          {#each regularSettings as setting (setting.value)}
             <div>
               <label
                 for={setting.value}
@@ -511,6 +514,48 @@
             onUpdate={(newTags: string[]) => settings.blocklist = newTags}
           />
         </div>
+      </section>
+
+      <!-- Advanced Settings -->
+      <section class="mb-8" aria-labelledby="advanced-settings-heading">
+        <details class="group">
+          <summary class="flex items-center gap-2 mb-4 cursor-pointer">
+            <h2
+              id="advanced-settings-heading"
+              class="text-xl font-medium text-gray-700"
+            >
+              Advanced Settings
+            </h2>
+            <i class="i-material-symbols:expand-more text-lg transition-transform duration-200 group-open:-rotate-180" aria-hidden="true"></i>
+        </summary>
+        <div class="space-y-6">
+          {#each advancedSettings as setting (setting.value)}
+            <div>
+              <label
+                for={setting.value}
+                class="flex justify-between items-center text-gray-700 text-base"
+                >{setting.label}
+                <div class="accessible-switch switch-theme-400">
+                  <input
+                    type="checkbox"
+                    id={setting.value}
+                    class="peer"
+                    bind:checked={settings[setting.value]}
+                    aria-describedby={`${setting.value}-description`}
+                  />
+                  <span class="switch-dot" role="presentation"></span>
+                </div>
+              </label>
+              <p
+                id={`${setting.value}-description`}
+                class="text-sm text-gray-500 mt-2"
+              >
+                {setting.description}
+              </p>
+            </div>
+          {/each}
+          </div>
+        </details>
       </section>
 
       <!-- Save Button -->
