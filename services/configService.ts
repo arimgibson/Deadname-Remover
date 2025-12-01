@@ -1,3 +1,4 @@
+import { siteFiltering } from '@/services/siteFiltering'
 import { UserSettings } from '@/utils/types'
 import { storage } from '#imports'
 import { browser } from 'wxt/browser'
@@ -13,12 +14,15 @@ export const defaultSettings: UserSettings = {
   },
   enabled: true,
   blockContentBeforeDone: true,
+  defaultAllowMode: true,
   stealthMode: false,
   hideDebugInfo: false,
   highlightReplacedNames: true,
   syncSettingsAcrossDevices: false,
   theme: 'trans',
   toggleKeybinding: null,
+  allowlist: [],
+  blocklist: [],
 }
 
 export async function getConfig(): Promise<UserSettings> {
@@ -79,15 +83,29 @@ export async function setConfig(settings: UserSettings): Promise<void> {
     await storage.setItem(storageKey, validatedConfig)
   }
 
-  // Stealth Mode and Theme require updates unrelated to the content script
+  // Enabled/Disabled, Stealth Mode, and Theme require updates unrelated to the content script
   // all other changes are automatically updated in the content script
   // via setupConfigListener and a callback to process the page
+  if (previousConfig.enabled !== validatedConfig.enabled) {
+    await handleEnabledChange({
+      enabled: validatedConfig.enabled,
+      stealthMode: validatedConfig.stealthMode,
+    })
+  }
+
   if (previousConfig.stealthMode !== validatedConfig.stealthMode) {
-    await handleStealthModeChange(validatedConfig.stealthMode)
+    await handleStealthModeChange({
+      enabled: validatedConfig.enabled,
+      stealthMode: validatedConfig.stealthMode,
+    })
   }
 
   if (previousConfig.theme !== validatedConfig.theme) {
-    await handleThemeChange(validatedConfig.theme, validatedConfig.stealthMode)
+    await handleThemeChange({
+      enabled: validatedConfig.enabled,
+      stealthMode: validatedConfig.stealthMode,
+      theme: validatedConfig.theme,
+    })
   }
 }
 
@@ -113,35 +131,65 @@ export function setupConfigListener(callback: (config: UserSettings) => void) {
   )
 }
 
-export async function updateExtensionAppearance(stealthMode: boolean, theme: UserSettings['theme'] = 'trans'): Promise<void> {
+export async function updateExtensionAppearance({
+  enabled,
+  stealthMode,
+  isParsing,
+  theme = 'trans',
+}: {
+  enabled: boolean
+  stealthMode: boolean
+  isParsing?: boolean
+  theme?: UserSettings['theme']
+}): Promise<void> {
+  // Priority: stealth > disabled > parsing > normal
+  let iconPath: string
+  let title: string
+
   if (stealthMode) {
-    await Promise.all([
-      // See https://wxt.dev/guide/essentials/extension-apis.html#feature-detection
-      // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-      (browser.action ?? browser.browserAction).setIcon({ path: 'icon/stealth.png' }),
-      // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-      (browser.action ?? browser.browserAction).setTitle({ title: 'An experimental content filter' }),
-    ])
-    return
+    iconPath = 'icon/stealth.png'
+    title = 'An experimental content filter'
+  }
+  else if (!enabled) {
+    iconPath = theme === 'non-binary' ? 'icon/nb16-disabled.png' : 'icon/trans16-disabled.png'
+    title = 'Deadname Remover Settings'
+  }
+  // Parsing is false, meaning this page is blocked
+  else if (isParsing === false) {
+    iconPath = theme === 'non-binary' ? 'icon/nb16-blocked.png' : 'icon/trans16-blocked.png'
+    title = 'An experimental content filter'
+  }
+  else {
+    iconPath = theme === 'non-binary' ? 'icon/nb16.png' : 'icon/trans16.png'
+    title = 'Deadname Remover Settings'
   }
 
-  // Update icon based on theme
-  const iconPath = theme === 'non-binary' ? 'icon/nb16.png' : 'icon/trans16.png'
   await Promise.all([
     // See https://wxt.dev/guide/essentials/extension-apis.html#feature-detection
     // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
     (browser.action ?? browser.browserAction).setIcon({ path: iconPath }),
     // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-    (browser.action ?? browser.browserAction).setTitle({ title: 'Deadname Remover Settings' }),
+    (browser.action ?? browser.browserAction).setTitle({ title }),
   ])
 }
 
-async function handleStealthModeChange(enabled: boolean): Promise<void> {
-  await updateExtensionAppearance(enabled)
+async function handleEnabledChange({ enabled, stealthMode }: { enabled: boolean, stealthMode: boolean }): Promise<void> {
+  // Don't want to override stealth mode icon when enabling/disabling the extension
+  if (stealthMode) {
+    return
+  }
+  const parsingStatus = await siteFiltering.getParsingStatus()
+  await updateExtensionAppearance({ enabled, stealthMode: false, isParsing: parsingStatus?.isParsing })
 }
 
-async function handleThemeChange(theme: UserSettings['theme'], stealthMode: boolean): Promise<void> {
-  await updateExtensionAppearance(stealthMode, theme)
+async function handleStealthModeChange({ enabled, stealthMode }: { enabled: boolean, stealthMode: boolean }): Promise<void> {
+  const parsingStatus = await siteFiltering.getParsingStatus()
+  await updateExtensionAppearance({ enabled, stealthMode, isParsing: parsingStatus?.isParsing })
+}
+
+async function handleThemeChange({ enabled, stealthMode, theme }: { enabled: boolean, stealthMode: boolean, theme: UserSettings['theme'] }): Promise<void> {
+  const parsingStatus = await siteFiltering.getParsingStatus()
+  await updateExtensionAppearance({ enabled, stealthMode, theme, isParsing: parsingStatus?.isParsing })
 }
 
 export async function deleteSyncedData(isSynced: boolean): Promise<void> {

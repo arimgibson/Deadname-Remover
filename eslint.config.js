@@ -1,13 +1,12 @@
 // @ts-check
+import { defineConfig } from 'eslint/config'
 import eslint from '@eslint/js'
 import tseslint from 'typescript-eslint'
 import stylistic from '@stylistic/eslint-plugin'
 import eslintPluginSvelte from 'eslint-plugin-svelte'
-import * as svelteParser from 'svelte-eslint-parser'
-import * as typescriptParser from '@typescript-eslint/parser'
 import globals from 'globals'
 
-export default tseslint.config(
+export default defineConfig(
   eslint.configs.recommended,
   tseslint.configs.strictTypeChecked,
   tseslint.configs.stylisticTypeChecked,
@@ -16,9 +15,7 @@ export default tseslint.config(
   {
     languageOptions: {
       parserOptions: {
-        project: './tsconfig.json',
         projectService: true,
-        tsconfigRootDir: import.meta.dirname,
       },
     },
     rules: {
@@ -39,11 +36,10 @@ export default tseslint.config(
   {
     files: ['**/*.svelte'],
     languageOptions: {
-      parser: svelteParser,
       parserOptions: {
-        parser: typescriptParser,
-        project: './tsconfig.json',
+        parserService: true,
         extraFileExtensions: ['.svelte'],
+        parser: tseslint.parser,
       },
       globals: {
         ...globals.browser,

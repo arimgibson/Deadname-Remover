@@ -1,14 +1,13 @@
 {
   "eslint.format.enable": true,
   "svelte.enable-ts-plugin": true,
-  "[svelte]": {
-    "editor.defaultFormatter": "dbaeumer.vscode-eslint"
-  },
+  "editor.defaultFormatter": "dbaeumer.vscode-eslint",
   "cSpell.words": ["deadname", "deadnames", "tseslint", "valibot"],
-  "eslint.validate": [
-    "javascript",
-    "typescript",
-    "svelte"
-  ],
-  "typescript.tsdk": "node_modules/typescript/lib"
+  "typescript.tsdk": "node_modules/typescript/lib",
+  "eslint.validate": ["javascript", "typescript", "svelte"],
+  "eslint.runtime": "node",
+  "editor.formatOnSave": true,
+  "[typescript]": {
+    "editor.defaultFormatter": "dbaeumer.vscode-eslint"
+  }
 }

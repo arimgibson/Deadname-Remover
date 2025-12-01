@@ -9,6 +9,7 @@ Deadname Remover is a browser extension that replaces deadnames with chosen name
 - **Syncing settings across devices**: Keep your settings in sync across all your devices (disabled by default for privacy reasons)
 - **Content blocking**: Prevent flashing of deadnames by blocking page content before the extension has finished processing (optional)
 - **Stealth mode**: Hide the extension icon to protect privacy and avoid being outed. Recommended to disable text highlighting as well.
+- **Site filtering**: Control where the extension operates on a per-site basis (including using wildcards). Can allow or block all sites by default, or specify specific sites to allow or block.
 
 ## Installation & Usage
 
@@ -63,10 +64,8 @@ If you'd like to submit a bug or request a feature but don't want to sign up for
 ## Roadmap
 
 See an updated project roadmap on this project's [GitHub Projects](https://github.com/arimgibson/Deadname-Remover/projects). At a high level, these are features that are planned for the extension:
-1. Global and per-site blocklists
-2. Publishing to the Edge Add-ons store
-3. Custom regex patterns for advanced name replacement (including titles, suffixes, salutations, etc.)
-
+1. Publishing to the Edge Add-ons store
+2. Custom regex patterns for advanced name replacement (including titles, suffixes, salutations, etc.)
 
 ## Contact
 

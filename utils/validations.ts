@@ -1,5 +1,6 @@
 import type { NameEntry, Names, NameTuple } from './types'
 import { filterEmptyNamePairs } from './index'
+
 /**
  * Checks if there are any duplicate deadnames across all name categories (first, middle, last)
  * @param nameMappings - Object containing arrays of NameEntry for each name category
@@ -47,4 +48,12 @@ export function validateNoRecursiveMappings(nameMappings: Names) {
   })
 
   return !recursiveMappings
+}
+
+export const validURLMatcher = {
+  match: (url: string) => {
+    // Allow wildcard patterns and flexible domain/path matching for site filtering
+    // Supports: domain.com, *.domain.com, domain.com/path*, https://domain.com, etc.
+    return /^(https?:\/\/)?[\w*.-]+\.[\w*.-]+([/\w*._~:/?#[\]@!$&'()+,;=%-]*)?$/.test(url)
+  },
 }

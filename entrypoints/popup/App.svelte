@@ -10,11 +10,14 @@
   import { errorLog, formatKeyboardShortcut, registerKeyboardShortcut } from '@/utils'
   import type { UserSettings } from '@/utils/types'
   import { themes } from '@/utils/types'
-  import { generalSettingKeys } from '@/utils/constants'
+  import { generalSettingKeys, siteFilteringSettingKeys } from '@/utils/constants'
   import toast, { Toaster } from 'svelte-french-toast'
   import StealthMode from '@/components/StealthMode.svelte'
   import WarningIcon from '@/components/WarningIcon.svelte'
-  import InfoIcon from '@/components/InfoIcon.svelte'
+  import InfoIcon from '@/components/MediumInfoIcon.svelte'
+  import type { ParsingStatus } from '@/utils/types'
+  import { siteFiltering } from '@/services/siteFiltering'
+
   let settings: UserSettings = $state(defaultSettings)
 
   let isLoading = $state(true)
@@ -22,11 +25,20 @@
   let previousStealthMode = false
   let upgradeVersion = $state<string | null>(null)
   let keyboardListener: ((event: KeyboardEvent) => void) | null = null
+  let parsingStatus = $state<ParsingStatus | null>(null)
+  let showMatchDetails = $state(false)
+
+  const regularSettings = generalSettingKeys.filter(setting => !setting.advanced)
+  const settingsToShow = [
+    ...regularSettings,
+    ...siteFilteringSettingKeys,
+  ]
 
   onMount(() => {
     // Use a non-async function for onMount that returns the cleanup directly
     void (async () => {
       const config = await getConfig()
+      parsingStatus = await siteFiltering.getParsingStatus()
       settings = config
       isLoading = false
       firstSettingsLoaded = true
@@ -105,6 +117,11 @@
     })()
   })
 
+  // Update the parsing status in the popup when it changes
+  siteFiltering.setupParsingStatusListener((status) => {
+    parsingStatus = status
+  })
+
   async function handleSubmit() {
     try {
       await setConfig(settings)
@@ -121,6 +138,54 @@
       })
     }
   }
+
+  function getParsingStatusInfo() {
+    if (!parsingStatus) {
+      return { text: 'Unknown', color: 'text-gray-500', bgColor: 'bg-gray-100' }
+    }
+
+    switch (parsingStatus.reason) {
+      case 'enabled':
+        return {
+          text: 'Active',
+          color: 'text-green-800',
+          bgColor: 'bg-green-100',
+          description: 'Extension is enabled and site is not blocked by the blocklist',
+        }
+      case 'extension_disabled':
+        return {
+          text: 'Disabled',
+          color: 'text-gray-700',
+          bgColor: 'bg-gray-100',
+          description: 'Extension is disabled; name replacement is disabled for all sites',
+        }
+      case 'blocked_by_blocklist':
+        return {
+          text: 'Blocked',
+          color: 'text-orange-800',
+          bgColor: 'bg-orange-100',
+          description: `Site is blocked by blocklist pattern: ${(parsingStatus.blockMatch ?? 'unknown')}`,
+        }
+      case 'blocked_by_default':
+        return {
+          text: 'Blocked',
+          color: 'text-orange-800',
+          bgColor: 'bg-orange-100',
+          description: 'Site is not in allowlist and default allow is disabled (all sites besides allowlist are blocked)',
+        }
+      case 'allowed_by_allowlist':
+        return {
+          text: 'Active',
+          color: 'text-green-800',
+          bgColor: 'bg-green-100',
+          description: `Site is allowed by allowlist pattern: ${(parsingStatus.allowMatch ?? 'unknown')}`,
+        }
+      default:
+        return { text: 'Unknown', color: 'text-gray-500', bgColor: 'bg-gray-100' }
+    }
+  }
+
+  let statusInfo = $derived(getParsingStatusInfo())
 </script>
 
 <Toaster />
@@ -136,10 +201,35 @@
         Deadname Remover Settings
       </h1>
 
+      {#if parsingStatus}
+        <div class="mb-4 px-3 py-2 rounded-md text-sm {statusInfo.bgColor} {statusInfo.color}">
+          <div class="flex items-center justify-between">
+            <span>Status: {statusInfo.text.toLowerCase()} on {parsingStatus.site ?? 'this site'}</span>
+            {#if statusInfo.description}
+              <button
+                type="button"
+                class="text-xs opacity-70 hover:opacity-100 transition-opacity"
+                onclick={() => showMatchDetails = !showMatchDetails}
+                aria-label="Toggle match details"
+              >
+                <i
+                  class="i-material-symbols:expand-more text-sm transition-transform duration-200"
+                  class:rotate-180={showMatchDetails}
+                  aria-label={showMatchDetails ? 'Hide details' : 'Show details'}
+                ></i>
+              </button>
+            {/if}
+          </div>
+          {#if showMatchDetails && statusInfo.description}
+            <div class="mt-1 text-xs opacity-80">{statusInfo.description}</div>
+          {/if}
+        </div>
+      {/if}
+
       <!-- General Settings -->
       <section class="mb-4" aria-labelledby="general-settings-heading">
         <div class="space-y-3" role="group">
-          {#each generalSettingKeys as setting (setting.value)}
+          {#each settingsToShow as setting (setting.value)}
             <label
               for={setting.value}
               class="flex justify-between items-center text-gray-700 text-sm"

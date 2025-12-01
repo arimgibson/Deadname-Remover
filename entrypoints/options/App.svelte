@@ -28,7 +28,7 @@
   } from '@/utils'
   import type { UserSettings } from '@/utils/types'
   import { themes } from '@/utils/types'
-  import { generalSettingKeys } from '@/utils/constants'
+  import { generalSettingKeys, siteFilteringSettingKeys } from '@/utils/constants'
   import toast, { Toaster } from 'svelte-french-toast'
   import 'text-security/text-security-disc.css'
   import diff from 'microdiff'
@@ -38,6 +38,7 @@
   import UpgradeModal from './components/UpgradeModal.svelte'
   import FaqModal from './components/FaqModal.svelte'
   import NameMappings from './components/NameMappings.svelte'
+  import TagInput from './components/TagInput.svelte'
 
   let settings = $state<UserSettings>(defaultSettings)
   let initialSettings = $state<UserSettings | null>(null)
@@ -46,6 +47,9 @@
   let isLoading = $state(true)
   let firstSettingsLoaded = $state(false)
   let previousStealthMode = false
+
+  const regularSettings = generalSettingKeys.filter(setting => !setting.advanced)
+  const advancedSettings = generalSettingKeys.filter(setting => setting.advanced)
 
   let hideDeadnames = $state(true)
 
@@ -78,6 +82,11 @@
   let showFaqTooltip = $state(false)
 
   let captureShortcut = $state(false)
+
+  // svelte-ignore non_reactive_update
+  let allowlistTagInput: TagInput
+  // svelte-ignore non_reactive_update
+  let blocklistTagInput: TagInput
 
   onMount(async () => {
     // Detect platform
@@ -163,6 +172,16 @@
 
   async function handleSubmit() {
     try {
+      // Add any pending text in TagInput components before saving
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call -- known bug https://github.com/sveltejs/svelte/issues/16264
+      const allowlistResult = allowlistTagInput.addPendingText()
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call -- known bug https://github.com/sveltejs/svelte/issues/16264
+      const blocklistResult = blocklistTagInput.addPendingText()
+
+      if (!allowlistResult || !blocklistResult) {
+        return
+      }
+
       await setConfig(settings)
       // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
       initialSettings = $state.snapshot(settings) as UserSettings
@@ -250,7 +269,7 @@
           role="group"
           aria-labelledby="general-settings-heading"
         >
-          {#each generalSettingKeys as setting (setting.value)}
+          {#each regularSettings as setting (setting.value)}
             <div>
               <label
                 for={setting.value}
@@ -442,6 +461,104 @@
         hideDeadnames={hideDeadnames}
         onToggleHideDeadnames={() => hideDeadnames = !hideDeadnames}
       />
+
+      <!-- Site Filtering -->
+      <section class="mb-8" aria-labelledby="site-filtering-heading">
+        <h2
+          id="site-filtering-heading"
+          class="text-xl font-medium text-gray-700 mb-4"
+        >
+          Site Filtering
+        </h2>
+        <div class="space-y-6">
+          {#each siteFilteringSettingKeys as setting (setting.value)}
+            <div>
+              <label
+                for={setting.value}
+                class="flex justify-between items-center text-gray-700 text-base"
+              >
+                {setting.label}
+                <div class="accessible-switch switch-theme-400">
+                  <input
+                    type="checkbox"
+                    id={setting.value}
+                    class="peer"
+                    bind:checked={settings[setting.value]}
+                    aria-describedby={`${setting.value}-description`}
+                  />
+                  <span class="switch-dot" role="presentation"></span>
+                </div>
+              </label>
+              <p
+                id={`${setting.value}-description`}
+                class="text-sm text-gray-500 mt-2"
+              >
+                {setting.description}
+              </p>
+            </div>
+          {/each}
+          <TagInput
+            bind:this={allowlistTagInput}
+            type="domain"
+            tags={settings.allowlist}
+            id="allowlist-tag-input"
+            label="Allowlist"
+            description="When Default Allow is disabled, only replace names on these sites."
+            onUpdate={(newTags: string[]) => settings.allowlist = newTags}
+          />
+          <TagInput
+            bind:this={blocklistTagInput}
+            type="domain"
+            tags={settings.blocklist}
+            id="blocklist-tag-input"
+            label="Blocklist"
+            description="Sites where names won't be replaced, unless overridden by a more specific allowlist entry."
+            onUpdate={(newTags: string[]) => settings.blocklist = newTags}
+          />
+        </div>
+      </section>
+
+      <!-- Advanced Settings -->
+      <section class="mb-8" aria-labelledby="advanced-settings-heading">
+        <details class="group">
+          <summary class="flex items-center gap-2 mb-4 cursor-pointer">
+            <h2
+              id="advanced-settings-heading"
+              class="text-xl font-medium text-gray-700"
+            >
+              Advanced Settings
+            </h2>
+            <i class="i-material-symbols:expand-more text-lg transition-transform duration-200 group-open:-rotate-180" aria-hidden="true"></i>
+        </summary>
+        <div class="space-y-6">
+          {#each advancedSettings as setting (setting.value)}
+            <div>
+              <label
+                for={setting.value}
+                class="flex justify-between items-center text-gray-700 text-base"
+                >{setting.label}
+                <div class="accessible-switch switch-theme-400">
+                  <input
+                    type="checkbox"
+                    id={setting.value}
+                    class="peer"
+                    bind:checked={settings[setting.value]}
+                    aria-describedby={`${setting.value}-description`}
+                  />
+                  <span class="switch-dot" role="presentation"></span>
+                </div>
+              </label>
+              <p
+                id={`${setting.value}-description`}
+                class="text-sm text-gray-500 mt-2"
+              >
+                {setting.description}
+              </p>
+            </div>
+          {/each}
+          </div>
+        </details>
+      </section>
 
       <!-- Save Button -->
       <button type="submit" class="btn solid w-full" aria-label="Save settings">
