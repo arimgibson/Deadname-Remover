@@ -36,6 +36,7 @@ function cleanupAndReset() {
   previousEnabled = false
   previousNames = undefined
   previousTheme = undefined
+  previousHighlight = undefined
 }
 
 async function configureAndRunProcessor({ config }: { config: UserSettings }): Promise<void> {
