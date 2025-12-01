@@ -44,6 +44,13 @@ export const themes = [{
   value: 'high-contrast',
 }] as const
 
+export interface SettingsKey {
+  label: string
+  value: string
+  advanced: boolean
+  description: string
+}
+
 export const ToggleKeybinding = v.object({
   key: v.string(),
   alt: v.boolean(),
