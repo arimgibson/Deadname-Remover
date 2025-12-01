@@ -512,7 +512,7 @@
             tags={settings.blocklist}
             id="blocklist-tag-input"
             label="Blocklist"
-            description="Sites where names won't be replaced, unless overriden by a more specific allowlist entry."
+            description="Sites where names won't be replaced, unless overridden by a more specific allowlist entry."
             onUpdate={(newTags: string[]) => settings.blocklist = newTags}
           />
         </div>
