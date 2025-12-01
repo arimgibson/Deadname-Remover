@@ -49,6 +49,7 @@ export default defineBackground({
         if (error instanceof Error && error.message.includes('Receiving end does not exist.')) {
           return
         }
+        errorLog('error sending message to tab', error)
         throw error
       })
     })
