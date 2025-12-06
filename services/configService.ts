@@ -57,6 +57,14 @@ export async function setConfig(settings: UserSettings): Promise<void> {
   // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
   settings.hideDebugInfo ??= false
 
+  // Add migrations for allowlist and blocklist
+  if (!Array.isArray(settings.allowlist)) {
+    settings.allowlist = []
+  }
+  if (!Array.isArray(settings.blocklist)) {
+    settings.blocklist = []
+  }
+
   const cleanedSettings = {
     ...settings,
     names: filterEmptyNamePairs(settings.names),
