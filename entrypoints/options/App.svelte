@@ -497,6 +497,25 @@
               </p>
             </div>
           {/each}
+          <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 space-y-2">
+            <div class="flex items-start gap-2">
+              <i class="i-material-symbols:info-outline text-blue-600 text-lg mt-0.5" aria-hidden="true"></i>
+              <div class="flex-1">
+                <h3 class="text-sm font-medium text-blue-900 mb-1">Wildcard Patterns</h3>
+                <p class="text-sm text-blue-800 mb-2">
+                  You can use <code class="bg-blue-100 px-1 rounded">*</code> as a wildcard to match multiple sites or paths. The wildcard matches any characters except URL separators (<code class="bg-blue-100 px-1 rounded">/</code>, <code class="bg-blue-100 px-1 rounded">?</code>, <code class="bg-blue-100 px-1 rounded">#</code>).
+                </p>
+                <div class="text-sm text-blue-800 space-y-1">
+                  <p class="font-medium">Examples:</p>
+                  <ul class="list-disc list-inside space-y-1 ml-2">
+                    <li><code class="bg-blue-100 px-1 rounded">*.example.com</code> - Matches all subdomains (e.g., <code class="bg-blue-100 px-1 rounded">mail.example.com</code>, <code class="bg-blue-100 px-1 rounded">www.example.com</code>)</li>
+                    <li><code class="bg-blue-100 px-1 rounded">example.com/ma*</code> - Matches paths starting with "ma" (e.g., <code class="bg-blue-100 px-1 rounded">example.com/maps</code>, <code class="bg-blue-100 px-1 rounded">example.com/mail</code>)</li>
+                    <li><code class="bg-blue-100 px-1 rounded">example.com/admin/*</code> - Matches all paths under /admin/</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </div>
           <TagInput
             bind:this={allowlistTagInput}
             type="domain"
