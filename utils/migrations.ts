@@ -1,8 +1,10 @@
 import { storage } from '#imports'
 import { browser } from 'wxt/browser'
-import { UserSettings } from '@/utils/types'
+import { UserSettings, UserSettingsStorageVersion1 } from '@/utils/types'
 import { defaultSettings, setConfig } from '@/services/configService'
 import { errorLog, debugLog } from '.'
+
+export const upgradeNotificationItem = storage.defineItem<string | null>('local:versionToShowUpgradeNotification')
 
 // #region Update settings from v1.x.x to v2.0.0
 interface LegacyName {
@@ -109,10 +111,10 @@ function deduplicateNameMappings(settings: UserSettings): UserSettings {
  * Removes self mappings from the user settings.
  * Filters out any NameEntry from each name type in settings.names
  * where the dead name (mappings[0]) is identical to the live name (mappings[1]).
- * @param settings - UserSettings containing the names property
- * @returns UserSettings with self mappings removed from names
+ * @param settings - User settings containing the names property (any version extending V1)
+ * @returns Settings with self mappings removed from names, preserving the input type
  */
-export function removeSelfMappings(settings: UserSettings): UserSettings {
+export function removeSelfMappings<T extends UserSettingsStorageVersion1>(settings: T): T {
   const updatedSettings = { ...settings }
 
   // Remove self mappings for each name type (first, middle, last)
@@ -129,10 +131,10 @@ export function removeSelfMappings(settings: UserSettings): UserSettings {
  * Filters out any NameEntry from each name type in settings.names
  * where the live name (mappings[1]) is identical to the dead name (other.mappings[0])
  * in any other mapping (self-mappings are ignored).
- * @param settings - UserSettings containing the names property
- * @returns UserSettings with recursive mappings removed from names
+ * @param settings - User settings containing the names property (any version extending V1)
+ * @returns Settings with recursive mappings removed from names, preserving the input type
  */
-export function removeRecursiveMappings(settings: UserSettings): UserSettings {
+export function removeRecursiveMappings<T extends UserSettingsStorageVersion1>(settings: T): T {
   const updatedSettings = { ...settings }
 
   // Remove recursive mappings for each name type (first, middle, last)
@@ -165,7 +167,7 @@ export async function checkAndMigrateSettings(): Promise<void> {
   // Convert and save to new format
   const newSettings = convertLegacyToNewFormat(legacySettings)
 
-  await debugLog('settings successfully migrated to v2.0.0 format', newSettings)
+  await debugLog('settings successfully migrated to v2.x.x format', newSettings)
 
   try {
     await setConfig(newSettings)
@@ -215,16 +217,15 @@ export async function createStealthUpgradeNotification(version: string): Promise
   await (browser.action ?? browser.browserAction).setBadgeBackgroundColor({ color: '#8B5CF6' })
 
   // Store update info in storage so that the popup can show a toast without messaging.
-  await storage.setItem('local:versionToShowUpgradeNotification', version)
+  await upgradeNotificationItem.setValue(version)
 }
 
 export async function checkForStealthUpgradeNotification(): Promise<string | null> {
-  const result = await storage.getItem<string>('local:versionToShowUpgradeNotification')
-  return result
+  return await upgradeNotificationItem.getValue()
 }
 
 export async function clearStealthUpgradeNotification(): Promise<void> {
-  await storage.removeItem('local:versionToShowUpgradeNotification')
+  await upgradeNotificationItem.removeValue()
   // See https://wxt.dev/guide/essentials/extension-apis.html#feature-detection
   // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
   await (browser.action ?? browser.browserAction).setBadgeText({ text: '' })

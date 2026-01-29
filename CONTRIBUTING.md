@@ -6,7 +6,7 @@ Thank you for your interest in contributing to Deadname Remover! This document p
 
 ### Bug Reports
 
-Bug reports are very appreciated and help improve the extension for everyone. Before submtting, please check the existing issues to avoid duplicates. When submitting a bug report, please include:
+Bug reports are very appreciated and help improve the extension for everyone. Before submitting, please check the existing issues to avoid duplicates. When submitting a bug report, please include:
 
 - Browser and version
 - Extension version
@@ -30,12 +30,16 @@ Feature requests are very welcome! Before submitting, please check the existing 
 
 ## Technical Contributions, Setup, and Considerations
 
+Before making technical contributions, it's recommended to review any available documentation in the [docs](./docs) folder that may be relevant to the changes you're making.
+
+- [CONFIG_CHANGES.md](./docs/CONFIG_CHANGES.md) - How to add new fields to `UserSettings` and how to migrate existing users' configs
+
 ### Development Setup
 
 ### Prerequisites
 
-- Node.js (v20 or higher)
-  - If using Windows, Node v23 will not work. Node v22 is recommended. See [#595](https://github.com/arimgibson/Deadname-Remover/issues/595) for more information.
+- Node.js (v20 or higher, v24 recommended)
+  - If using Windows, Node v23 will not work. See [#595](https://github.com/arimgibson/Deadname-Remover/issues/595) for more information.
 - Bun (v1.0.0 or higher) -- used as the package manager
 - Git
 - A Chromium-based browser (Chrome, Edge, Brave, etc.) or Firefox installed for running the WXT development browser
@@ -75,6 +79,9 @@ Feature requests are very welcome! Before submitting, please check the existing 
 - `bun run zip:firefox` - Create distribution zip for Firefox
 - `bun run lint` - Run ESLint
 - `bun run check` - Run type checking with TypeScript and Svelte
+- `bun run test` - Run test suite with Vitest
+
+Before submitting a pull request, make sure to run `bun run check`, `bun run lint`, and `bun run test` to ensure your changes pass all checks.
 
 ### Technology Stack
 
@@ -90,6 +97,8 @@ Feature requests are very welcome! Before submitting, please check the existing 
 
 #### Code Style
 
+- Run the linter (`bun run lint`) to ensure your code follows the existing code style
+- Run the type checker (`bun run check`) to ensure your code is type safe
 - Use TypeScript for all new code
 - Follow existing code formatting patterns
 - Use meaningful variable and function names
