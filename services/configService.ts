@@ -1,9 +1,24 @@
 import { siteFiltering } from '@/services/siteFiltering'
-import { UserSettings } from '@/utils/types'
+import {
+  UserSettings,
+  UserSettingsStorageVersion1,
+  UserSettingsStorageVersion2,
+  UserSettingsStorageVersion3,
+  UserSettingsStorageVersion4,
+} from '@/utils/types'
 import { storage } from '#imports'
 import { browser } from 'wxt/browser'
 import * as v from 'valibot'
 import { filterEmptyNamePairs } from '@/utils'
+import { removeSelfMappings, removeRecursiveMappings } from '@/utils/migrations'
+
+// Version history:
+// Version 1: Initial structure (v2.0.0)
+// Version 2: Resolve recursive name replacements (v2.0.2)
+// Version 3: Added hideDebugInfo (v2.0.4)
+// Version 4: Added email names and toggleKeybinding (v2.1.0)
+// Version 5: Added allowlist, blocklist, and defaultAllowMode (v2.2.0)
+const CURRENT_CONFIG_VERSION = 5
 
 export const defaultSettings: UserSettings = {
   names: {
@@ -25,15 +40,94 @@ export const defaultSettings: UserSettings = {
   blocklist: [],
 }
 
+/**
+ * Migrates user settings from version 1 to version 2.
+ * Removes self and recursive name mappings that could cause infinite loops.
+ * @param config - Version 1 user settings
+ * @returns Version 2 user settings with problematic mappings removed
+ */
+function migrateToV2(config: UserSettingsStorageVersion1): UserSettingsStorageVersion2 {
+  // Remove self and recursive mappings to prevent infinite loops
+  let updated = removeSelfMappings(config)
+  updated = removeRecursiveMappings(updated)
+  return updated
+}
+
+/**
+ * Migrates user settings from version 2 to version 3.
+ * Adds the hideDebugInfo field for controlling debug output visibility.
+ * @param config - Version 2 user settings
+ * @returns Version 3 user settings with hideDebugInfo field
+ */
+function migrateToV3(config: UserSettingsStorageVersion2): UserSettingsStorageVersion3 {
+  return {
+    ...config,
+    hideDebugInfo: false,
+  }
+}
+
+/**
+ * Migrates user settings from version 3 to version 4.
+ * Adds email name mappings and keyboard shortcut toggle functionality.
+ * @param config - Version 3 user settings
+ * @returns Version 4 user settings with email names array and toggleKeybinding
+ */
+function migrateToV4(config: UserSettingsStorageVersion3): UserSettingsStorageVersion4 {
+  return {
+    ...config,
+    names: {
+      ...config.names,
+      email: [],
+    },
+    toggleKeybinding: null,
+  }
+}
+
+/**
+ * Migrates user settings from version 4 to version 5.
+ * Adds site filtering capabilities with allowlist, blocklist, and default mode.
+ * @param config - Version 4 user settings
+ * @returns Version 5 user settings with site filtering fields
+ */
+function migrateToV5(config: UserSettingsStorageVersion4): UserSettings {
+  return {
+    ...config,
+    allowlist: [],
+    blocklist: [],
+    defaultAllowMode: true,
+  }
+}
+
+// Versioned storage items for user settings
+export const localConfigItem = storage.defineItem<UserSettings | null>('local:nameConfig', {
+  version: CURRENT_CONFIG_VERSION,
+  migrations: {
+    2: migrateToV2,
+    3: migrateToV3,
+    4: migrateToV4,
+    5: migrateToV5,
+  },
+})
+
+export const syncConfigItem = storage.defineItem<UserSettings | null>('sync:nameConfig', {
+  version: CURRENT_CONFIG_VERSION,
+  migrations: {
+    2: migrateToV2,
+    3: migrateToV3,
+    4: migrateToV4,
+    5: migrateToV5,
+  },
+})
+
 export async function getConfig(): Promise<UserSettings> {
   // Try local storage first
-  const localConfig = await storage.getItem<UserSettings>('local:nameConfig')
+  const localConfig = await localConfigItem.getValue()
   if (localConfig) {
     return localConfig
   }
 
   // Check sync storage if no local config found
-  const syncConfig = await storage.getItem<UserSettings>('sync:nameConfig')
+  const syncConfig = await syncConfigItem.getValue()
   if (syncConfig?.syncSettingsAcrossDevices) {
     return syncConfig
   }
@@ -43,28 +137,6 @@ export async function getConfig(): Promise<UserSettings> {
 }
 
 export async function setConfig(settings: UserSettings): Promise<void> {
-  // temp migrations to prevent breaking changes
-  // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-  if (settings.toggleKeybinding === undefined) {
-    settings.toggleKeybinding = null
-  }
-
-  // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-  if (settings.names.email === undefined || settings.names.email.length === 0) {
-    settings.names.email = []
-  }
-
-  // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-  settings.hideDebugInfo ??= false
-
-  // Add migrations for allowlist and blocklist
-  if (!Array.isArray(settings.allowlist)) {
-    settings.allowlist = []
-  }
-  if (!Array.isArray(settings.blocklist)) {
-    settings.blocklist = []
-  }
-
   const cleanedSettings = {
     ...settings,
     names: filterEmptyNamePairs(settings.names),
@@ -77,18 +149,22 @@ export async function setConfig(settings: UserSettings): Promise<void> {
   if (previousConfig.syncSettingsAcrossDevices !== validatedConfig.syncSettingsAcrossDevices) {
     if (validatedConfig.syncSettingsAcrossDevices) {
       // Switching TO sync: move to sync storage and clean up local
-      await storage.setItem('sync:nameConfig', validatedConfig)
-      await storage.removeItem('local:nameConfig')
+      await syncConfigItem.setValue(validatedConfig)
+      await localConfigItem.removeValue()
     }
     else {
       // Switching FROM sync: just store in local
-      await storage.setItem('local:nameConfig', validatedConfig)
+      await localConfigItem.setValue(validatedConfig)
     }
   }
   else {
     // No sync preference change, store in appropriate storage
-    const storageKey = validatedConfig.syncSettingsAcrossDevices ? 'sync:nameConfig' : 'local:nameConfig'
-    await storage.setItem(storageKey, validatedConfig)
+    if (validatedConfig.syncSettingsAcrossDevices) {
+      await syncConfigItem.setValue(validatedConfig)
+    }
+    else {
+      await localConfigItem.setValue(validatedConfig)
+    }
   }
 
   // Enabled/Disabled, Stealth Mode, and Theme require updates unrelated to the content script
@@ -119,24 +195,18 @@ export async function setConfig(settings: UserSettings): Promise<void> {
 
 export function setupConfigListener(callback: (config: UserSettings) => void) {
   // Watch sync storage
-  storage.watch<UserSettings>(
-    'sync:nameConfig',
-    (config) => {
-      if (config?.syncSettingsAcrossDevices) {
-        callback(config)
-      }
-    },
-  )
+  syncConfigItem.watch((config) => {
+    if (config?.syncSettingsAcrossDevices) {
+      callback(config)
+    }
+  })
 
   // Watch local storage
-  storage.watch<UserSettings>(
-    'local:nameConfig',
-    (config) => {
-      if (config && !config.syncSettingsAcrossDevices) {
-        callback(config)
-      }
-    },
-  )
+  localConfigItem.watch((config) => {
+    if (config && !config.syncSettingsAcrossDevices) {
+      callback(config)
+    }
+  })
 }
 
 export async function updateExtensionAppearance({
@@ -203,10 +273,10 @@ async function handleThemeChange({ enabled, stealthMode, theme }: { enabled: boo
 export async function deleteSyncedData(isSynced: boolean): Promise<void> {
   if (isSynced) {
     const config = await getConfig()
-    await storage.setItem('local:nameConfig', {
+    await localConfigItem.setValue({
       ...config,
       syncSettingsAcrossDevices: false,
     })
   }
-  await storage.removeItem('sync:nameConfig')
+  await syncConfigItem.removeValue()
 }

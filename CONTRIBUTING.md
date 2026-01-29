@@ -30,6 +30,10 @@ Feature requests are very welcome! Before submitting, please check the existing 
 
 ## Technical Contributions, Setup, and Considerations
 
+Before making technical contributions, it's recommended to review any available documentation in the [docs](./docs) folder that may be relevant to the changes you're making.
+
+- [CONFIG_CHANGES.md](./docs/CONFIG_CHANGES.md) - How to add new fields to `UserSettings` and how to migrate existing users' configs
+
 ### Development Setup
 
 ### Prerequisites

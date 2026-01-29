@@ -1,27 +1,17 @@
 import type { UserSettings, ParsingStatus } from '@/utils/types'
 import { storage } from '#imports'
 
+export const parsingStatusItem = storage.defineItem<ParsingStatus | null>('local:parsingStatus', {
+  fallback: null,
+})
+
 export class SiteFiltering {
-  private readonly ALLOWLIST_KEY = 'local:allowlist'
-  private readonly BLOCKLIST_KEY = 'local:blocklist'
-  private readonly PARSING_STATUS_KEY = 'local:parsingStatus'
-
-  async getAllowlist(): Promise<string[]> {
-    const allowlist = await storage.getItem<string[]>(this.ALLOWLIST_KEY)
-    return allowlist ?? []
-  }
-
-  async getBlocklist(): Promise<string[]> {
-    const blocklist = await storage.getItem<string[]>(this.BLOCKLIST_KEY)
-    return blocklist ?? []
-  }
-
   /**
    * Gets the parsing status from local storage
    * @returns The parsing status
    */
   async getParsingStatus(): Promise<ParsingStatus | null> {
-    return await storage.getItem<ParsingStatus>(this.PARSING_STATUS_KEY)
+    return await parsingStatusItem.getValue()
   }
 
   /**
@@ -38,19 +28,16 @@ export class SiteFiltering {
     theme: UserSettings['theme']
   }) {
     const timestamp = Date.now()
-    await storage.setItem<ParsingStatus>(this.PARSING_STATUS_KEY, {
+    const newStatus: ParsingStatus = {
       ...status,
       site: hostname,
       timestamp,
-    })
+    }
+    await parsingStatusItem.setValue(newStatus)
     await browser.runtime.sendMessage({
       type: 'PARSING_STATUS_CHANGE',
       data: {
-        status: {
-          ...status,
-          site: hostname,
-          timestamp,
-        },
+        status: newStatus,
         theme,
       },
     })
@@ -61,7 +48,7 @@ export class SiteFiltering {
    * @param callback - The callback to call when the parsing status changes
    */
   setupParsingStatusListener(callback: (status: ParsingStatus | null) => void) {
-    storage.watch(this.PARSING_STATUS_KEY, callback)
+    parsingStatusItem.watch(callback)
   }
 
   /**

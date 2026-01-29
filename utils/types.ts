@@ -86,6 +86,42 @@ export const UserSettings = v.object({
 
 export type UserSettings = v.InferOutput<typeof UserSettings>
 
+// UserSettings storage version history to match WXT's storage versioning
+// Current version is always "UserSettings", inferred from Valibot schema
+export interface UserSettingsStorageVersion1 {
+  enabled: boolean
+  names: {
+    first: NameEntry[]
+    middle: NameEntry[]
+    last: NameEntry[]
+  }
+  stealthMode: boolean
+  blockContentBeforeDone: boolean
+  highlightReplacedNames: boolean
+  syncSettingsAcrossDevices: boolean
+  theme: 'trans' | 'non-binary' | 'high-contrast'
+}
+// Version 2 types are identical to version 1
+export type UserSettingsStorageVersion2 = UserSettingsStorageVersion1
+export interface UserSettingsStorageVersion3 extends UserSettingsStorageVersion2 {
+  hideDebugInfo: boolean
+}
+export interface UserSettingsStorageVersion4 extends UserSettingsStorageVersion3 {
+  names: {
+    first: NameEntry[]
+    middle: NameEntry[]
+    last: NameEntry[]
+    email: EmailEntry[]
+  }
+  toggleKeybinding: {
+    key: string
+    alt: boolean
+    ctrl: boolean
+    shift: boolean
+    meta: boolean
+  } | null
+}
+
 export type ReplacementsMap = Map<RegExp, string>
 
 export interface ParsingStatus {
