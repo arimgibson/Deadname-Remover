@@ -120,15 +120,22 @@ export const syncConfigItem = storage.defineItem<UserSettings | null>('sync:name
 })
 
 export async function getConfig(): Promise<UserSettings> {
-  // Try local storage first
   const localConfig = await localConfigItem.getValue()
+
   if (localConfig) {
+    // If local config specifies sync settings, fetch from sync storage instead
+    if (localConfig.syncSettingsAcrossDevices) {
+      const syncConfig = await syncConfigItem.getValue()
+      if (syncConfig) {
+        return syncConfig
+      }
+    }
     return localConfig
   }
 
-  // Check sync storage if no local config found
+  // If no local config found, fetch from sync storage
   const syncConfig = await syncConfigItem.getValue()
-  if (syncConfig?.syncSettingsAcrossDevices) {
+  if (syncConfig) {
     return syncConfig
   }
 
@@ -161,6 +168,8 @@ export async function setConfig(settings: UserSettings): Promise<void> {
     // No sync preference change, store in appropriate storage
     if (validatedConfig.syncSettingsAcrossDevices) {
       await syncConfigItem.setValue(validatedConfig)
+      // Always clear local config when writing to sync to prevent stale local copy
+      await localConfigItem.removeValue()
     }
     else {
       await localConfigItem.setValue(validatedConfig)
