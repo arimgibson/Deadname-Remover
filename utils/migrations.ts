@@ -4,9 +4,7 @@ import { UserSettings, UserSettingsStorageVersion1 } from '@/utils/types'
 import { defaultSettings, setConfig } from '@/services/configService'
 import { errorLog, debugLog } from '.'
 
-export const upgradeNotificationItem = storage.defineItem<string | null>('local:versionToShowUpgradeNotification', {
-  fallback: null,
-})
+export const upgradeNotificationItem = storage.defineItem<string | null>('local:versionToShowUpgradeNotification')
 
 // #region Update settings from v1.x.x to v2.0.0
 interface LegacyName {

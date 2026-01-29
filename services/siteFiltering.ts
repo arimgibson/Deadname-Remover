@@ -1,9 +1,7 @@
 import type { UserSettings, ParsingStatus } from '@/utils/types'
 import { storage } from '#imports'
 
-export const parsingStatusItem = storage.defineItem<ParsingStatus | null>('local:parsingStatus', {
-  fallback: null,
-})
+export const parsingStatusItem = storage.defineItem<ParsingStatus | null>('local:parsingStatus')
 
 export class SiteFiltering {
   /**
