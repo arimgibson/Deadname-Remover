@@ -39,7 +39,7 @@ Before making technical contributions, it's recommended to review any available 
 ### Prerequisites
 
 - Node.js (v20 or higher, v24 recommended)
-  - If using Windows, Node v23 will not work. Node v22 is recommended. See [#595](https://github.com/arimgibson/Deadname-Remover/issues/595) for more information.
+  - If using Windows, Node v23 will not work. See [#595](https://github.com/arimgibson/Deadname-Remover/issues/595) for more information.
 - Bun (v1.0.0 or higher) -- used as the package manager
 - Git
 - A Chromium-based browser (Chrome, Edge, Brave, etc.) or Firefox installed for running the WXT development browser
