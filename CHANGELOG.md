@@ -1,5 +1,16 @@
 # Changelog
 
+## v2.2.2
+
+- Fixed other incomplete config migrations also related to adding allowlist/blocklist features
+- Migrated to WXT's storage versioning system for config migrations
+  - Consolidates migration logic into a single location
+  - Prevents future config migration issues (addresses multiple previously reported bugs)
+
+## v2.2.1
+
+- Fixed incomplete config migrations when adding allowlist/blocklist features
+
 ## v2.2.0
 
 - Added domain allowlist/blocklist feature to control where the extension operates (thanks [@Aptcoder](https://github.com/Aptcoder)!)
