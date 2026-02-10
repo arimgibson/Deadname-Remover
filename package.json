@@ -40,7 +40,7 @@
     "postinstall": "wxt prepare"
   },
   "devDependencies": {
-    "@eslint/js": "^9.39.2",
+    "@eslint/js": "^10.0.1",
     "@iconify-json/material-symbols": "^1.2.53",
     "@iconify-json/twemoji": "^1.2.5",
     "@onu-ui/preset": "^1.1.5",
