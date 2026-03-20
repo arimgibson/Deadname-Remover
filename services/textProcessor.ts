@@ -37,6 +37,44 @@ function caseMatchReplacement(original: string, replacement: string): string {
 
 export class TextProcessor {
   private static originalTitle: string | null = null
+
+  // https://developer.mozilla.org/en-US/docs/Web/HTML/Element#forms
+  private static readonly formElements = new Set([
+    'datalist',
+    'fieldset',
+    'form',
+    'input',
+    'optgroup',
+    'option',
+    'select',
+    'textarea',
+  ])
+
+  // https://developer.mozilla.org/en-US/docs/Web/HTML/Attributes
+  // https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes
+  // https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/Attributes
+  private static readonly excludedAttributes: Record<string, readonly string[]> = {
+    'contenteditable': ['true'],
+    'role': [
+      'checkbox',
+      'input',
+      'option',
+      'searchbox',
+      'select',
+      'slider',
+      'spinbutton',
+      'switch',
+      'textbox',
+    ],
+    'spellcheck': ['true'], // Often indicates editable content
+    // ARIA attributes
+    'aria-autocomplete': ['true'],
+    'aria-multiline': ['true'],
+    'aria-readonly': ['false'],
+    'aria-disabled': ['false'],
+    'data-editable': ['true'], // Common custom attribute
+  }
+
   private processedNodes = new WeakSet<Node>()
   private metrics = {
     nodesProcessed: 0,
@@ -82,27 +120,25 @@ export class TextProcessor {
   ): Promise<void> | void {
     if (asyncProcessing) {
       return new Promise((resolve) => {
-        const iterator = this.createNodeIterator(root)
+        const walker = this.createTreeWalker(root)
         const batchSize = 30 // Adjust as needed.
         let count = 0
         let node: Node | null = null
 
         const processBatch = () => {
           count = 0
-          while (count < batchSize && (node = iterator.nextNode())) {
+          while (count < batchSize && (node = walker.nextNode())) {
             if (node.nodeType === Node.TEXT_NODE) {
               const textNode = node as Text
-              if (!this.processedNodes.has(textNode)) {
-                const matches = this.findMatches(textNode.nodeValue ?? '', replacements)
-                if (matches.length > 0) {
-                  this.replaceTextInNode(textNode, matches)
-                }
+              const matches = this.findMatches(textNode.nodeValue ?? '', replacements)
+              if (matches.length > 0) {
+                const lastInserted = this.replaceTextInNode(textNode, matches)
+                // TreeWalker keeps a detached currentNode after replaceChild; sync to inserted subtree.
+                if (lastInserted) walker.currentNode = lastInserted
               }
             }
             else if (node.nodeType === Node.ELEMENT_NODE) {
-              if (this.shouldProcessElement(node as HTMLElement)) {
-                this.processElementNode(node, replacements)
-              }
+              this.processElementNode(node, replacements)
             }
             count++
           }
@@ -121,22 +157,20 @@ export class TextProcessor {
     }
     else {
       // Synchronous processing.
-      const iterator = this.createNodeIterator(root)
+      const walker = this.createTreeWalker(root)
       let node: Node | null
-      while ((node = iterator.nextNode())) {
+      while ((node = walker.nextNode())) {
         if (node.nodeType === Node.TEXT_NODE) {
           const textNode = node as Text
-          if (!this.processedNodes.has(textNode)) {
-            const matches = this.findMatches(textNode.nodeValue ?? '', replacements)
-            if (matches.length > 0) {
-              this.replaceTextInNode(textNode, matches)
-            }
+          const matches = this.findMatches(textNode.nodeValue ?? '', replacements)
+          if (matches.length > 0) {
+            const lastInserted = this.replaceTextInNode(textNode, matches)
+            // TreeWalker keeps a detached currentNode after replaceChild; sync to inserted subtree.
+            if (lastInserted) walker.currentNode = lastInserted
           }
         }
         else if (node.nodeType === Node.ELEMENT_NODE) {
-          if (this.shouldProcessElement(node as HTMLElement)) {
-            this.processElementNode(node, replacements)
-          }
+          this.processElementNode(node, replacements)
         }
       }
     }
@@ -181,30 +215,38 @@ export class TextProcessor {
     }
   }
 
-  private createNodeIterator(root: HTMLElement) {
-    return document.createNodeIterator(
+  private createTreeWalker(root: HTMLElement): TreeWalker {
+    return document.createTreeWalker(
       root,
       NodeFilter.SHOW_TEXT | NodeFilter.SHOW_ELEMENT,
-      {
-        acceptNode: (node) => {
-          if (node.nodeType === Node.TEXT_NODE) {
-            const textNode = node as Text
-            return this.shouldProcessText(textNode)
-              ? NodeFilter.FILTER_ACCEPT
-              : NodeFilter.FILTER_REJECT
-          }
-
-          if (node.nodeType === Node.ELEMENT_NODE) {
-            return this.shouldProcessElement(node as HTMLElement)
-              ? NodeFilter.FILTER_ACCEPT
-              : NodeFilter.FILTER_SKIP
-          }
-
-          // Path shouldn't reach here
-          return NodeFilter.FILTER_ACCEPT
-        },
-      },
+      { acceptNode: (node: Node) => this.acceptWalkerNode(node) },
     )
+  }
+
+  private acceptWalkerNode(node: Node): number {
+    if (node.nodeType === Node.TEXT_NODE) {
+      return this.processedNodes.has(node as Text)
+        ? NodeFilter.FILTER_REJECT
+        : NodeFilter.FILTER_ACCEPT
+    }
+
+    if (node.nodeType === Node.ELEMENT_NODE) {
+      const el = node as HTMLElement
+      if (!this.shouldProcessElement(el)) return NodeFilter.FILTER_REJECT
+      if (TextProcessor.formElements.has(el.tagName.toLowerCase())) {
+        return NodeFilter.FILTER_REJECT
+      }
+      for (const [attr, values] of Object.entries(TextProcessor.excludedAttributes)) {
+        const attrValue = el.getAttribute(attr)?.toLowerCase()
+        if (attrValue !== undefined && values.includes(attrValue)) {
+          return NodeFilter.FILTER_REJECT
+        }
+      }
+      return NodeFilter.FILTER_ACCEPT
+    }
+
+    // Path shouldn't reach here
+    return NodeFilter.FILTER_ACCEPT
   }
 
   private findMatches(text: string, replacements: ReplacementsMap): TextMatch[] {
@@ -255,9 +297,9 @@ export class TextProcessor {
     }
   }
 
-  private replaceTextInNode(textNode: Text, matches: TextMatch[]): boolean {
+  private replaceTextInNode(textNode: Text, matches: TextMatch[]): Node | null {
     const originalText = textNode.nodeValue
-    if (!originalText || !textNode.parentNode) return false
+    if (!originalText || !textNode.parentNode) return null
 
     let lastIndex = 0
     // Create a fragment to hold the text and marks before replacement
@@ -290,71 +332,10 @@ export class TextProcessor {
       )
     }
 
+    const lastInserted = fragments.lastChild
     textNode.parentNode.replaceChild(fragments, textNode)
     this.processedNodes.add(textNode)
-    return true
-  }
-
-  private shouldProcessText(textNode: Text): boolean {
-    // https://developer.mozilla.org/en-US/docs/Web/HTML/Element#forms
-    const formElements = [
-      'datalist',
-      'fieldset',
-      'form',
-      'input',
-      'optgroup',
-      'option',
-      'select',
-      'textarea',
-    ]
-
-    // https://developer.mozilla.org/en-US/docs/Web/HTML/Attributes
-    // https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes
-    // https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/Attributes
-    const excludedAttributes: Record<string, string[]> = {
-      'contenteditable': ['true'],
-      'role': [
-        'checkbox',
-        'input',
-        'option',
-        'searchbox',
-        'select',
-        'slider',
-        'spinbutton',
-        'switch',
-        'textbox',
-      ],
-      'spellcheck': ['true'], // Often indicates editable content
-      // ARIA attributes
-      'aria-autocomplete': ['true'],
-      'aria-multiline': ['true'],
-      'aria-readonly': ['false'],
-      'aria-disabled': ['false'],
-      'data-editable': ['true'], // Common custom attribute
-    }
-
-    // Check if any ancestor element is a form element
-    let currentElement: HTMLElement | null = textNode.parentElement
-    while (currentElement) {
-      if (
-        formElements.includes(currentElement.tagName.toLowerCase())
-        || !this.shouldProcessElement(currentElement)
-      ) {
-        return false
-      }
-
-      // Check for excluded attributes
-      for (const [attr, values] of Object.entries(excludedAttributes)) {
-        const attrValue = currentElement.getAttribute(attr)?.toLowerCase()
-        if (attrValue !== undefined && values.includes(attrValue)) {
-          return false
-        }
-      }
-
-      currentElement = currentElement.parentElement
-    }
-
-    return true
+    return lastInserted
   }
 
   private shouldProcessElement(element: HTMLElement): boolean {
