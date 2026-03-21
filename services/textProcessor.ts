@@ -124,22 +124,12 @@ export class TextProcessor {
         const batchSize = 30 // Adjust as needed.
         let count = 0
         let node: Node | null = null
+        const skipTextUntil: { current: HTMLElement | null } = { current: null }
 
         const processBatch = () => {
           count = 0
           while (count < batchSize && (node = walker.nextNode())) {
-            if (node.nodeType === Node.TEXT_NODE) {
-              const textNode = node as Text
-              const matches = this.findMatches(textNode.nodeValue ?? '', replacements)
-              if (matches.length > 0) {
-                const lastInserted = this.replaceTextInNode(textNode, matches)
-                // TreeWalker keeps a detached currentNode after replaceChild; sync to inserted subtree.
-                if (lastInserted) walker.currentNode = lastInserted
-              }
-            }
-            else if (node.nodeType === Node.ELEMENT_NODE) {
-              this.processElementNode(node, replacements)
-            }
+            this.processWalkerNode(node, walker, replacements, skipTextUntil)
             count++
           }
           if (!node) {
@@ -158,20 +148,10 @@ export class TextProcessor {
     else {
       // Synchronous processing.
       const walker = this.createTreeWalker(root)
+      const skipTextUntil: { current: HTMLElement | null } = { current: null }
       let node: Node | null
       while ((node = walker.nextNode())) {
-        if (node.nodeType === Node.TEXT_NODE) {
-          const textNode = node as Text
-          const matches = this.findMatches(textNode.nodeValue ?? '', replacements)
-          if (matches.length > 0) {
-            const lastInserted = this.replaceTextInNode(textNode, matches)
-            // TreeWalker keeps a detached currentNode after replaceChild; sync to inserted subtree.
-            if (lastInserted) walker.currentNode = lastInserted
-          }
-        }
-        else if (node.nodeType === Node.ELEMENT_NODE) {
-          this.processElementNode(node, replacements)
-        }
+        this.processWalkerNode(node, walker, replacements, skipTextUntil)
       }
     }
   }
@@ -233,20 +213,52 @@ export class TextProcessor {
     if (node.nodeType === Node.ELEMENT_NODE) {
       const el = node as HTMLElement
       if (!this.shouldProcessElement(el)) return NodeFilter.FILTER_REJECT
-      if (TextProcessor.formElements.has(el.tagName.toLowerCase())) {
-        return NodeFilter.FILTER_REJECT
-      }
-      for (const [attr, values] of Object.entries(TextProcessor.excludedAttributes)) {
-        const attrValue = el.getAttribute(attr)?.toLowerCase()
-        if (attrValue !== undefined && values.includes(attrValue)) {
-          return NodeFilter.FILTER_REJECT
-        }
-      }
       return NodeFilter.FILTER_ACCEPT
     }
 
     // Path shouldn't reach here
     return NodeFilter.FILTER_ACCEPT
+  }
+
+  /**
+   * Form controls and editable regions: process attributes but not descendant text (matches legacy shouldProcessText).
+   */
+  private isFormOrEditable(element: HTMLElement): boolean {
+    if (TextProcessor.formElements.has(element.tagName.toLowerCase())) return true
+    for (const [attr, values] of Object.entries(TextProcessor.excludedAttributes)) {
+      const attrValue = element.getAttribute(attr)?.toLowerCase()
+      if (attrValue !== undefined && values.includes(attrValue)) return true
+    }
+    return false
+  }
+
+  private processWalkerNode(
+    node: Node,
+    walker: TreeWalker,
+    replacements: ReplacementsMap,
+    skipTextUntil: { current: HTMLElement | null },
+  ): void {
+    if (skipTextUntil.current && !skipTextUntil.current.contains(node)) {
+      skipTextUntil.current = null
+    }
+    if (node.nodeType === Node.ELEMENT_NODE) {
+      const el = node as HTMLElement
+      this.processElementNode(node, replacements)
+      if (!skipTextUntil.current && this.isFormOrEditable(el)) {
+        skipTextUntil.current = el
+      }
+    }
+    else if (node.nodeType === Node.TEXT_NODE) {
+      if (!skipTextUntil.current) {
+        const textNode = node as Text
+        const matches = this.findMatches(textNode.nodeValue ?? '', replacements)
+        if (matches.length > 0) {
+          const lastInserted = this.replaceTextInNode(textNode, matches)
+          // TreeWalker keeps a detached currentNode after replaceChild; sync to inserted subtree.
+          if (lastInserted) walker.currentNode = lastInserted
+        }
+      }
+    }
   }
 
   private findMatches(text: string, replacements: ReplacementsMap): TextMatch[] {
