@@ -20,6 +20,15 @@ export class DOMObserver {
       if (quickCheck.test(text)) return true
     }
 
+    // Check the root element itself (querySelectorAll only searches descendants)
+    for (const attr of TextProcessor.accessibilityAttributes) {
+      const value = root.getAttribute(attr)
+      if (value) {
+        quickCheck.lastIndex = 0
+        if (quickCheck.test(value)) return true
+      }
+    }
+
     const selector = TextProcessor.accessibilityAttributes
       .map(attr => `[${attr}]`)
       .join(',')

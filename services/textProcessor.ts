@@ -118,13 +118,19 @@ export class TextProcessor {
     replacements: ReplacementsMap,
     asyncProcessing = true,
   ): Promise<void> | void {
+    // TreeWalker.nextNode() doesn't yield the root — handle it explicitly
+    if (!this.shouldProcessElement(root)) return asyncProcessing ? Promise.resolve() : undefined
+    this.processElementNode(root, replacements)
+    const skipTextUntil: { current: HTMLElement | null } = {
+      current: this.isFormOrEditable(root) ? root : null,
+    }
+
     if (asyncProcessing) {
       return new Promise((resolve) => {
         const walker = this.createTreeWalker(root)
         const batchSize = 30 // Adjust as needed.
         let count = 0
         let node: Node | null = null
-        const skipTextUntil: { current: HTMLElement | null } = { current: null }
 
         const processBatch = () => {
           count = 0
@@ -148,7 +154,6 @@ export class TextProcessor {
     else {
       // Synchronous processing.
       const walker = this.createTreeWalker(root)
-      const skipTextUntil: { current: HTMLElement | null } = { current: null }
       let node: Node | null
       while ((node = walker.nextNode())) {
         this.processWalkerNode(node, walker, replacements, skipTextUntil)
