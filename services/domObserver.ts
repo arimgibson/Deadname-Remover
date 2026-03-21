@@ -3,8 +3,6 @@ import { TextProcessor } from './textProcessor'
 export class DOMObserver {
   private observer: MutationObserver | null = null
   private textProcessor: TextProcessor
-  /** Maximum depth for DOM traversal to prevent excessive processing on deeply nested structures */
-  private static readonly MAX_PROCESSING_DEPTH = 10
 
   constructor(textProcessor: TextProcessor) {
     this.textProcessor = textProcessor
@@ -14,52 +12,63 @@ export class DOMObserver {
     // Clean up any existing observer
     this.disconnect()
 
-    const processChanges = (mutations: MutationRecord[]) => {
+    const pendingRoots = new Set<HTMLElement>()
+    let scheduled = false
+
+    this.observer = new MutationObserver((mutations) => {
       for (const mutation of mutations) {
         if (mutation.type === 'childList') {
           mutation.addedNodes.forEach((node) => {
             if (node instanceof HTMLElement) {
-              void this.textProcessor.processSubtree(node, replacements, true)
+              pendingRoots.add(node)
             }
             else if (node.nodeType === Node.TEXT_NODE && node.parentElement) {
               // Process the parent element if needed.
-              void this.textProcessor.processSubtree(node.parentElement, replacements, true)
+              pendingRoots.add(node.parentElement)
             }
           })
         }
-        else if (mutation.type === 'characterData') {
-          // For text changes, we still need to process the parent element
-          // to ensure we catch all related changes
-          const parentElement = mutation.target.parentElement
-          if (parentElement) {
-            void this.textProcessor.processSubtree(parentElement, replacements, true)
-          }
-        }
       }
-    }
+      if (pendingRoots.size > 0 && !scheduled) {
+        const observerForThisFlush = this.observer
+        if (!observerForThisFlush) {
+          return
+        }
+        scheduled = true
+        void requestAnimationFrame(() => {
+          if (this.observer !== observerForThisFlush) {
+            pendingRoots.clear()
+            scheduled = false
+            return
+          }
 
-    let mutationQueue: MutationRecord[] = []
-    let queued = false
+          const rootsArray = Array.from(pendingRoots)
+          pendingRoots.clear()
+          scheduled = false
 
-    const processQueuedMutations = () => {
-      // Process all queued mutations at once
-      processChanges(mutationQueue)
-      mutationQueue = []
-      queued = false
-    }
+          const deduped = rootsArray.filter(root =>
+            !rootsArray.some(other => other !== root && other.contains(root)),
+          )
 
-    this.observer = new MutationObserver((mutations) => {
-      mutationQueue.push(...mutations)
-      if (!queued) {
-        queued = true
-        requestAnimationFrame(processQueuedMutations)
+          observerForThisFlush.disconnect()
+          try {
+            for (const root of deduped) {
+              void this.textProcessor.processSubtree(root, replacements, false)
+            }
+          }
+          finally {
+            observerForThisFlush.observe(document.body, {
+              childList: true,
+              subtree: true,
+            })
+          }
+        })
       }
     })
 
     this.observer.observe(document.body, {
       childList: true,
       subtree: true,
-      characterData: true,
     })
   }
 
