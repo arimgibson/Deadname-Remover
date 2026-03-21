@@ -154,7 +154,7 @@ async function configureAndRunProcessor({ config }: { config: UserSettings }): P
     await debugLog('Observer setup complete')
   }
 
-  // Move these assignments to after all processing is complete
+  // Run these assignments to after all processing is complete
   previousEnabled = true
   previousNames = config.names
   previousTheme = config.theme
