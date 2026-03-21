@@ -51,13 +51,17 @@ export class DOMObserver {
           )
 
           observerForThisFlush.disconnect()
-          for (const root of deduped) {
-            void this.textProcessor.processSubtree(root, replacements, false)
+          try {
+            for (const root of deduped) {
+              void this.textProcessor.processSubtree(root, replacements, false)
+            }
           }
-          observerForThisFlush.observe(document.body, {
-            childList: true,
-            subtree: true,
-          })
+          finally {
+            observerForThisFlush.observe(document.body, {
+              childList: true,
+              subtree: true,
+            })
+          }
         })
       }
     })
