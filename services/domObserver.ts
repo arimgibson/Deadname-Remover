@@ -8,9 +8,44 @@ export class DOMObserver {
     this.textProcessor = textProcessor
   }
 
+  private hasAnyMatch(root: HTMLElement, quickCheck: RegExp): boolean {
+    const text = root.textContent
+    if (text) {
+      quickCheck.lastIndex = 0
+      if (quickCheck.test(text)) return true
+    }
+
+    const selector = TextProcessor.accessibilityAttributes
+      .map(attr => `[${attr}]`)
+      .join(',')
+    const nodes = root.querySelectorAll(selector)
+    for (const el of nodes) {
+      for (const attr of TextProcessor.accessibilityAttributes) {
+        const value = el.getAttribute(attr)
+        if (value) {
+          quickCheck.lastIndex = 0
+          if (quickCheck.test(value)) return true
+        }
+      }
+    }
+    return false
+  }
+
   setup(replacements: Map<RegExp, string>): void {
     // Clean up any existing observer
     this.disconnect()
+
+    const quickCheckSources: string[] = []
+    for (const pattern of replacements.keys()) {
+      // Strip Unicode word boundary lookaround for fast pre-check
+      const core = pattern.source
+        .replace(/^\(\?<!\\p\{L\}\)/, '')
+        .replace(/\(\?!\\p\{L\}\)$/, '')
+      quickCheckSources.push(core)
+    }
+    const quickCheck = quickCheckSources.length > 0
+      ? new RegExp(quickCheckSources.join('|'), 'iu')
+      : null
 
     const pendingRoots = new Set<HTMLElement>()
     let scheduled = false
@@ -53,7 +88,9 @@ export class DOMObserver {
           observerForThisFlush.disconnect()
           try {
             for (const root of deduped) {
-              void this.textProcessor.processSubtree(root, replacements, false)
+              if (!quickCheck || this.hasAnyMatch(root, quickCheck)) {
+                void this.textProcessor.processSubtree(root, replacements, false)
+              }
             }
           }
           finally {
