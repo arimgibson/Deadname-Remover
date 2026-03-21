@@ -54,7 +54,7 @@ export class TextProcessor {
   // https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes
   // https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/Attributes
   private static readonly excludedAttributes: Record<string, readonly string[]> = {
-    'contenteditable': ['true'],
+    'contenteditable': ['true', ''],
     'role': [
       'checkbox',
       'input',
@@ -68,7 +68,7 @@ export class TextProcessor {
     ],
     'spellcheck': ['true'], // Often indicates editable content
     // ARIA attributes
-    'aria-autocomplete': ['true'],
+    'aria-autocomplete': ['inline', 'list', 'both', 'none'],
     'aria-multiline': ['true'],
     'aria-readonly': ['false'],
     'aria-disabled': ['false'],
