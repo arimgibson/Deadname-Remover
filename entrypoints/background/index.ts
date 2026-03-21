@@ -46,12 +46,11 @@ export default defineBackground({
         type: 'RECHECK_PARSING_STATUS',
       }).catch((error: unknown) => {
         // Ignore "Receiving end does not exist" errors (e.g., chrome:// pages)
-        // but allow other errors to be logged
         if (error instanceof Error && error.message.includes('Receiving end does not exist.')) {
           return
         }
+        // Log only — rethrowing would surface as an uncaught promise rejection in the service worker
         errorLog('error sending message to tab', error)
-        throw error
       })
     })
   },

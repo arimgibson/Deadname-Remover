@@ -186,7 +186,6 @@ export default defineContentScript({
           const config = await getConfig()
           await configureAndRunProcessor({ config })
         })()
-        return true
       }
     })
   },
