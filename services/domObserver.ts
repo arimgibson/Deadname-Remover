@@ -1,5 +1,10 @@
 import { TextProcessor } from './textProcessor'
 
+const scheduleIdle: (cb: () => void) => void
+  = typeof requestIdleCallback === 'function'
+    ? cb => requestIdleCallback(cb, { timeout: 100 })
+    : cb => setTimeout(cb, 0)
+
 export class DOMObserver {
   private observer: MutationObserver | null = null
   private textProcessor: TextProcessor
@@ -70,7 +75,7 @@ export class DOMObserver {
           return
         }
         scheduled = true
-        void requestAnimationFrame(() => {
+        scheduleIdle(() => {
           if (this.observer !== observerForThisFlush) {
             pendingRoots.clear()
             scheduled = false
