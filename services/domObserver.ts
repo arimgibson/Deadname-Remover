@@ -15,10 +15,12 @@ export class DOMObserver {
       if (quickCheck.test(text)) return true
     }
 
-    for (const attr of TextProcessor.accessibilityAttributes) {
-      const selector = `[${attr}]`
-      const nodes = root.querySelectorAll(selector)
-      for (const el of nodes) {
+    const selector = TextProcessor.accessibilityAttributes
+      .map(attr => `[${attr}]`)
+      .join(',')
+    const nodes = root.querySelectorAll(selector)
+    for (const el of nodes) {
+      for (const attr of TextProcessor.accessibilityAttributes) {
         const value = el.getAttribute(attr)
         if (value) {
           quickCheck.lastIndex = 0
