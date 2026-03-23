@@ -49,7 +49,7 @@
     "@typescript-eslint/parser": "^8.54.0",
     "@wxt-dev/module-svelte": "^2.0.4",
     "@wxt-dev/unocss": "^1.0.1",
-    "eslint": "^9.39.2",
+    "eslint": "^10.1.0",
     "eslint-plugin-svelte": "^3.14.0",
     "globals": "^17.2.0",
     "svelte": "^5.49.0",
