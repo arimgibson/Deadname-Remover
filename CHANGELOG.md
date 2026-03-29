@@ -1,5 +1,15 @@
 # Changelog
 
+## v2.3.0
+
+- Fixed persistent performance issues with targeted improvements to text processing
+  - Author note: in the future, we'll probably want to add Playwright tests to programatically benchmark performance so we can objectively test performance improvements. All the improvements added here are subjective from my own testing; most of these performance issues were raised in [#601](https://github.com/arimgibson/Deadname-Remover/issues/601) so I'll be reaching out to participants in that thread to see if anyone is able to help me beta test for ~1 week before releasing to all users. 
+- Fixed small bug with how messages were passed between the content and background scripts
+- Added documentation on how to test beta versions and sideload the extension into your browser
+  - [RUNNING_BETA_VERSIONS.md](./docs/RUNNING_BETA_VERSIONS.md)
+  - Includes introduction of a new `beta` branch for beta versions to publish to before release via `main`
+  - Author note: eventually, we might want to move into a more structured release process utilizing GitHub releases via tags, auto-deploys on push to main (CD), conventional commits, etc. For the time being, these feel a little overkill as I'm the only consistent maintainer and can tackle these manually.  
+
 ## v2.2.2
 
 - Fixed other incomplete config migrations also related to adding allowlist/blocklist features
