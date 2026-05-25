@@ -1,6 +1,8 @@
 import { defineConfig } from 'unocss'
 import { presetOnu } from '@onu-ui/preset'
 
+const fontFamily = '"Inter Variable", Inter, sans-serif'
+
 export default defineConfig({
   shortcuts: {
     'input-error': '[.peer[aria-invalid=true]~&]:block hidden',
@@ -12,9 +14,13 @@ export default defineConfig({
   presets: [
     presetOnu({
       color: '#8B5CF6',
+      fonts: [fontFamily],
     }),
   ],
   theme: {
+    fontFamily: {
+      sans: fontFamily,
+    },
     animation: {
       keyframes: {
         'fade-in-right-horizontal': '{from{opacity:0;transform:translate(100%,-50%)}to{opacity:1;transform:translate(0,-50%)}}',

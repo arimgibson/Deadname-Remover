@@ -209,7 +209,7 @@
 </script>
 
 <Toaster />
-<main class="min-h-screen flex items-center justify-center p-4 bg-gray-50">
+<main class="min-h-screen flex items-center justify-center p-4 bg-gray-50 font-sans">
   {#if isLoading}{:else}
     <form
       class="w-full max-w-2xl mx-auto bg-white/90 backdrop-blur rounded-xl shadow-lg p-8 border border-gray-200"

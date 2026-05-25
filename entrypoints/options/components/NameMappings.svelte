@@ -165,8 +165,8 @@
     }
 
     .obscured::placeholder {
-      /* Use default Onu UI font for placeholder text */
-      font-family: "DM Sans", "DM Sans:400,700";
+      /* Use default font for placeholder text */
+      font-family: inherit;
     }
   }
 </style>
