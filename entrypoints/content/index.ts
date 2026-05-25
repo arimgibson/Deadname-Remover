@@ -39,21 +39,23 @@ function cleanupAndReset() {
   previousHighlight = undefined
 }
 
-async function configureAndRunProcessor({ config }: { config: UserSettings }): Promise<void> {
+async function configureAndRunProcessor({ config, updateStatus = true }: { config: UserSettings, updateStatus?: boolean }): Promise<void> {
   // Handle any transition to disabled state (either by extension disable or blocklist/allowlist)
   if (!config.enabled) {
     const wasEnabledBeforeCleanup = previousEnabled
     cleanupAndReset()
-    await siteFiltering.updateParsingStatus({
-      status: {
-        isParsing: false,
-        reason: 'extension_disabled',
-        allowMatch: null,
-        blockMatch: null,
-      },
-      hostname: window.location.hostname,
-      theme: config.theme,
-    })
+    if (updateStatus) {
+      await siteFiltering.updateParsingStatus({
+        status: {
+          isParsing: false,
+          reason: 'extension_disabled',
+          allowMatch: null,
+          blockMatch: null,
+        },
+        hostname: window.location.hostname,
+        theme: config.theme,
+      })
+    }
     if (wasEnabledBeforeCleanup) {
       await debugLog('extension disabled')
     }
@@ -65,9 +67,27 @@ async function configureAndRunProcessor({ config }: { config: UserSettings }): P
 
   if (!siteFilterResult.shouldParse) {
     cleanupAndReset()
+    if (updateStatus) {
+      await siteFiltering.updateParsingStatus({
+        status: {
+          isParsing: false,
+          reason: siteFilterResult.reason,
+          allowMatch: siteFilterResult.allowMatch,
+          blockMatch: siteFilterResult.blockMatch,
+        },
+        hostname: window.location.hostname,
+        theme: config.theme,
+      })
+    }
+    await debugLog(`not parsing site, reason: ${siteFilterResult.reason}, allowMatch: ${siteFilterResult.allowMatch ?? 'none'}, blockMatch: ${siteFilterResult.blockMatch ?? 'none'}`)
+    return
+  }
+
+  // If we reach here, parsing is enabled
+  if (updateStatus) {
     await siteFiltering.updateParsingStatus({
       status: {
-        isParsing: false,
+        isParsing: true,
         reason: siteFilterResult.reason,
         allowMatch: siteFilterResult.allowMatch,
         blockMatch: siteFilterResult.blockMatch,
@@ -75,21 +95,7 @@ async function configureAndRunProcessor({ config }: { config: UserSettings }): P
       hostname: window.location.hostname,
       theme: config.theme,
     })
-    await debugLog(`not parsing site, reason: ${siteFilterResult.reason}, allowMatch: ${siteFilterResult.allowMatch ?? 'none'}, blockMatch: ${siteFilterResult.blockMatch ?? 'none'}`)
-    return
   }
-
-  // If we reach here, parsing is enabled
-  await siteFiltering.updateParsingStatus({
-    status: {
-      isParsing: true,
-      reason: siteFilterResult.reason,
-      allowMatch: siteFilterResult.allowMatch,
-      blockMatch: siteFilterResult.blockMatch,
-    },
-    hostname: window.location.hostname,
-    theme: config.theme,
-  })
 
   // Check if names, theme, or highlightReplacedNames have changed
   const namesChanged = previousEnabled && haveNamesChanged(previousNames, config.names)
@@ -171,10 +177,12 @@ export default defineContentScript({
     await configureAndRunProcessor({ config })
     toggleKeybindingListener = await registerKeyboardShortcut({ config, listener: toggleKeybindingListener })
 
-    // Handle configuration changes
+    // Handle configuration changes — only update shared parsingStatus from the active tab to
+    // avoid a race where the last background tab to respond overwrites the active tab's site.
+    // Background tabs will update status when focused via the RECHECK_PARSING_STATUS message.
     setupConfigListener((config) => {
       void (async () => {
-        await configureAndRunProcessor({ config })
+        await configureAndRunProcessor({ config, updateStatus: document.visibilityState === 'visible' })
         toggleKeybindingListener = await registerKeyboardShortcut({ config, listener: toggleKeybindingListener })
       })()
     })
