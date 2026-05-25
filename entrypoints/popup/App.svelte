@@ -189,7 +189,7 @@
 </script>
 
 <Toaster />
-<main class="w-full bg-gray-50 p-4">
+<main class="w-full bg-gray-50 p-4 font-sans">
   {#if isLoading}{:else}
     {#if settings.stealthMode}
       <StealthMode settings={settings} onSubmit={handleSubmit} />
