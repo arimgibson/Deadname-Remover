@@ -2,7 +2,7 @@ import { defineContentScript } from '#imports'
 import { getConfig, setupConfigListener } from '@/services/configService'
 import { DOMObserver } from '@/services/domObserver'
 import { TextProcessor } from '@/services/textProcessor'
-import type { Names, UserSettings } from '@/utils/types'
+import type { Names, UserSettings, ParsingStatus, Message } from '@/utils/types'
 import {
   blockContent,
   unblockContent,
@@ -12,7 +12,6 @@ import {
 } from './utils'
 import { debugLog, haveNamesChanged, registerKeyboardShortcut } from '@/utils'
 import { SiteFiltering } from '@/services/siteFiltering'
-import type { Message } from '@/utils/types'
 
 let currentObserver: DOMObserver | null = null
 let previousEnabled: boolean | undefined = undefined
@@ -39,12 +38,42 @@ function cleanupAndReset() {
   previousHighlight = undefined
 }
 
-async function configureAndRunProcessor({ config }: { config: UserSettings }): Promise<void> {
+// Writes parsingStatus either directly (initial load / recheck) or via a background-mediated
+// candidate message (config changes). The background only commits a candidate if the sending
+// tab is the currently active one, preventing background tabs from overwriting the status.
+async function publishParsingStatus(
+  args: {
+    status: Omit<ParsingStatus, 'site' | 'timestamp'>
+    hostname: string
+    theme: UserSettings['theme']
+  },
+  mode: 'direct' | 'candidate',
+): Promise<void> {
+  if (mode === 'direct') {
+    await siteFiltering.updateParsingStatus(args)
+    return
+  }
+  const newStatus: ParsingStatus = { ...args.status, site: args.hostname, timestamp: Date.now() }
+  await browser.runtime.sendMessage({
+    type: 'CANDIDATE_PARSING_STATUS',
+    data: { status: newStatus },
+  }).catch(() => {
+    // Service worker may be restarting; candidate dropped and recovered on next tab focus
+  })
+}
+
+async function configureAndRunProcessor({
+  config,
+  statusMode = 'direct',
+}: {
+  config: UserSettings
+  statusMode?: 'direct' | 'candidate'
+}): Promise<void> {
   // Handle any transition to disabled state (either by extension disable or blocklist/allowlist)
   if (!config.enabled) {
     const wasEnabledBeforeCleanup = previousEnabled
     cleanupAndReset()
-    await siteFiltering.updateParsingStatus({
+    await publishParsingStatus({
       status: {
         isParsing: false,
         reason: 'extension_disabled',
@@ -53,7 +82,7 @@ async function configureAndRunProcessor({ config }: { config: UserSettings }): P
       },
       hostname: window.location.hostname,
       theme: config.theme,
-    })
+    }, statusMode)
     if (wasEnabledBeforeCleanup) {
       await debugLog('extension disabled')
     }
@@ -65,7 +94,7 @@ async function configureAndRunProcessor({ config }: { config: UserSettings }): P
 
   if (!siteFilterResult.shouldParse) {
     cleanupAndReset()
-    await siteFiltering.updateParsingStatus({
+    await publishParsingStatus({
       status: {
         isParsing: false,
         reason: siteFilterResult.reason,
@@ -74,13 +103,13 @@ async function configureAndRunProcessor({ config }: { config: UserSettings }): P
       },
       hostname: window.location.hostname,
       theme: config.theme,
-    })
+    }, statusMode)
     await debugLog(`not parsing site, reason: ${siteFilterResult.reason}, allowMatch: ${siteFilterResult.allowMatch ?? 'none'}, blockMatch: ${siteFilterResult.blockMatch ?? 'none'}`)
     return
   }
 
   // If we reach here, parsing is enabled
-  await siteFiltering.updateParsingStatus({
+  await publishParsingStatus({
     status: {
       isParsing: true,
       reason: siteFilterResult.reason,
@@ -89,7 +118,7 @@ async function configureAndRunProcessor({ config }: { config: UserSettings }): P
     },
     hostname: window.location.hostname,
     theme: config.theme,
-  })
+  }, statusMode)
 
   // Check if names, theme, or highlightReplacedNames have changed
   const namesChanged = previousEnabled && haveNamesChanged(previousNames, config.names)
@@ -171,10 +200,9 @@ export default defineContentScript({
     await configureAndRunProcessor({ config })
     toggleKeybindingListener = await registerKeyboardShortcut({ config, listener: toggleKeybindingListener })
 
-    // Handle configuration changes
     setupConfigListener((config) => {
       void (async () => {
-        await configureAndRunProcessor({ config })
+        await configureAndRunProcessor({ config, statusMode: 'candidate' })
         toggleKeybindingListener = await registerKeyboardShortcut({ config, listener: toggleKeybindingListener })
       })()
     })
