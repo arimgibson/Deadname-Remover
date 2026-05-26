@@ -13,7 +13,7 @@ export default defineBackground({
     // Tracks the currently active tab. Persisted so it survives service-worker restarts.
     // sender.tab.id in onMessage does not require the `tabs` permission.
     let currentActiveTabId: number | null = null
-    void activeTabIdItem.getValue().then((id) => {
+    const activeTabIdReady = activeTabIdItem.getValue().then((id) => {
       currentActiveTabId = id
     })
 
@@ -49,14 +49,16 @@ export default defineBackground({
           void handleParsingStatusChange(message.data as { status: ParsingStatus })
           break
         case 'CANDIDATE_PARSING_STATUS':
-          // Only the active tab's candidate is applied; background tabs are silently dropped.
-          if (sender.tab?.id === currentActiveTabId) {
-            void (async () => {
-              const { status } = message.data as { status: ParsingStatus }
-              await parsingStatusItem.setValue(status)
-              await handleParsingStatusChange({ status })
-            })()
-          }
+          void activeTabIdReady.then(() => {
+            // Only the active tab's candidate is applied; background tabs are silently dropped.
+            if (sender.tab?.id === currentActiveTabId) {
+              void (async () => {
+                const { status } = message.data as { status: ParsingStatus }
+                await parsingStatusItem.setValue(status)
+                await handleParsingStatusChange({ status })
+              })()
+            }
+          })
           break
       }
     })
