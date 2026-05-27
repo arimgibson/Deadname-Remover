@@ -3,6 +3,16 @@ import { storage } from '#imports'
 
 export const parsingStatusItem = storage.defineItem<ParsingStatus | null>('local:parsingStatus')
 
+export function normalizeSiteHostname(hostname: string): string {
+  return hostname.replace(/^www\./, '')
+}
+
+export interface ParsingStatusInput {
+  status: Omit<ParsingStatus, 'site' | 'timestamp'>
+  hostname: string
+  theme: UserSettings['theme']
+}
+
 export class SiteFiltering {
   /**
    * Gets the parsing status from local storage
@@ -14,22 +24,19 @@ export class SiteFiltering {
 
   /**
    * Updates the parsing status in local storage
-   * @param status - The status to update
    */
   async updateParsingStatus({
     status,
+    hostname,
     theme,
     emitParsingStatusChangeMessage = true,
-  }: {
-    status: Omit<ParsingStatus, 'timestamp'>
-    theme: UserSettings['theme']
+  }: ParsingStatusInput & {
     emitParsingStatusChangeMessage?: boolean
-  }) {
-    const timestamp = Date.now()
+  }): Promise<ParsingStatus> {
     const newStatus: ParsingStatus = {
       ...status,
-      site: status.site?.replace(/^www\./, ''),
-      timestamp,
+      site: normalizeSiteHostname(hostname),
+      timestamp: Date.now(),
     }
     await parsingStatusItem.setValue(newStatus)
     if (emitParsingStatusChangeMessage) {
@@ -41,6 +48,7 @@ export class SiteFiltering {
         },
       })
     }
+    return newStatus
   }
 
   /**
@@ -154,7 +162,7 @@ export class SiteFiltering {
     reason: 'extension_disabled' | 'blocked_by_blocklist' | 'allowed_by_allowlist' | 'blocked_by_default' | 'enabled'
   } {
     const { hostname, pathname } = window.location
-    const normalizedHostname = hostname.replace(/^www\./, '')
+    const normalizedHostname = normalizeSiteHostname(hostname)
     const normalizedPathname = pathname.replace(/\/+$/, '') || '/'
     const fullUrl = `${normalizedHostname}${normalizedPathname}`
     const allowMatch = this.getMostSpecificMatch(config.allowlist, fullUrl)

@@ -2,7 +2,7 @@ import { defineContentScript } from '#imports'
 import { getConfig, setupConfigListener } from '@/services/configService'
 import { DOMObserver } from '@/services/domObserver'
 import { TextProcessor } from '@/services/textProcessor'
-import type { Names, UserSettings, ParsingStatus, Message } from '@/utils/types'
+import type { Names, UserSettings, Message } from '@/utils/types'
 import {
   blockContent,
   unblockContent,
@@ -11,7 +11,7 @@ import {
   setStyle,
 } from './utils'
 import { debugLog, haveNamesChanged, registerKeyboardShortcut } from '@/utils'
-import { SiteFiltering } from '@/services/siteFiltering'
+import { SiteFiltering, type ParsingStatusInput } from '@/services/siteFiltering'
 
 let currentObserver: DOMObserver | null = null
 let previousEnabled: boolean | undefined = undefined
@@ -38,25 +38,19 @@ function cleanupAndReset() {
   previousHighlight = undefined
 }
 
-// Writes parsingStatus either directly (initial load / recheck) or via a background-mediated
-// candidate message (config changes). The background only commits a candidate if the sending
-// tab is the currently active one, preventing background tabs from overwriting the status.
+// Initial load / tab recheck write directly; config changes send a candidate so only the
+// active tab can commit, preventing background tabs from overwriting stored status.
 async function publishParsingStatus(
-  args: {
-    status: Omit<ParsingStatus, 'site' | 'timestamp'>
-    hostname: string
-    theme: UserSettings['theme']
-  },
+  args: ParsingStatusInput,
   mode: 'direct' | 'candidate',
 ): Promise<void> {
   if (mode === 'direct') {
     await siteFiltering.updateParsingStatus(args)
     return
   }
-  const newStatus: ParsingStatus = { ...args.status, site: args.hostname, timestamp: Date.now() }
   await browser.runtime.sendMessage({
     type: 'CANDIDATE_PARSING_STATUS',
-    data: { status: newStatus, theme: args.theme },
+    data: args,
   }).catch(() => {
     // Service worker may be restarting; candidate dropped and recovered on next tab focus
   })
