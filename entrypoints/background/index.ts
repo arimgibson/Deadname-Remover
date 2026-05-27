@@ -2,8 +2,8 @@ import { browser } from 'wxt/browser'
 import { defineBackground, storage } from '#imports'
 import { handleInstall, handleParsingStatusChange, handleUpdate } from './utils'
 import { getConfig, updateExtensionAppearance } from '@/services/configService'
+import { siteFiltering, type ParsingStatusInput } from '@/services/siteFiltering'
 import { errorLog } from '@/utils'
-import { parsingStatusItem } from '@/services/siteFiltering'
 import type { Message, ParsingStatus } from '@/utils/types'
 
 const activeTabIdItem = storage.defineItem<number | null>('local:activeTabId', { defaultValue: null })
@@ -50,14 +50,16 @@ export default defineBackground({
           break
         case 'CANDIDATE_PARSING_STATUS':
           void activeTabIdReady.then(() => {
-            // Only the active tab's candidate is applied; background tabs are silently dropped.
-            if (sender.tab?.id === currentActiveTabId) {
-              void (async () => {
-                const { status } = message.data as { status: ParsingStatus }
-                await parsingStatusItem.setValue(status)
-                await handleParsingStatusChange({ status })
-              })()
+            if (sender.tab?.id !== currentActiveTabId) {
+              return
             }
+            void (async () => {
+              const committed = await siteFiltering.updateParsingStatus({
+                ...(message.data as ParsingStatusInput),
+                emitParsingStatusChangeMessage: false,
+              })
+              await handleParsingStatusChange({ status: committed })
+            })()
           })
           break
       }
