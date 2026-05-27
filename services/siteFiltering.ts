@@ -18,27 +18,29 @@ export class SiteFiltering {
    */
   async updateParsingStatus({
     status,
-    hostname,
     theme,
+    emitParsingStatusChangeMessage = true,
   }: {
-    status: Omit<ParsingStatus, 'site' | 'timestamp'>
-    hostname: string
+    status: Omit<ParsingStatus, 'timestamp'>
     theme: UserSettings['theme']
+    emitParsingStatusChangeMessage?: boolean
   }) {
     const timestamp = Date.now()
     const newStatus: ParsingStatus = {
       ...status,
-      site: hostname,
+      site: status.site?.replace(/^www\./, ''),
       timestamp,
     }
     await parsingStatusItem.setValue(newStatus)
-    await browser.runtime.sendMessage({
-      type: 'PARSING_STATUS_CHANGE',
-      data: {
-        status: newStatus,
-        theme,
-      },
-    })
+    if (emitParsingStatusChangeMessage) {
+      await browser.runtime.sendMessage({
+        type: 'PARSING_STATUS_CHANGE',
+        data: {
+          status: newStatus,
+          theme,
+        },
+      })
+    }
   }
 
   /**

@@ -56,7 +56,7 @@ async function publishParsingStatus(
   const newStatus: ParsingStatus = { ...args.status, site: args.hostname, timestamp: Date.now() }
   await browser.runtime.sendMessage({
     type: 'CANDIDATE_PARSING_STATUS',
-    data: { status: newStatus },
+    data: { status: newStatus, theme: args.theme },
   }).catch(() => {
     // Service worker may be restarting; candidate dropped and recovered on next tab focus
   })
