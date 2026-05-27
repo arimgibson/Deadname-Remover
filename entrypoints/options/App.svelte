@@ -120,6 +120,7 @@
     }
 
     // couple workarounds here til toast package is updated
+    // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
     toast.error(ToastWithButton as unknown as typeof SvelteComponent, {
       // @ts-expect-error -- doesn't exist in expected options because is custom prop
       unsavedChanges,

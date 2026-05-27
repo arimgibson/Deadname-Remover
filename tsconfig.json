@@ -1,10 +1,10 @@
 {
   "extends": "./.wxt/tsconfig.json",
   "compilerOptions": {
+    "types": ["chrome"],
     "useDefineForClassFields": true,
-    "strict": true,
     "allowJs": true,
-    "checkJs": true
+    "checkJs": true,
   },
   "include": ["**/*.ts", "**/*.svelte", "eslint.config.js", ".wxt/types"]
 }
