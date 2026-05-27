@@ -1,5 +1,5 @@
 import { describe, expect, it, beforeEach, vi } from 'vitest'
-import { SiteFiltering } from '../siteFiltering'
+import { normalizeSiteHostname, SiteFiltering } from '../siteFiltering'
 import type { UserSettings } from '@/utils/types'
 
 // Mock window.location
@@ -28,6 +28,16 @@ const baseConfigWithoutDefaultAllow: Omit<UserSettings, 'defaultAllowMode'> = {
   allowlist: [],
   blocklist: [],
 } as const
+
+describe('normalizeSiteHostname', () => {
+  it('should strip www prefix', () => {
+    expect(normalizeSiteHostname('www.example.com')).toBe('example.com')
+  })
+
+  it('should leave hostname unchanged when there is no www prefix', () => {
+    expect(normalizeSiteHostname('example.com')).toBe('example.com')
+  })
+})
 
 describe('SiteFiltering', () => {
   let siteFiltering: SiteFiltering
