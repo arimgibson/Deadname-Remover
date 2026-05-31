@@ -1,7 +1,7 @@
 {
   "name": "Deadname Remover",
   "version": "2.3.0",
-  "description": "An easy to use browser plugin to automatically remove and replace deadnames",
+  "description": "A browser extension that replaces deadnames with chosen names (primarily for transgender and non-binary people).",
   "private": true,
   "type": "module",
   "repository": {
