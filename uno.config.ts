@@ -18,7 +18,7 @@ export default defineConfig({
       color: '#8B5CF6',
       // could be more optimized to reuse bundled Fontsource fonts, not worth the time right now
       fonts: [{
-        name: 'Inter',
+        name: 'Inter Variable',
         provider: 'fontsource',
       }],
     }),
