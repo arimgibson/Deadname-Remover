@@ -122,10 +122,10 @@
     parsingStatus = status
   })
 
-  async function handleSubmit() {
+  async function handleSubmit(successMessage?: string) {
     try {
       await setConfig(settings)
-      toast.success('Settings saved', {
+      toast.success(successMessage ?? 'Settings saved', {
         position: 'bottom-right',
         className: 'h-10 text-base',
       })
@@ -151,45 +151,100 @@
           color: 'text-green-800',
           bgColor: 'bg-green-100',
           description: 'Extension is enabled and site is not blocked by the blocklist',
-        }
+          addOrRemoveAction: {
+            type: 'add',
+            label: 'Add to blocklist',
+            icon: 'i-material-symbols:add-circle',
+            onclick: () => { mutateAllowOrBlocklist('add', 'blocklist') },
+            tooltip: 'Add this site to the blocklist',
+            ariaLabel: 'Add to blocklist',
+            ariaDescribedby: 'add-to-blocklist-tooltip',
+          },
+        } as const
       case 'extension_disabled':
         return {
           text: 'Disabled',
           color: 'text-gray-700',
           bgColor: 'bg-gray-100',
           description: 'Extension is disabled; name replacement is disabled for all sites',
-        }
+        } as const
       case 'blocked_by_blocklist':
         return {
           text: 'Blocked',
           color: 'text-orange-800',
           bgColor: 'bg-orange-100',
           description: `Site is blocked by blocklist pattern: ${(parsingStatus.blockMatch ?? 'unknown')}`,
-        }
+          addOrRemoveAction: {
+            type: 'remove',
+            label: 'Remove from blocklist',
+            icon: 'i-material-symbols:cancel',
+            onclick: () => { mutateAllowOrBlocklist('remove', 'blocklist') },
+            tooltip: 'Remove this site from the blocklist',
+            ariaLabel: 'Remove from blocklist',
+            ariaDescribedby: 'remove-from-blocklist-tooltip',
+          },
+        } as const
       case 'blocked_by_default':
         return {
           text: 'Blocked',
           color: 'text-orange-800',
           bgColor: 'bg-orange-100',
           description: 'Site is not in allowlist and default allow is disabled (all sites besides allowlist are blocked)',
-        }
+          addOrRemoveAction: {
+            type: 'add',
+            label: 'Add to allowlist',
+            icon: 'i-material-symbols:add-circle',
+            onclick: () => { mutateAllowOrBlocklist('add', 'allowlist') },
+            tooltip: 'Add this site to the allowlist',
+            ariaLabel: 'Add to allowlist',
+            ariaDescribedby: 'add-to-allowlist-tooltip',
+          },
+        } as const
       case 'allowed_by_allowlist':
         return {
           text: 'Active',
           color: 'text-green-800',
           bgColor: 'bg-green-100',
           description: `Site is allowed by allowlist pattern: ${(parsingStatus.allowMatch ?? 'unknown')}`,
-        }
+          addOrRemoveAction: {
+            type: 'remove',
+            label: 'Remove from allowlist',
+            icon: 'i-material-symbols:cancel',
+            onclick: () => { mutateAllowOrBlocklist('remove', 'allowlist') },
+            tooltip: 'Remove this site from the allowlist',
+            ariaLabel: 'Remove from allowlist',
+            ariaDescribedby: 'remove-from-allowlist-tooltip',
+          },
+        } as const
       default:
-        return { text: 'Unknown', color: 'text-gray-500', bgColor: 'bg-gray-100' }
+        return { text: 'Unknown', color: 'text-gray-500', bgColor: 'bg-gray-100' } as const
     }
+  }
+
+  function mutateAllowOrBlocklist(action: 'add' | 'remove', list: 'allowlist' | 'blocklist') {
+    if (!parsingStatus?.site) {
+      return
+    }
+
+    const { site } = parsingStatus
+
+    if (list === 'allowlist') {
+      settings.allowlist = action === 'add' ? [...settings.allowlist, site] : settings.allowlist.filter(s => s !== site)
+      settings.blocklist = settings.blocklist.filter(s => s !== site)
+    }
+    else {
+      settings.blocklist = action === 'add' ? [...settings.blocklist, site] : settings.blocklist.filter(s => s !== site)
+      settings.allowlist = settings.allowlist.filter(s => s !== site)
+    }
+
+    void handleSubmit(`Site ${action === 'add' ? 'added to' : 'removed from'} ${list}`)
   }
 
   let statusInfo = $derived(getParsingStatusInfo())
 </script>
 
 <Toaster />
-<main class="w-full bg-gray-50 p-4">
+<main class="w-full bg-gray-50 p-4 font-sans">
   {#if isLoading}{:else}
     {#if settings.stealthMode}
       <StealthMode settings={settings} onSubmit={handleSubmit} />
@@ -205,6 +260,7 @@
         <div class="mb-4 px-3 py-2 rounded-md text-sm {statusInfo.bgColor} {statusInfo.color}">
           <div class="flex items-center justify-between">
             <span>Status: {statusInfo.text.toLowerCase()} on {parsingStatus.site ?? 'this site'}</span>
+            <div class="flex items-center gap-2">
             {#if statusInfo.description}
               <button
                 type="button"
@@ -219,6 +275,27 @@
                 ></i>
               </button>
             {/if}
+            {#if statusInfo.addOrRemoveAction && parsingStatus.site}
+              <div class="relative group flex items-center justify-center w-4 h-4">
+                <button
+                  type="button"
+                  class="text-xs opacity-70 hover:opacity-100 transition-opacity"
+                  onclick={statusInfo.addOrRemoveAction.onclick}
+                  aria-label={statusInfo.addOrRemoveAction.ariaLabel}
+                  aria-describedby={statusInfo.addOrRemoveAction.ariaDescribedby}
+                >
+                  <i class={`${statusInfo.addOrRemoveAction.icon} w-3.5 h-3.5`} aria-hidden="true"></i>
+                </button>
+                <span
+                  id={statusInfo.addOrRemoveAction.ariaDescribedby}
+                  class="left-tooltip text-xs opacity-0 pointer-events-none group-hover:opacity-100 transition-opacity z-10"
+                  role="tooltip"
+                >
+                  {statusInfo.addOrRemoveAction.tooltip}
+                </span>
+              </div>
+            {/if}
+            </div>
           </div>
           {#if showMatchDetails && statusInfo.description}
             <div class="mt-1 text-xs opacity-80">{statusInfo.description}</div>
@@ -241,7 +318,7 @@
                   id={setting.value}
                   class="peer"
                   bind:checked={settings[setting.value]}
-                  onchange={handleSubmit}
+                  onchange={() => void handleSubmit()}
                   aria-describedby={`${setting.value}-description`}
                 />
                 <span class="switch-dot" role="presentation"></span>
@@ -259,7 +336,7 @@
                 class="input input-sm appearance-none pr-6 w-fit"
                 bind:value={settings.theme}
                 aria-label="Select theme"
-                onchange={handleSubmit}
+                onchange={() => void handleSubmit()}
               >
                 {#each themes as theme (theme.value)}
                   <option value={theme.value}>{theme.label}</option>

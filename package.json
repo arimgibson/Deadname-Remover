@@ -1,7 +1,7 @@
 {
   "name": "Deadname Remover",
-  "version": "2.2.2",
-  "description": "An easy to use browser plugin to automatically remove and replace deadnames",
+  "version": "2.3.0",
+  "description": "A browser extension that replaces deadnames with chosen names (primarily for transgender and non-binary people).",
   "private": true,
   "type": "module",
   "repository": {
@@ -40,32 +40,33 @@
     "postinstall": "wxt prepare"
   },
   "devDependencies": {
-    "@eslint/js": "^9.39.2",
-    "@iconify-json/material-symbols": "^1.2.53",
+    "@eslint/js": "^10.0.1",
+    "@iconify-json/material-symbols": "^1.2.74",
     "@iconify-json/twemoji": "^1.2.5",
     "@onu-ui/preset": "^1.1.5",
-    "@stylistic/eslint-plugin": "^5.7.1",
-    "@types/chrome": "^0.1.36",
-    "@typescript-eslint/parser": "^8.54.0",
-    "@wxt-dev/module-svelte": "^2.0.4",
+    "@stylistic/eslint-plugin": "^5.10.0",
+    "@types/chrome": "^0.1.42",
+    "@typescript-eslint/parser": "^8.60.0",
+    "@wxt-dev/module-svelte": "^2.0.5",
     "@wxt-dev/unocss": "^1.0.1",
-    "eslint": "^9.39.2",
-    "eslint-plugin-svelte": "^3.14.0",
-    "globals": "^17.2.0",
-    "svelte": "^5.49.0",
-    "svelte-check": "^4.3.5",
-    "svelte-eslint-parser": "^1.4.1",
-    "typescript": "^5.9.3",
-    "typescript-eslint": "^8.54.0",
-    "unocss": "^66.6.0",
-    "vitest": "^4.0.18",
-    "wxt": "^0.20.13"
+    "eslint": "^10.4.0",
+    "eslint-plugin-svelte": "^3.18.0",
+    "globals": "^17.6.0",
+    "svelte": "^5.55.10",
+    "svelte-check": "^4.4.8",
+    "svelte-eslint-parser": "^1.6.1",
+    "typescript": "^6.0.3",
+    "typescript-eslint": "^8.60.0",
+    "unocss": "^66.7.0",
+    "vitest": "^4.1.7",
+    "wxt": "^0.20.26"
   },
   "dependencies": {
+    "@fontsource-variable/inter": "^5.2.8",
     "compare-versions": "^6.1.1",
     "microdiff": "^1.5.0",
     "svelte-french-toast": "^1.2.0",
     "text-security": "^3.2.1",
-    "valibot": "^1.2.0"
+    "valibot": "^1.4.1"
   }
 }
