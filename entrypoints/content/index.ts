@@ -38,8 +38,8 @@ function cleanupAndReset() {
   previousHighlight = undefined
 }
 
-// Initial load / tab recheck write directly; config changes send a candidate so only the
-// active tab can commit, preventing background tabs from overwriting stored status.
+// Initial load and config changes send a candidate so only the active tab can commit;
+// tab recheck writes directly because it runs on the active tab.
 async function publishParsingStatus(
   args: ParsingStatusInput,
   mode: 'direct' | 'candidate',
@@ -58,7 +58,7 @@ async function publishParsingStatus(
 
 async function configureAndRunProcessor({
   config,
-  statusMode = 'direct',
+  statusMode = 'candidate',
 }: {
   config: UserSettings
   statusMode?: 'direct' | 'candidate'
@@ -206,7 +206,7 @@ export default defineContentScript({
       if (message.type === 'RECHECK_PARSING_STATUS') {
         void (async () => {
           const config = await getConfig()
-          await configureAndRunProcessor({ config })
+          await configureAndRunProcessor({ config, statusMode: 'direct' })
         })()
       }
     })

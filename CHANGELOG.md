@@ -3,7 +3,7 @@
 ## v2.3.0
 
 - Fixed persistent performance issues with targeted improvements to text processing
-  - Author note: in the future, we'll probably want to add Playwright tests to programatically benchmark performance so we can objectively test performance improvements. All the improvements added here are subjective from my own testing; most of these performance issues were raised in [#601](https://github.com/arimgibson/Deadname-Remover/issues/601) so I'll be reaching out to participants in that thread to see if anyone is able to help me beta test for ~1 week before releasing to all users.
+  - Author note: in the future, we'll probably want to add Playwright tests to programmatically benchmark performance so we can objectively test performance improvements. All the improvements added here are subjective from my own testing; most of these performance issues were raised in [#601](https://github.com/arimgibson/Deadname-Remover/issues/601) so I'll be reaching out to participants in that thread to see if anyone is able to help me beta test for ~1 week before releasing to all users.
 - Fixed issue where "site" in popup would not reflect the currently open website
 - Added button to popup to add/remove the current site to/from the allowlist or blocklist
 - Fixed small bug with how messages were passed between the content and background scripts

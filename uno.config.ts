@@ -15,11 +15,12 @@ export default defineConfig({
   },
   presets: [
     presetOnu({
-      color: '#8B5CF6',
+      // temporarily setting to a color so that the hue delta isn't 0. See https://github.com/zyyv/magic-color/issues/39
+      color: '#8955F6',
       // could be more optimized to reuse bundled Fontsource fonts, not worth the time right now
       fonts: [{
         name: 'Inter Variable',
-        provider: 'fontsource',
+        provider: 'none',
       }],
     }),
   ],
