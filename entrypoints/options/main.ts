@@ -1,3 +1,4 @@
+import '@/utils/inter-font'
 import 'virtual:uno.css'
 import { mount } from 'svelte'
 import App from './App.svelte'

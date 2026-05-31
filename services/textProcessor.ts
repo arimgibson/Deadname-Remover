@@ -210,7 +210,7 @@ export class TextProcessor {
 
   private acceptWalkerNode(node: Node): number {
     if (node.nodeType === Node.TEXT_NODE) {
-      return this.processedNodes.has(node as Text)
+      return this.processedNodes.has(node)
         ? NodeFilter.FILTER_REJECT
         : NodeFilter.FILTER_ACCEPT
     }

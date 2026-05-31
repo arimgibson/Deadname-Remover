@@ -3,6 +3,16 @@ import { storage } from '#imports'
 
 export const parsingStatusItem = storage.defineItem<ParsingStatus | null>('local:parsingStatus')
 
+export function normalizeSiteHostname(hostname: string): string {
+  return hostname.replace(/^www\./, '')
+}
+
+export interface ParsingStatusInput {
+  status: Omit<ParsingStatus, 'site' | 'timestamp'>
+  hostname: string
+  theme: UserSettings['theme']
+}
+
 export class SiteFiltering {
   /**
    * Gets the parsing status from local storage
@@ -14,31 +24,31 @@ export class SiteFiltering {
 
   /**
    * Updates the parsing status in local storage
-   * @param status - The status to update
    */
   async updateParsingStatus({
     status,
     hostname,
     theme,
-  }: {
-    status: Omit<ParsingStatus, 'site' | 'timestamp'>
-    hostname: string
-    theme: UserSettings['theme']
-  }) {
-    const timestamp = Date.now()
+    emitParsingStatusChangeMessage = true,
+  }: ParsingStatusInput & {
+    emitParsingStatusChangeMessage?: boolean
+  }): Promise<ParsingStatus> {
     const newStatus: ParsingStatus = {
       ...status,
-      site: hostname,
-      timestamp,
+      site: normalizeSiteHostname(hostname),
+      timestamp: Date.now(),
     }
     await parsingStatusItem.setValue(newStatus)
-    await browser.runtime.sendMessage({
-      type: 'PARSING_STATUS_CHANGE',
-      data: {
-        status: newStatus,
-        theme,
-      },
-    })
+    if (emitParsingStatusChangeMessage) {
+      await browser.runtime.sendMessage({
+        type: 'PARSING_STATUS_CHANGE',
+        data: {
+          status: newStatus,
+          theme,
+        },
+      })
+    }
+    return newStatus
   }
 
   /**
@@ -152,7 +162,7 @@ export class SiteFiltering {
     reason: 'extension_disabled' | 'blocked_by_blocklist' | 'allowed_by_allowlist' | 'blocked_by_default' | 'enabled'
   } {
     const { hostname, pathname } = window.location
-    const normalizedHostname = hostname.replace(/^www\./, '')
+    const normalizedHostname = normalizeSiteHostname(hostname)
     const normalizedPathname = pathname.replace(/\/+$/, '') || '/'
     const fullUrl = `${normalizedHostname}${normalizedPathname}`
     const allowMatch = this.getMostSpecificMatch(config.allowlist, fullUrl)
