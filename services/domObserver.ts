@@ -5,6 +5,13 @@ const scheduleIdle: (cb: () => void) => void
     ? cb => requestIdleCallback(cb, { timeout: 100 })
     : cb => setTimeout(cb, 0)
 
+/** Shared so reconnect cannot drift from the initial observe() config */
+const OBSERVE_OPTIONS: MutationObserverInit = {
+  childList: true,
+  subtree: true,
+  characterData: true,
+}
+
 export class DOMObserver {
   private observer: MutationObserver | null = null
   private textProcessor: TextProcessor
@@ -13,20 +20,19 @@ export class DOMObserver {
     this.textProcessor = textProcessor
   }
 
+  private matchesQuickCheck(text: string, quickCheck: RegExp): boolean {
+    quickCheck.lastIndex = 0
+    return quickCheck.test(text)
+  }
+
   private hasAnyMatch(root: HTMLElement, quickCheck: RegExp): boolean {
     const text = root.textContent
-    if (text) {
-      quickCheck.lastIndex = 0
-      if (quickCheck.test(text)) return true
-    }
+    if (text && this.matchesQuickCheck(text, quickCheck)) return true
 
     // Check the root element itself (querySelectorAll only searches descendants)
     for (const attr of TextProcessor.accessibilityAttributes) {
       const value = root.getAttribute(attr)
-      if (value) {
-        quickCheck.lastIndex = 0
-        if (quickCheck.test(value)) return true
-      }
+      if (value && this.matchesQuickCheck(value, quickCheck)) return true
     }
 
     const selector = TextProcessor.accessibilityAttributes
@@ -36,13 +42,33 @@ export class DOMObserver {
     for (const el of nodes) {
       for (const attr of TextProcessor.accessibilityAttributes) {
         const value = el.getAttribute(attr)
-        if (value) {
-          quickCheck.lastIndex = 0
-          if (quickCheck.test(value)) return true
-        }
+        if (value && this.matchesQuickCheck(value, quickCheck)) return true
       }
     }
     return false
+  }
+
+  /**
+   * characterData updates are small but high volume, run quick check
+   * on content before adding overhead of enqueuing
+   */
+  private shouldEnqueueCharacterData(
+    mutation: MutationRecord,
+    quickCheck: RegExp | null,
+  ): HTMLElement | null {
+    if (!quickCheck) return null
+    if (mutation.target.nodeType !== Node.TEXT_NODE) return null
+
+    const textNode = mutation.target as Text
+    const parent = textNode.parentElement
+    if (!parent) return null
+
+    const value = textNode.nodeValue
+    if (!value) return null
+
+    if (!this.matchesQuickCheck(value, quickCheck)) return null
+
+    return parent
   }
 
   setup(replacements: Map<RegExp, string>): void {
@@ -77,6 +103,10 @@ export class DOMObserver {
             }
           })
         }
+        else if (mutation.type === 'characterData') {
+          const parent = this.shouldEnqueueCharacterData(mutation, quickCheck)
+          if (parent) pendingRoots.add(parent)
+        }
       }
       if (pendingRoots.size > 0 && !scheduled) {
         const observerForThisFlush = this.observer
@@ -108,19 +138,13 @@ export class DOMObserver {
             }
           }
           finally {
-            observerForThisFlush.observe(document.body, {
-              childList: true,
-              subtree: true,
-            })
+            observerForThisFlush.observe(document.body, OBSERVE_OPTIONS)
           }
         })
       }
     })
 
-    this.observer.observe(document.body, {
-      childList: true,
-      subtree: true,
-    })
+    this.observer.observe(document.body, OBSERVE_OPTIONS)
   }
 
   disconnect(): void {
