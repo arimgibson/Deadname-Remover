@@ -7,11 +7,14 @@ import {
   blockContent,
   unblockContent,
   waitUntilDOMReady,
-  createReplacementsMap,
+  createReplacements,
   setStyle,
 } from './utils'
 import { debugLog, haveNamesChanged, registerKeyboardShortcut } from '@/utils'
-import { SiteFiltering, type ParsingStatusInput } from '@/services/siteFiltering'
+import {
+  SiteFiltering,
+  type ParsingStatusInput,
+} from '@/services/siteFiltering'
 
 let currentObserver: DOMObserver | null = null
 let previousEnabled: boolean | undefined = undefined
@@ -48,12 +51,14 @@ async function publishParsingStatus(
     await siteFiltering.updateParsingStatus(args)
     return
   }
-  await browser.runtime.sendMessage({
-    type: 'CANDIDATE_PARSING_STATUS',
-    data: args,
-  }).catch(() => {
-    // Service worker may be restarting; candidate dropped and recovered on next tab focus
-  })
+  await browser.runtime
+    .sendMessage({
+      type: 'CANDIDATE_PARSING_STATUS',
+      data: args,
+    })
+    .catch(() => {
+      // Service worker may be restarting; candidate dropped and recovered on next tab focus
+    })
 }
 
 async function configureAndRunProcessor({
@@ -67,16 +72,19 @@ async function configureAndRunProcessor({
   if (!config.enabled) {
     const wasEnabledBeforeCleanup = previousEnabled
     cleanupAndReset()
-    await publishParsingStatus({
-      status: {
-        isParsing: false,
-        reason: 'extension_disabled',
-        allowMatch: null,
-        blockMatch: null,
+    await publishParsingStatus(
+      {
+        status: {
+          isParsing: false,
+          reason: 'extension_disabled',
+          allowMatch: null,
+          blockMatch: null,
+        },
+        hostname: window.location.hostname,
+        theme: config.theme,
       },
-      hostname: window.location.hostname,
-      theme: config.theme,
-    }, statusMode)
+      statusMode,
+    )
     if (wasEnabledBeforeCleanup) {
       await debugLog('extension disabled')
     }
@@ -88,39 +96,51 @@ async function configureAndRunProcessor({
 
   if (!siteFilterResult.shouldParse) {
     cleanupAndReset()
-    await publishParsingStatus({
+    await publishParsingStatus(
+      {
+        status: {
+          isParsing: false,
+          reason: siteFilterResult.reason,
+          allowMatch: siteFilterResult.allowMatch,
+          blockMatch: siteFilterResult.blockMatch,
+        },
+        hostname: window.location.hostname,
+        theme: config.theme,
+      },
+      statusMode,
+    )
+    await debugLog(
+      `not parsing site, reason: ${siteFilterResult.reason}, allowMatch: ${siteFilterResult.allowMatch ?? 'none'}, blockMatch: ${siteFilterResult.blockMatch ?? 'none'}`,
+    )
+    return
+  }
+
+  // If we reach here, parsing is enabled
+  await publishParsingStatus(
+    {
       status: {
-        isParsing: false,
+        isParsing: true,
         reason: siteFilterResult.reason,
         allowMatch: siteFilterResult.allowMatch,
         blockMatch: siteFilterResult.blockMatch,
       },
       hostname: window.location.hostname,
       theme: config.theme,
-    }, statusMode)
-    await debugLog(`not parsing site, reason: ${siteFilterResult.reason}, allowMatch: ${siteFilterResult.allowMatch ?? 'none'}, blockMatch: ${siteFilterResult.blockMatch ?? 'none'}`)
-    return
-  }
-
-  // If we reach here, parsing is enabled
-  await publishParsingStatus({
-    status: {
-      isParsing: true,
-      reason: siteFilterResult.reason,
-      allowMatch: siteFilterResult.allowMatch,
-      blockMatch: siteFilterResult.blockMatch,
     },
-    hostname: window.location.hostname,
-    theme: config.theme,
-  }, statusMode)
+    statusMode,
+  )
 
   // Check if names, theme, or highlightReplacedNames have changed
-  const namesChanged = previousEnabled && haveNamesChanged(previousNames, config.names)
+  const namesChanged
+    = previousEnabled && haveNamesChanged(previousNames, config.names)
   const themeChanged = previousEnabled && previousTheme !== config.theme
-  const highlightChanged = previousEnabled && previousHighlight !== config.highlightReplacedNames
+  const highlightChanged
+    = previousEnabled && previousHighlight !== config.highlightReplacedNames
 
   if (namesChanged) {
-    await debugLog('names changed, reverting replacements to reapply with new names')
+    await debugLog(
+      'names changed, reverting replacements to reapply with new names',
+    )
     TextProcessor.revertAllReplacements()
   }
 
@@ -147,7 +167,7 @@ async function configureAndRunProcessor({
     const domObserver = new DOMObserver(textProcessor)
     currentObserver = domObserver
 
-    const replacements = createReplacementsMap(config.names)
+    const replacements = createReplacements(config.names)
 
     await debugLog('replacements', replacements)
     if (config.blockContentBeforeDone) {
@@ -192,12 +212,18 @@ export default defineContentScript({
 
     const config = await getConfig()
     await configureAndRunProcessor({ config })
-    toggleKeybindingListener = await registerKeyboardShortcut({ config, listener: toggleKeybindingListener })
+    toggleKeybindingListener = await registerKeyboardShortcut({
+      config,
+      listener: toggleKeybindingListener,
+    })
 
     setupConfigListener((config) => {
       void (async () => {
         await configureAndRunProcessor({ config, statusMode: 'candidate' })
-        toggleKeybindingListener = await registerKeyboardShortcut({ config, listener: toggleKeybindingListener })
+        toggleKeybindingListener = await registerKeyboardShortcut({
+          config,
+          listener: toggleKeybindingListener,
+        })
       })()
     })
 
