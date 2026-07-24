@@ -45,12 +45,12 @@ export class DOMObserver {
     return false
   }
 
-  setup(replacements: Map<RegExp, string>): void {
+  setup(replacements: Replacements): void {
     // Clean up any existing observer
     this.disconnect()
 
     const quickCheckSources: string[] = []
-    for (const pattern of replacements.keys()) {
+    for (const { pattern } of replacements) {
       // Strip Unicode word boundary lookaround for fast pre-check
       const core = pattern.source
         .replace(/^\(\?<!\\p\{L\}\)/, '')

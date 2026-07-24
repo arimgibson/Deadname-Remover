@@ -1,9 +1,16 @@
 import { createReplacementPattern } from '@/services/textProcessor'
 import { debugLog, kebabToCamel } from '@/utils'
-import type { Names, ReplacementsMap, NameEntry, UserSettings } from '@/utils/types'
+import type {
+  Names,
+  Replacements,
+  UserSettings,
+} from '@/utils/types'
 
 export async function waitUntilDOMReady() {
-  if (document.readyState !== 'complete' && document.readyState !== 'interactive') {
+  if (
+    document.readyState !== 'complete'
+    && document.readyState !== 'interactive'
+  ) {
     await debugLog('waiting for DOM to be ready')
     await new Promise((resolve) => {
       document.addEventListener('DOMContentLoaded', resolve, { once: true })
@@ -38,13 +45,26 @@ export function unblockContent() {
   document.getElementById('deadname-remover-blocker')?.remove()
 }
 
-export function createReplacementsMap(names: Names): ReplacementsMap {
-  const replacements: ReplacementsMap = new Map<RegExp, string>()
-  Object.values(names).forEach((nameArray: NameEntry[]) => {
-    nameArray.forEach(({ mappings }) => {
-      replacements.set(createReplacementPattern(mappings[0]), mappings[1])
-    })
-  })
+export function createReplacements(names: Names): Replacements {
+  const replacements: ReplacementEntry[] = []
+
+  const addEntries = (entries: readonly NameEntry[] | readonly EmailEntry[]) => {
+    for (const { mappings } of entries) {
+      replacements.push({
+        literal: mappings[0],
+        pattern: createReplacementPattern(mappings[0]),
+        replacement: mappings[1],
+      })
+    }
+  }
+
+  addEntries(names.first)
+  addEntries(names.middle)
+  addEntries(names.last)
+  addEntries(names.email)
+
+  replacements.sort((a, b) => b.literal.length - a.literal.length)
+
   return replacements
 }
 
@@ -60,8 +80,10 @@ export function setStyle({
   document.querySelector('style[deadname]')?.remove()
 
   const backgroundStyling = {
-    'non-binary': 'linear-gradient(90deg, rgb(255, 244, 48) 0%, white 25%, rgb(156, 89, 209) 50%, white 75%, rgb(255, 244, 48) 100%)',
-    'trans': 'linear-gradient(90deg, rgba(85,205,252) 0%, rgb(247,168,184) 25%, white 50%, rgb(247,168,184) 75%, rgb(85,205,252) 100%)',
+    'non-binary':
+      'linear-gradient(90deg, rgb(255, 244, 48) 0%, white 25%, rgb(156, 89, 209) 50%, white 75%, rgb(255, 244, 48) 100%)',
+    'trans':
+      'linear-gradient(90deg, rgba(85,205,252) 0%, rgb(247,168,184) 25%, white 50%, rgb(247,168,184) 75%, rgb(85,205,252) 100%)',
     'high-contrast': 'yellow',
   } as const
 

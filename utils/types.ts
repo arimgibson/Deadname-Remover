@@ -1,12 +1,23 @@
 import * as v from 'valibot'
-import { validateNoDuplicateDeadnames, validateNoRecursiveMappings, validateNoSelfMappings, validURLMatcher } from './validations'
+import {
+  validateNoDuplicateDeadnames,
+  validateNoRecursiveMappings,
+  validateNoSelfMappings,
+  validURLMatcher,
+} from './validations'
 
 const trimmedString = v.pipe(v.string(), v.trim(), v.nonEmpty())
 export const trimmedEmail = v.pipe(trimmedString, v.email())
 const NameTuple = v.tuple([trimmedString, trimmedString])
 const EmailTuple = v.tuple([trimmedEmail, trimmedEmail])
-const validURL = v.pipe(trimmedString, v.check(url => validURLMatcher.match(url), 'Invalid URL'))
-const validAllowBlockListUrl = v.pipe(validURL, v.maxLength(253, 'Domain name is too long'))
+const validURL = v.pipe(
+  trimmedString,
+  v.check(url => validURLMatcher.match(url), 'Invalid URL'),
+)
+const validAllowBlockListUrl = v.pipe(
+  validURL,
+  v.maxLength(253, 'Domain name is too long'),
+)
 
 /**
  * Represents a mapping of proper names to deadnames.
@@ -33,16 +44,20 @@ export interface Names {
   email: EmailEntry[]
 }
 
-export const themes = [{
-  label: 'Trans',
-  value: 'trans',
-}, {
-  label: 'Non-Binary',
-  value: 'non-binary',
-}, {
-  label: 'High Contrast (Yellow)',
-  value: 'high-contrast',
-}] as const
+export const themes = [
+  {
+    label: 'Trans',
+    value: 'trans',
+  },
+  {
+    label: 'Non-Binary',
+    value: 'non-binary',
+  },
+  {
+    label: 'High Contrast (Yellow)',
+    value: 'high-contrast',
+  },
+] as const
 
 export interface SettingsKey {
   label: string
@@ -122,11 +137,22 @@ export interface UserSettingsStorageVersion4 extends UserSettingsStorageVersion3
   } | null
 }
 
-export type ReplacementsMap = Map<RegExp, string>
+export interface ReplacementEntry {
+  literal: string
+  pattern: RegExp
+  replacement: string
+}
+
+export type Replacements = readonly ReplacementEntry[]
 
 export interface ParsingStatus {
   isParsing: boolean
-  reason?: 'extension_disabled' | 'blocked_by_blocklist' | 'allowed_by_allowlist' | 'blocked_by_default' | 'enabled'
+  reason?:
+    | 'extension_disabled'
+    | 'blocked_by_blocklist'
+    | 'allowed_by_allowlist'
+    | 'blocked_by_default'
+    | 'enabled'
   site?: string
   timestamp?: number
   allowMatch?: string | null

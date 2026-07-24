@@ -1,6 +1,6 @@
 import { getDataKey } from '@/entrypoints/content/utils'
 import { debugLog } from '@/utils'
-import type { ReplacementsMap } from '@/utils/types'
+import type { Replacements } from '@/utils/types'
 
 interface TextMatch {
   text: string
@@ -53,7 +53,10 @@ export class TextProcessor {
   // https://developer.mozilla.org/en-US/docs/Web/HTML/Attributes
   // https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes
   // https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/Attributes
-  private static readonly excludedAttributes: Record<string, readonly string[]> = {
+  private static readonly excludedAttributes: Record<
+    string,
+    readonly string[]
+  > = {
     'contenteditable': ['true', ''],
     'role': [
       'checkbox',
@@ -115,11 +118,12 @@ export class TextProcessor {
    */
   processSubtree(
     root: HTMLElement,
-    replacements: ReplacementsMap,
+    replacements: Replacements,
     asyncProcessing = true,
   ): Promise<void> | void {
     // TreeWalker.nextNode() doesn't yield the root — handle it explicitly
-    if (!this.shouldProcessElement(root)) return asyncProcessing ? Promise.resolve() : undefined
+    if (!this.shouldProcessElement(root))
+      return asyncProcessing ? Promise.resolve() : undefined
     this.processElementNode(root, replacements)
     const skipTextUntil: { current: HTMLElement | null } = {
       current: this.isFormOrEditable(root) ? root : null,
@@ -167,7 +171,7 @@ export class TextProcessor {
     asyncProcessing = true,
   }: {
     root: HTMLElement
-    replacements: ReplacementsMap
+    replacements: Replacements
     asyncProcessing?: boolean
   }): Promise<void> {
     const startTime = performance.now()
@@ -175,14 +179,13 @@ export class TextProcessor {
     // Process document title synchronously.
     if (document.title) {
       TextProcessor.originalTitle = document.title
-      replacements.forEach((replacement, pattern) => {
-        if (pattern.test(document.title)) {
-          document.title = document.title.replace(pattern, match =>
-            caseMatchReplacement(match, replacement),
-          )
-          this.metrics.replacementsMade++
-        }
-      })
+      for (const { pattern, replacement } of replacements) {
+        pattern.lastIndex = 0
+
+        document.title = document.title.replace(pattern, match =>
+          caseMatchReplacement(match, replacement),
+        )
+      }
     }
 
     await this.processSubtree(root, replacements, asyncProcessing)
@@ -194,7 +197,8 @@ export class TextProcessor {
       await debugLog('replacement metrics', {
         nodesProcessed: this.metrics.nodesProcessed,
         replacementsMade: this.metrics.replacementsMade,
-        accessibilityAttributesUpdated: this.metrics.accessibilityAttributesUpdated,
+        accessibilityAttributesUpdated:
+          this.metrics.accessibilityAttributesUpdated,
         processingTime: `${this.metrics.processingTime.toFixed(2)}ms`,
       })
     }
@@ -229,8 +233,11 @@ export class TextProcessor {
    * Form controls and editable regions: process attributes but not descendant text (matches legacy shouldProcessText).
    */
   private isFormOrEditable(element: HTMLElement): boolean {
-    if (TextProcessor.formElements.has(element.tagName.toLowerCase())) return true
-    for (const [attr, values] of Object.entries(TextProcessor.excludedAttributes)) {
+    if (TextProcessor.formElements.has(element.tagName.toLowerCase()))
+      return true
+    for (const [attr, values] of Object.entries(
+      TextProcessor.excludedAttributes,
+    )) {
       const attrValue = element.getAttribute(attr)?.toLowerCase()
       if (attrValue !== undefined && values.includes(attrValue)) return true
     }
@@ -240,7 +247,7 @@ export class TextProcessor {
   private processWalkerNode(
     node: Node,
     walker: TreeWalker,
-    replacements: ReplacementsMap,
+    replacements: Replacements,
     skipTextUntil: { current: HTMLElement | null },
   ): void {
     if (skipTextUntil.current && !skipTextUntil.current.contains(node)) {
@@ -256,7 +263,10 @@ export class TextProcessor {
     else if (node.nodeType === Node.TEXT_NODE) {
       if (!skipTextUntil.current) {
         const textNode = node as Text
-        const matches = this.findMatches(textNode.nodeValue ?? '', replacements)
+        const matches = this.findMatches(
+          textNode.nodeValue ?? '',
+          replacements,
+        )
         if (matches.length > 0) {
           const lastInserted = this.replaceTextInNode(textNode, matches)
           // TreeWalker keeps a detached currentNode after replaceChild; sync to inserted subtree.
@@ -266,12 +276,14 @@ export class TextProcessor {
     }
   }
 
-  private findMatches(text: string, replacements: ReplacementsMap): TextMatch[] {
+  private findMatches(text: string, replacements: Replacements): TextMatch[] {
     const matches: TextMatch[] = []
 
-    for (const [pattern, replacement] of replacements) {
-      pattern.lastIndex = 0 // Reset for global patterns
+    for (const { pattern, replacement } of replacements) {
+      pattern.lastIndex = 0
+
       let match
+
       while ((match = pattern.exec(text)) !== null) {
         matches.push({
           text: match[0],
@@ -284,32 +296,56 @@ export class TextProcessor {
 
     // Need to sort matches by index to ensure they are processed in order
     // since we are looping through multiple replacement patterns
-    return matches.sort((a, b) => a.index - b.index)
+    matches.sort((a, b) => {
+      if (a.index !== b.index) {
+        return a.index - b.index
+      }
+
+      // If two matches start at the same place,
+      // keep the longer one first.
+      return b.text.length - a.text.length
+    })
+
+    const filtered: TextMatch[] = []
+    let lastEnd = -1
+
+    for (const match of matches) {
+      const end = match.index + match.text.length
+
+      if (match.index >= lastEnd) {
+        filtered.push(match)
+        lastEnd = end
+      }
+    }
+
+    return filtered
   }
 
-  private processElementNode(node: Node, replacements: ReplacementsMap): void {
+  private processElementNode(node: Node, replacements: Replacements): void {
     this.metrics.nodesProcessed++
 
     const element = node as HTMLElement
 
     for (const attr of TextProcessor.accessibilityAttributes) {
-      if (element.hasAttribute(attr)) {
-        const value = element.getAttribute(attr)
-        if (value) {
-          let newValue = value
-          replacements.forEach((replacement, pattern) => {
-            newValue = newValue.replaceAll(pattern, match =>
-              caseMatchReplacement(match, replacement),
-            )
-          })
+      if (!element.hasAttribute(attr)) continue
 
-          if (newValue !== value) {
-            // Store original value before replacement (camelCase)
-            element.dataset[getDataKey(attr)] = value
-            element.setAttribute(attr, newValue)
-            this.metrics.accessibilityAttributesUpdated++
-          }
-        }
+      const value = element.getAttribute(attr)
+      if (!value) continue
+
+      let newValue = value
+
+      for (const { pattern, replacement } of replacements) {
+        pattern.lastIndex = 0
+
+        newValue = newValue.replace(pattern, match =>
+          caseMatchReplacement(match, replacement),
+        )
+      }
+
+      if (newValue !== value) {
+        element.dataset[getDataKey(attr)] = value
+        element.setAttribute(attr, newValue)
+        this.metrics.accessibilityAttributesUpdated++
       }
     }
   }
@@ -357,7 +393,8 @@ export class TextProcessor {
 
   private shouldProcessElement(element: HTMLElement): boolean {
     return !(
-      (element.tagName.toLowerCase() === 'mark' && element.hasAttribute('deadname'))
+      (element.tagName.toLowerCase() === 'mark'
+        && element.hasAttribute('deadname'))
       || element.tagName.toLowerCase() === 'script'
       || element.tagName.toLowerCase() === 'style'
       || element.tagName.toLowerCase() === 'noscript'
