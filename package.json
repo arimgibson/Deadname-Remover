@@ -59,7 +59,7 @@
     "typescript-eslint": "^8.60.0",
     "unocss": "^66.7.0",
     "vitest": "^4.1.7",
-    "wxt": "^0.20.26"
+    "wxt": "^0.21.3"
   },
   "dependencies": {
     "@fontsource-variable/inter": "^5.2.8",
