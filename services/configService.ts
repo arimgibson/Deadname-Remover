@@ -1,10 +1,10 @@
 import { siteFiltering } from '@/services/siteFiltering'
 import {
   UserSettings,
-  UserSettingsStorageVersion1,
-  UserSettingsStorageVersion2,
-  UserSettingsStorageVersion3,
-  UserSettingsStorageVersion4,
+  type UserSettingsStorageVersion1,
+  type UserSettingsStorageVersion2,
+  type UserSettingsStorageVersion3,
+  type UserSettingsStorageVersion4,
 } from '@/utils/types'
 import { storage } from '#imports'
 import { browser } from 'wxt/browser'

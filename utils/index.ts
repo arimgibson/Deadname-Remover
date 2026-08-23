@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unnecessary-condition */
 import type { Difference } from 'microdiff'
-import { Names, UserSettings } from './types'
+import { type Names, UserSettings } from './types'
 import { getConfig, setConfig } from '@/services/configService'
 
 export async function debugLog(message: string, ...data: unknown[]) {
@@ -47,8 +47,14 @@ export function haveNamesChanged(previous: Names | undefined, current: Names): b
 
     // Compare each [deadname, chosenname] tuple
     for (let i = 0; i < prevNames.length; i++) {
-      const [prevDead, prevChosen] = prevNames[i].mappings
-      const [currDead, currChosen] = currNames[i].mappings
+      const prev = prevNames[i]
+      const curr = currNames[i]
+      if (!prev || !curr) {
+        return true
+      }
+
+      const [prevDead, prevChosen] = prev.mappings
+      const [currDead, currChosen] = curr.mappings
 
       if (prevDead !== currDead || prevChosen !== currChosen) {
         return true

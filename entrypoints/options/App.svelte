@@ -57,14 +57,14 @@
     if (initialSettings) {
       const changes = diff(initialSettings, settings)
 
-      // Find index of first keybinding change (if any)
-      const keybindingIndex = changes.findIndex(c => c.path[0] === 'toggleKeybinding')
+      // Find first keybinding change (if any)
+      const keybindingChange = changes.find(c => c.path[0] === 'toggleKeybinding')
 
       // Create a filtered list with at most one keybinding change
-      const normalizedChanges = keybindingIndex >= 0
+      const normalizedChanges = keybindingChange
         ? [
             // Add the representative keybinding change (just use the first one)
-            changes[keybindingIndex],
+            keybindingChange,
             // Add all non-keybinding changes
             ...changes.filter(c => c.path[0] !== 'toggleKeybinding'),
           ]

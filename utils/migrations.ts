@@ -1,6 +1,6 @@
 import { storage } from '#imports'
 import { browser } from 'wxt/browser'
-import { UserSettings, UserSettingsStorageVersion1 } from '@/utils/types'
+import type { UserSettings, UserSettingsStorageVersion1 } from '@/utils/types'
 import { defaultSettings, setConfig } from '@/services/configService'
 import { errorLog, debugLog } from '.'
 

@@ -37,7 +37,10 @@ describe('DOMObserver', () => {
 
     observer.setup(new Map([[createReplacementPattern('Deadname'), 'Chosen']]))
 
-    const [instance] = FakeMutationObserver.instances
+    const instance = FakeMutationObserver.instances[0]
+    if (!instance) {
+      throw new Error('expected MutationObserver instance')
+    }
     expect(instance.lastObserveOptions?.characterData).toBe(true)
   })
 
@@ -61,7 +64,10 @@ describe('DOMObserver', () => {
       parentElement: fakeParent,
     } as unknown as Node
 
-    const [instance] = FakeMutationObserver.instances
+    const instance = FakeMutationObserver.instances[0]
+    if (!instance) {
+      throw new Error('expected MutationObserver instance')
+    }
     instance.callback(
       [{ type: 'characterData', target: fakeTextNode } as unknown as MutationRecord],
       instance as unknown as MutationObserver,

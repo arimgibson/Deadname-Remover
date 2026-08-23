@@ -41,7 +41,7 @@
         >
         <div class="relative">
           <div class="space-y-2">
-            {#each settings.names[name.value] as _names, index (name.value + '-' + String(index))}
+            {#each settings.names[name.value] as nameEntry, index (name.value + '-' + String(index))}
               <div
                 class="name-pair-row-grid gap-2 items-center"
                 role="group"
@@ -56,8 +56,7 @@
                   aria-required="true"
                   aria-label="Deadname"
                   autocomplete="off"
-                  bind:value={settings.names[name.value][index]
-                    .mappings[0]}
+                  bind:value={nameEntry.mappings[0]}
                   onkeydown={(e: KeyboardEvent) => {
                     if (e.key === 'Enter') {
                       e.preventDefault()
@@ -88,8 +87,7 @@
                   placeholder={name.value === 'email' ? 'New email' : 'Proper name'}
                   aria-required="true"
                   aria-label="Proper name"
-                  bind:value={settings.names[name.value][index]
-                    .mappings[1]}
+                  bind:value={nameEntry.mappings[1]}
                   onkeydown={(e: KeyboardEvent) => {
                     if (e.key === 'Enter') {
                       e.preventDefault()
