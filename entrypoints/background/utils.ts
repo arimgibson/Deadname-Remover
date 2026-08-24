@@ -1,4 +1,4 @@
-import { browser, Browser } from 'wxt/browser'
+import { browser, type Browser } from 'wxt/browser'
 import {
   checkAndMigrateSettings,
   createStealthUpgradeNotification,

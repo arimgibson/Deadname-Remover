@@ -4,7 +4,7 @@ import {
   validateNoRecursiveMappings,
   validateNoSelfMappings,
 } from '@/utils/validations'
-import { Names, trimmedEmail } from '@/utils/types'
+import { type Names, trimmedEmail } from '@/utils/types'
 import {
   deadnameErrorMessages,
   emailErrorMessages,

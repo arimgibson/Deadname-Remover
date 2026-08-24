@@ -1,5 +1,9 @@
 # Changelog
 
+## v2.3.1
+
+- Fixed names not being replaced on sites that update text in place (e.g. Oracle Fusion/ADF); the mutation observer now also watches `characterData` changes
+
 ## v2.3.0
 
 - Fixed persistent performance issues with targeted improvements to text processing
