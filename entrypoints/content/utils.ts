@@ -73,10 +73,11 @@ export function setStyle({
   // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
   const sheet = (style as HTMLStyleElement).sheet!
   sheet.insertRule(`
-    /* Styling for the Ari's Deadname Remover extension. Selection based on attribute to avoid styling conflicts based on class. */
-    mark[deadname] {
-      background: ${highlight ? backgroundStyling[theme] : 'none'};
-      color: ${highlight ? 'black' : 'inherit'};
+    /* Styling for the Deadname Remover extension. Selection based on attribute to avoid styling conflicts based on class. */
+    span[deadname] {
+      all: unset !important;
+      background: ${highlight ? backgroundStyling[theme] : 'none'} !important;
+      color: ${highlight ? 'black' : 'inherit'} !important;
     }
   `)
 }

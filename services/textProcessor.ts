@@ -319,7 +319,7 @@ export class TextProcessor {
     if (!originalText || !textNode.parentNode) return null
 
     let lastIndex = 0
-    // Create a fragment to hold the text and marks before replacement
+    // Create a fragment to hold the text and replacement spans before replacement
     const fragments = new DocumentFragment()
 
     matches.forEach(({ text, index, replacement }) => {
@@ -330,12 +330,12 @@ export class TextProcessor {
         )
       }
 
-      // Create marked replacement (highlight determined by theme, set in style)
-      const markElement = document.createElement('mark')
-      markElement.setAttribute('deadname', '')
-      markElement.dataset.original = text
-      markElement.textContent = caseMatchReplacement(text, replacement)
-      fragments.appendChild(markElement)
+      // Create span replacement (highlight determined by theme, set in style)
+      const spanElement = document.createElement('span')
+      spanElement.setAttribute('deadname', '')
+      spanElement.dataset.original = text
+      spanElement.textContent = caseMatchReplacement(text, replacement)
+      fragments.appendChild(spanElement)
 
       this.metrics.replacementsMade++
 
@@ -357,7 +357,7 @@ export class TextProcessor {
 
   private shouldProcessElement(element: HTMLElement): boolean {
     return !(
-      (element.tagName.toLowerCase() === 'mark' && element.hasAttribute('deadname'))
+      (element.tagName.toLowerCase() === 'span' && element.hasAttribute('deadname'))
       || element.tagName.toLowerCase() === 'script'
       || element.tagName.toLowerCase() === 'style'
       || element.tagName.toLowerCase() === 'noscript'
@@ -388,12 +388,12 @@ export class TextProcessor {
       })
     })
 
-    const replacedMarks = document.querySelectorAll('mark[deadname]')
-    replacedMarks.forEach((mark) => {
-      const original = (mark as HTMLElement).dataset.original
+    const replacedSpans = document.querySelectorAll('span[deadname]')
+    replacedSpans.forEach((span) => {
+      const original = (span as HTMLElement).dataset.original
       if (original) {
         const textNode = document.createTextNode(original)
-        mark.parentNode?.replaceChild(textNode, mark)
+        span.parentNode?.replaceChild(textNode, span)
       }
     })
   }
