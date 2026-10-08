@@ -1,6 +1,34 @@
 import { describe, expect, it } from 'vitest'
-import { validateNoRecursiveMappings, validateNoDuplicateDeadnames, validateNoSelfMappings } from '../validations'
+import { validateNoRecursiveMappings, validateNoDuplicateDeadnames, validateNoSelfMappings, validURLMatcher } from '../validations'
 import type { Names } from '../types'
+
+describe('validURLMatcher', () => {
+  it.each([
+    'localhost',
+    'localhost:3000',
+    'localhost/admin*',
+    'http://localhost',
+    'http://localhost:3000/admin',
+    'https://localhost:8080/',
+    'example.com',
+    '*.example.com',
+    'example.com/path*',
+    'https://example.com:8080/path',
+  ])('should accept site pattern %s', (pattern) => {
+    expect(validURLMatcher.match(pattern)).toBe(true)
+  })
+
+  it.each([
+    '',
+    'localhos',
+    'localhostevil',
+    'http://localhostevil',
+    'ftp://localhost',
+    'localhost/a path',
+  ])('should reject invalid site pattern %s', (pattern) => {
+    expect(validURLMatcher.match(pattern)).toBe(false)
+  })
+})
 
 describe('validateNoDuplicateDeadnames', () => {
   it('should return true for no names provided', () => {

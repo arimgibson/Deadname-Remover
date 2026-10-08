@@ -53,7 +53,8 @@ export function validateNoRecursiveMappings(nameMappings: Names) {
 export const validURLMatcher = {
   match: (url: string) => {
     // Allow wildcard patterns and flexible domain/path matching for site filtering
-    // Supports: domain.com, *.domain.com, domain.com/path*, https://domain.com, etc.
-    return /^(https?:\/\/)?[\w*.-]+\.[\w*.-]+([/\w*._~:/?#[\]@!$&'()+,;=%-]*)?$/.test(url)
+    // Supports: domain.com, *.domain.com, domain.com/path*, https://domain.com, localhost, etc.
+    // Require a boundary after localhost so unrelated single-label hosts remain invalid.
+    return /^(https?:\/\/)?(?:localhost(?=[:/?#]|$)|[\w*.-]+\.[\w*.-]+)([/\w*._~:/?#[\]@!$&'()+,;=%-]*)?$/.test(url)
   },
 }
