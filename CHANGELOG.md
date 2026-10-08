@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- Fixed saving localhost to the allowlist or blocklist from the popup and options page
+
 ## v2.3.1
 
 - Fixed names not being replaced on sites that update text in place (e.g. Oracle Fusion/ADF); the mutation observer now also watches `characterData` changes

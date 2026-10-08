@@ -411,6 +411,26 @@ describe('SiteFiltering', () => {
     })
 
     describe('URL processing', () => {
+      it.each(['allowlist', 'blocklist'] as const)('should apply the %s to localhost', (list) => {
+        mockLocation.hostname = 'localhost'
+        mockLocation.pathname = '/page'
+
+        const config: UserSettings = {
+          ...baseConfigWithoutDefaultAllow,
+          defaultAllowMode: list === 'blocklist',
+          [list]: ['localhost'],
+        }
+
+        const result = siteFiltering.shouldParseSite({ config })
+
+        expect(result).toEqual({
+          shouldParse: list === 'allowlist',
+          allowMatch: list === 'allowlist' ? 'localhost' : null,
+          blockMatch: list === 'blocklist' ? 'localhost' : null,
+          reason: list === 'allowlist' ? 'allowed_by_allowlist' : 'blocked_by_blocklist',
+        })
+      })
+
       it('should strip www prefix from hostname', () => {
         mockLocation.hostname = 'www.example.com'
         mockLocation.pathname = '/page'
